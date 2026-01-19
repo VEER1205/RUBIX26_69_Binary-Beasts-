@@ -1,14 +1,24 @@
+import ssl
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
-# CHANGE THIS to your actual PostgreSQL URL
-# Format: postgresql+asyncpg://user:password@localhost/dbname
-DATABASE_URL = "postgresql+asyncpg://postgres:password@localhost/hospital_db"
+# 1. REMOVE '?ssl=true' from the end of this URL
+DATABASE_URL = "mysql+aiomysql://2Be3V6pNiFiVyQP.root:2MlrkNzw1XbPLJGN@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/test"
 
-engine = create_async_engine(DATABASE_URL, echo=True)
+# 2. Create a standardized SSL Context
+# This tells Python: "Use SSL, but don't crash if the certificate name doesn't perfectly match" (Good for Hackathons/Cloud DBs)
+ssl_context = ssl.create_default_context()
+ssl_context.check_hostname = False
+ssl_context.verify_mode = ssl.CERT_NONE
 
-# Async Session Factory
+# 3. Pass the SSL Context via connect_args
+engine = create_async_engine(
+    DATABASE_URL, 
+    echo=True,
+    connect_args={"ssl": ssl_context} 
+)
+
 AsyncSessionLocal = sessionmaker(
     bind=engine,
     class_=AsyncSession,
@@ -17,7 +27,6 @@ AsyncSessionLocal = sessionmaker(
 
 Base = declarative_base()
 
-# Dependency to get DB session in endpoints
 async def get_db():
     async with AsyncSessionLocal() as session:
         yield session
