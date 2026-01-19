@@ -8,3 +8,5 @@ python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
 aiomysql
+python-dotenv
+pydantic_settings

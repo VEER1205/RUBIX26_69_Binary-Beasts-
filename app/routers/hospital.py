@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from .. import database, schemas, crud, models
+from .auth import get_current_user 
 
 router = APIRouter(
     prefix="/hospital",
@@ -105,3 +106,54 @@ async def discharge_patient(bed_id: int, db: AsyncSession = Depends(get_db)):
     
     await db.commit()
     return {"message": f"Bed {bed.bed_number} is now AVAILABLE"}
+
+@router.post("/create")
+async def create_new_hospital(
+    hospital_data: schemas.HospitalCreate, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.User = Depends(get_current_user) 
+):
+    # 1. Check Authorization (RBAC)
+    if current_user.role != "admin": 
+        raise HTTPException(status_code=403, detail="Not authorized: Only Admins can create hospitals")
+
+    # 1. Create the Hospital Entry
+    new_hospital = models.Hospital(
+        name=hospital_data.name,
+        location=hospital_data.location,
+        contact_number=hospital_data.contact_number
+    )
+    db.add(new_hospital)
+    await db.commit()
+    await db.refresh(new_hospital) 
+
+    # 2. Automatically Generate Beds based on the counts provided
+    beds_to_add = []
+    
+    # Generate ICU Beds
+    for i in range(1, hospital_data.icu_bed_count + 1):
+        beds_to_add.append(models.Bed(
+            hospital_id=new_hospital.id,
+            bed_number=f"ICU-{i}",
+            bed_type="ICU",
+            status="AVAILABLE"
+        ))
+        
+    # Generate General Beds
+    for i in range(1, hospital_data.general_bed_count + 1):
+        beds_to_add.append(models.Bed(
+            hospital_id=new_hospital.id,
+            bed_number=f"GEN-{i}",
+            bed_type="GENERAL",
+            status="AVAILABLE"
+        ))
+    
+    db.add_all(beds_to_add)
+    await db.commit()
+    
+    return {
+        "message": "Hospital created successfully",
+        "hospital_id": new_hospital.id,
+        "hospital_name": new_hospital.name,
+        "total_beds_created": len(beds_to_add)
+    }

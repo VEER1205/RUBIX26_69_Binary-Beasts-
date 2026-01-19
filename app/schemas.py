@@ -28,3 +28,10 @@ class QueueResponse(BaseModel):
     
     class Config:
         from_attributes = True # Crucial for SQLAlchemy compatibility
+
+class HospitalCreate(BaseModel):
+    name: str
+    location: str
+    contact_number: str
+    icu_bed_count: int
+    general_bed_count: int

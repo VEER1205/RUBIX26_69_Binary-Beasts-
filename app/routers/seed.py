@@ -51,3 +51,39 @@ async def create_test_data(db: AsyncSession = Depends(database.get_db)):
     
     await db.commit()
     return {"message": "Test Hospital, Beds, and Receptionist created!", "hospital_id": hospital.id}
+
+@router.post("/create-second-hospital")
+async def create_second_hospital(db: AsyncSession = Depends(database.get_db)):
+    # 1. Create Apollo Hospital
+    hospital = models.Hospital(
+        name="Apollo City Hospital",
+        location="Mumbai, Bandra East",
+        contact_number="022-5555-6666"
+    )
+    db.add(hospital)
+    await db.commit()
+    await db.refresh(hospital)
+
+    # 2. Create Beds (Different capacity to look real)
+    beds = []
+    # 20 ICU Beds (Bigger hospital)
+    for i in range(1, 21):
+        beds.append(models.Bed(hospital_id=hospital.id, bed_number=f"ICU-{i}", bed_type="ICU", status="AVAILABLE"))
+    # 50 General Beds
+    for i in range(1, 51):
+        beds.append(models.Bed(hospital_id=hospital.id, bed_number=f"GEN-{i}", bed_type="GENERAL", status="AVAILABLE"))
+    
+    db.add_all(beds)
+
+    # 3. Create a Doctor for this hospital
+    doctor = models.User(
+        username="doctor_apollo",
+        hashed_password=pwd_context.hash("doc123"),
+        full_name="Dr. Strange",
+        role="doctor",
+        hospital_id=hospital.id
+    )
+    db.add(doctor)
+    
+    await db.commit()
+    return {"message": "Apollo Hospital Created!", "hospital_id": hospital.id}

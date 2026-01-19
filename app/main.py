@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from .database import engine, Base
-from .routers import hospital,seed
+from .routers import hospital,seed,dashboard,auth
 
 app = FastAPI(title="Hospital Operations Sync")
 
@@ -16,3 +16,5 @@ def read_root():
 
 app.include_router(hospital.router)
 app.include_router(seed.router)
+app.include_router(dashboard.router)
+app.include_router(auth.router)
