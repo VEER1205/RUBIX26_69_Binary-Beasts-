@@ -26,21 +26,27 @@ class PriorityLevel(enum.IntEnum):
     URGENT = 5
     CRITICAL = 10
 
-# --- Database Tables ---
+class UserRole(str, enum.Enum):
+    SUPER_ADMIN = "super_admin"       
+    HOSPITAL_ADMIN = "hospital_admin"
+    DOCTOR = "doctor"
+    RECEPTIONIST = "receptionist"
+    PATIENT = "patient"
 
+
+# --- Database Tables ---
 class User(Base):
     __tablename__ = "users"
-
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String(50), unique=True, index=True) 
+    username = Column(String(50), unique=True, index=True)
     hashed_password = Column(String(255))
     full_name = Column(String(100))
-    
-    
     role = Column(SQL_Enum(UserRole))
-    
     hospital_id = Column(Integer, ForeignKey("hospitals.id"), nullable=True)
     
+    # NEW: For Patient's Next Visit (Simple approach)
+    next_visit_date = Column(DateTime, nullable=True)
+
     hospital = relationship("Hospital", back_populates="staff")
     queue_entry = relationship("OpdQueue", back_populates="patient", uselist=False)
 
@@ -86,3 +92,4 @@ class OpdQueue(Base):
 
     hospital = relationship("Hospital", back_populates="queue")
     patient = relationship("User", back_populates="queue_entry")
+

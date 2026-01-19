@@ -77,6 +77,7 @@ async def get_city_stats(db: AsyncSession = Depends(database.get_db)):
         queue_len = (await db.execute(queue_query)).scalar()
 
         city_data.append({
+            "id": hospital.id,
             "hospital_name": hospital.name,
             "location": hospital.location,
             "contact": hospital.contact_number,

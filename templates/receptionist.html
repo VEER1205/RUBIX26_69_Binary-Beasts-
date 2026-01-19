@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Receptionist - MediSync</title>
+    </head>
+<body>
+    <div class="dashboard-container">
+        <header>
+            <h1>🏥 Receptionist Console</h1>
+            <button onclick="logout()">Logout</button>
+        </header>
+
+        <main>
+            <div class="card">
+                <h2>New Patient Registration</h2>
+                <form id="regForm">
+                    <div class="form-group">
+                        <label>Full Name:</label>
+                        <input type="text" id="fullname" required placeholder="John Doe">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Username (Unique):</label>
+                        <input type="text" id="username" required placeholder="john_doe_123">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Triage Severity (1-10):</label>
+                        <select id="severity" required>
+                            <option value="1">1 - Mild (General Checkup)</option>
+                            <option value="5">5 - Urgent (High Fever, Pain)</option>
+                            <option value="7">7 - Severe (Difficulty Breathing)</option>
+                            <option value="10">10 - Critical (Cardiac/Trauma)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit">Register & Add to Queue</button>
+                </form>
+            </div>
+
+            <div class="card">
+                <h2>Current Queue</h2>
+                <div id="queueList">Loading...</div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        const TOKEN = localStorage.getItem('token');
+        const HOSP_ID = localStorage.getItem('hospital_id');
+
+        if (!TOKEN) window.location.href = "/";
+
+        // 1. REGISTER PATIENT
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const payload = {
+                username: document.getElementById('username').value,
+                full_name: document.getElementById('fullname').value,
+                severity: parseInt(document.getElementById('severity').value)
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/hospital/register-patient?hospital_id=${HOSP_ID}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.detail);
+
+                alert(`Success! Priority Score: ${data.queue_position}`);
+                document.getElementById('regForm').reset();
+                loadQueue(); // Refresh list
+
+            } catch (err) {
+                alert("Error: " + err.message);
+            }
+        });
+
+        // 2. FETCH QUEUE (Read-Only View)
+        async function loadQueue() {
+            const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/queue`, {
+                headers: { 'Authorization': `Bearer ${TOKEN}` }
+            });
+            const queue = await res.json();
+            
+            const list = document.getElementById('queueList');
+            list.innerHTML = queue.length === 0 ? "<p>Queue is empty</p>" : "";
+
+            queue.forEach(p => {
+                list.innerHTML += `
+                    <div class="queue-item">
+                        <strong>${p.patient_id}</strong> - Score: ${p.priority_score} 
+                        (${p.severity >= 7 ? 'CRITICAL' : 'Stable'})
+                    </div>`;
+            });
+        }
+
+        function logout() { localStorage.clear(); window.location.href = "/"; }
+        
+        loadQueue();
+        setInterval(loadQueue, 5000); // Auto-refresh every 5s
+    </script>
+</body>
+</html>

@@ -1,3 +1,4 @@
+import datetime
 from pydantic import BaseModel
 from typing import Optional
 from enum import Enum
@@ -35,3 +36,18 @@ class HospitalCreate(BaseModel):
     contact_number: str
     icu_bed_count: int
     general_bed_count: int
+
+
+class AdminCreate(BaseModel):
+    username: str
+    password: str
+    full_name: str
+    hospital_id: int
+
+class AdmitRequest(BaseModel):
+    queue_id: int
+    bed_type: str 
+
+class VisitRequest(BaseModel):
+    patient_id: int
+    visit_date: datetime.datetime

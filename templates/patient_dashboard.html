@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Health Status</title>
+    </head>
+<body>
+    <div class="patient-container">
+        <h1>👤 My Health Portal</h1>
+        <p>Welcome back!</p>
+        
+        <div class="card status-card">
+            <h2>Current Status</h2>
+            <div id="statusContent">
+                <p>Checking hospital records...</p>
+            </div>
+        </div>
+
+        <button onclick="logout()">Logout</button>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        const TOKEN = localStorage.getItem('token');
+        const USER_ID = parseInt(localStorage.getItem('user_id'));
+        const HOSP_ID = localStorage.getItem('hospital_id'); // Optional if patient knows
+
+        if (!TOKEN) window.location.href = "/";
+
+        async function checkStatus() {
+            // Logic: Fetch the hospital queue and find MY ID.
+            // Note: If you don't have hospital_id stored for patient, you might need to try all hospitals
+            // or update the login response to send 'hospital_id' for patients too.
+            // Assuming we know the hospital_id:
+            
+            if(!HOSP_ID) {
+                document.getElementById('statusContent').innerHTML = "<p>No active hospital admission found.</p>";
+                return;
+            }
+
+            const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/queue`, {
+                headers: { 'Authorization': `Bearer ${TOKEN}` }
+            });
+            const queue = await res.json();
+            
+            const myEntry = queue.find(p => p.patient_id === USER_ID);
+            const content = document.getElementById('statusContent');
+
+            if (myEntry) {
+                content.innerHTML = `
+                    <div class="status-active">
+                        <h3>You are in the Queue</h3>
+                        <p><strong>Priority Score:</strong> ${myEntry.priority_score}</p>
+                        <p><strong>Status:</strong> ${myEntry.status}</p>
+                        <p>Please wait for your name to be called.</p>
+                    </div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div class="status-idle">
+                        <h3>No Active Queue Ticket</h3>
+                        <p>You are not currently in the waiting list.</p>
+                        <p>If you need help, please visit the Reception.</p>
+                    </div>
+                `;
+            }
+        }
+
+        function logout() { localStorage.clear(); window.location.href = "/"; }
+        checkStatus();
+    </script>
+</body>
+</html>

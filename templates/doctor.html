@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Doctor Dashboard - MediSync</title>
+    </head>
+<body>
+    <div class="container">
+        <aside class="queue-panel">
+            <h2>Waiting List <span id="q-count">(0)</span></h2>
+            <div id="queue-list">Loading...</div>
+        </aside>
+
+        <main class="bed-panel">
+            <header>
+                <h1>👨‍⚕️ Doctor Console</h1>
+                <button onclick="logout()">Logout</button>
+            </header>
+
+            <div class="bed-section">
+                <h3>ICU Beds</h3>
+                <div class="bed-grid" id="icu-grid"></div>
+            </div>
+
+            <div class="bed-section">
+                <h3>General Beds</h3>
+                <div class="bed-grid" id="gen-grid"></div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        const TOKEN = localStorage.getItem('token');
+        const HOSP_ID = localStorage.getItem('hospital_id');
+
+        if (!TOKEN) window.location.href = "/";
+
+        // 1. LOAD QUEUE
+        async function loadQueue() {
+            const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/queue`, {
+                headers: { 'Authorization': `Bearer ${TOKEN}` }
+            });
+            const queue = await res.json();
+            
+            const list = document.getElementById('queue-list');
+            document.getElementById('q-count').innerText = `(${queue.length})`;
+            list.innerHTML = queue.length ? "" : "<p>No patients waiting.</p>";
+
+            queue.forEach(p => {
+                const isCritical = p.severity >= 7;
+                list.innerHTML += `
+                    <div class="queue-card ${isCritical ? 'critical' : ''}">
+                        <h4>Patient #${p.patient_id}</h4>
+                        <p>Severity: ${p.severity} | Score: ${p.priority_score}</p>
+                        <button onclick="admitPatient(${p.id})">Admit Patient</button>
+                    </div>
+                `;
+            });
+        }
+
+        // 2. LOAD BEDS (Using City Stats API for visualization)
+        // Note: For real Discharge, we need bed IDs. 
+        // Hack: Since city-stats only gives counts, we will rely on Admit returning "Bed ID".
+        // Ideally, you'd add a GET /hospital/{id}/beds endpoint.
+        // For now, I will create a simpler "Discharge by ID" input for the demo.
+        
+        // 3. ADMIT LOGIC
+        async function admitPatient(queueId) {
+            const bedType = confirm("Admit to ICU? (Cancel for General)") ? "ICU" : "GENERAL";
+            
+            try {
+                const res = await fetch(`${API_URL}/hospital/admit-patient`, {
+                    method: 'POST',
+                    headers: { 
+                        'Authorization': `Bearer ${TOKEN}`,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ queue_id: queueId, bed_type: bedType })
+                });
+                
+                const data = await res.json();
+                if(!res.ok) throw new Error(data.detail);
+                
+                alert(data.message);
+                loadQueue(); 
+                
+            } catch (e) { alert(e.message); }
+        }
+
+        // 4. DISCHARGE LOGIC (Added a prompt for simplicity)
+        // In a full app, you would click a "Occupied Bed" card.
+        function dischargePrompt() {
+            const bedId = prompt("Enter Bed ID to discharge:");
+            if(bedId) dischargePatient(parseInt(bedId));
+        }
+
+        async function dischargePatient(bedId) {
+            try {
+                const res = await fetch(`${API_URL}/hospital/discharge-patient/${bedId}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${TOKEN}` }
+                });
+                const data = await res.json();
+                if(!res.ok) throw new Error(data.detail);
+                alert(data.message);
+            } catch (e) { alert(e.message); }
+        }
+
+        loadQueue();
+        setInterval(loadQueue, 5000); // Polling
+        
+        function logout() { localStorage.clear(); window.location.href = "/"; }
+    </script>
+    
+    <button onclick="dischargePrompt()" style="position:fixed; bottom:20px; right:20px; padding:15px; background:red; color:white;">
+        🚑 Emergency Discharge
+    </button>
+</body>
+</html>

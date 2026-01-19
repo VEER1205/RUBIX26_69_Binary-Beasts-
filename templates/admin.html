@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hospital Admin</title>
+    </head>
+<body>
+    <div class="admin-container">
+        <h1>🏥 Hospital Staff Manager</h1>
+        <button onclick="logout()">Logout</button>
+        
+        <div class="card">
+            <h2>Add New Staff Member</h2>
+            <form id="addStaffForm">
+                <input type="text" id="fullname" placeholder="Full Name (e.g. Dr. Smith)" required>
+                <input type="text" id="username" placeholder="Username" required>
+                <input type="password" id="password" placeholder="Password" required>
+                
+                <select id="role" required>
+                    <option value="" disabled selected>Select Role</option>
+                    <option value="doctor">Doctor</option>
+                    <option value="receptionist">Receptionist</option>
+                </select>
+                
+                <button type="submit">Create User</button>
+            </form>
+        </div>
+        
+        <div class="card">
+            <h2>Current Doctors</h2>
+            <ul id="docList">Loading...</ul>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = window.location.origin;
+        const TOKEN = localStorage.getItem('token');
+        const HOSP_ID = localStorage.getItem('hospital_id');
+
+        if (!TOKEN) window.location.href = "/";
+
+        // 1. ADD STAFF
+        document.getElementById('addStaffForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                full_name: document.getElementById('fullname').value,
+                username: document.getElementById('username').value,
+                password: document.getElementById('password').value,
+                role: document.getElementById('role').value
+            };
+
+            const res = await fetch(`${API_URL}/hospital/staff/add`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${TOKEN}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            if(res.ok) {
+                alert("Staff Added!");
+                loadDoctors();
+            } else {
+                alert("Error adding staff");
+            }
+        });
+
+        // 2. LOAD DOCTORS LIST
+        async function loadDoctors() {
+            const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/doctors`, {
+                headers: { 'Authorization': `Bearer ${TOKEN}` } // Optional if public
+            });
+            const docs = await res.json();
+            const list = document.getElementById('docList');
+            list.innerHTML = "";
+            docs.forEach(d => {
+                list.innerHTML += `<li>${d.name} (ID: ${d.id})</li>`;
+            });
+        }
+
+        loadDoctors();
+        function logout() { localStorage.clear(); window.location.href = "/"; }
+    </script>
+</body>
+</html>
