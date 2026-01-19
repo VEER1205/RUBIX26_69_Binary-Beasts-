@@ -1,0 +1,95 @@
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, DateTime, Enum as SQL_Enum, Float
+from sqlalchemy.orm import relationship
+from datetime import datetime
+import enum
+from .database import Base
+
+# --- Enums (Strict Choices) ---
+class UserRole(str, enum.Enum):
+    ADMIN = "admin"
+    DOCTOR = "doctor"
+    RECEPTIONIST = "receptionist"
+    PATIENT = "patient"
+
+class BedType(str, enum.Enum):
+    ICU = "ICU"
+    GENERAL = "GENERAL"
+    VENTILATOR = "VENTILATOR"
+
+class BedStatus(str, enum.Enum):
+    AVAILABLE = "AVAILABLE"
+    OCCUPIED = "OCCUPIED"
+    MAINTENANCE = "MAINTENANCE"
+
+class PriorityLevel(enum.IntEnum):
+    NORMAL = 1
+    URGENT = 5
+    CRITICAL = 10
+
+# --- Database Tables ---
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True)
+    hashed_password = Column(String)
+    full_name = Column(String)
+    role = Column(SQL_Enum(UserRole))
+    
+    # Link staff to a hospital (Patient can be null or linked if admitted)
+    hospital_id = Column(Integer, ForeignKey("hospitals.id"), nullable=True)
+    
+    # Relationships
+    hospital = relationship("Hospital", back_populates="staff")
+    queue_entry = relationship("OpdQueue", back_populates="patient", uselist=False)
+
+class Hospital(Base):
+    __tablename__ = "hospitals"
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, index=True)
+    location = Column(String) # Simple city/area name
+    contact_number = Column(String)
+    
+    # Relationships
+    staff = relationship("User", back_populates="hospital")
+    beds = relationship("Bed", back_populates="hospital")
+    queue = relationship("OpdQueue", back_populates="hospital")
+
+class Bed(Base):
+    __tablename__ = "beds"
+
+    id = Column(Integer, primary_key=True, index=True)
+    hospital_id = Column(Integer, ForeignKey("hospitals.id"))
+    bed_number = Column(String)
+    bed_type = Column(SQL_Enum(BedType), default=BedType.GENERAL)
+    status = Column(SQL_Enum(BedStatus), default=BedStatus.AVAILABLE)
+    
+    # If occupied, who is in it?
+    current_patient_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+
+    hospital = relationship("Hospital", back_populates="beds")
+
+class OpdQueue(Base):
+    """
+    This table stores the active waiting list. 
+    Your CP Logic will run on 'severity' and 'check_in_time'.
+    """
+    __tablename__ = "opd_queue"
+
+    id = Column(Integer, primary_key=True, index=True)
+    hospital_id = Column(Integer, ForeignKey("hospitals.id"))
+    patient_id = Column(Integer, ForeignKey("users.id"))
+    
+    check_in_time = Column(DateTime, default=datetime.utcnow)
+    severity = Column(SQL_Enum(PriorityLevel), default=PriorityLevel.NORMAL)
+    
+    # This is the calculated score from your Algorithm
+    # We store it to avoid recalculating on every read
+    priority_score = Column(Float, index=True, default=0.0)
+    
+    status = Column(String, default="WAITING") # WAITING, IN_CONSULTATION, COMPLETED
+
+    hospital = relationship("Hospital", back_populates="queue")
+    patient = relationship("User", back_populates="queue_entry")
