@@ -67,6 +67,7 @@
         padding: 8px 20px;
         border-radius: 20px;
         font-weight: 600;
+        cursor: pointer;
       }
 
       /* Hero Section */
@@ -468,7 +469,6 @@
     </style>
   </head>
   <body>
-    <!-- Navigation -->
     <nav class="navbar">
       <div class="nav-container">
         <div class="logo">
@@ -476,14 +476,13 @@
           <span>MediSync</span>
         </div>
         <div class="nav-links">
-          <a href="#home">Home</a>
-          <a href="#about">About</a>
+          <a href="/">Home</a>
+          <a href="#">About</a>
           <a href="#" class="login-nav-btn" id="openLoginBtn">Staff Login</a>
         </div>
       </div>
     </nav>
 
-    <!-- Hero Section -->
     <section class="hero" id="home">
       <h1>Real-Time Hospital Bed Availability</h1>
       <p>
@@ -492,9 +491,7 @@
       </p>
     </section>
 
-    <!-- Main Content -->
     <div class="container">
-      <!-- Search and Filter Section -->
       <div class="search-filter-section">
         <div class="search-bar">
           <input
@@ -513,29 +510,25 @@
         </div>
       </div>
 
-      <!-- Loading State -->
       <div class="loading" id="loadingState">
         <div class="spinner"></div>
         <p>Loading hospital data...</p>
       </div>
 
-      <!-- Hospital Grid -->
       <div class="hospital-grid" id="hospitalGrid" style="display: none"></div>
 
-      <!-- No Results -->
       <div class="no-results" id="noResults" style="display: none">
         <h3>No hospitals found</h3>
         <p>Try adjusting your search or filters</p>
       </div>
     </div>
 
-    <!-- Login Modal -->
     <div class="modal" id="loginModal">
       <div class="modal-content">
         <button class="modal-close" id="closeLoginBtn">&times;</button>
         <div class="login-form-container">
           <div class="login-header">
-            <h2>Staff Login</h2>
+            <h2>System Login</h2>
             <p>Please login to access your dashboard</p>
           </div>
 
@@ -574,12 +567,14 @@
             </div>
 
             <div class="form-group">
-              <label for="role">Role</label>
-              <select id="role" name="role" required>
-                <option value="">Select your role</option>
+              <label for="role">Role (Optional)</label>
+              <select id="role" name="role">
+                <option value="" selected disabled>Select your role</option>
+                <option value="super_admin">Super Admin</option>
+                <option value="hospital_admin">Hospital Admin</option>
                 <option value="doctor">Doctor</option>
                 <option value="receptionist">Receptionist</option>
-                <option value="admin">Admin</option>
+                <option value="patient">Patient</option>
               </select>
             </div>
 
@@ -592,6 +587,7 @@
     </div>
 
     <script>
+      // AUTO-DETECT URL (Works on Localhost AND Cloud)
       const API_URL = window.location.origin;
       const WS_PROTOCOL = window.location.protocol === "https:" ? "wss:" : "ws:";
       const WS_URL = `${WS_PROTOCOL}//${window.location.host}/dashboard/ws/city-beds`;
@@ -599,7 +595,7 @@
       // State
       let currentFilter = "all";
       let searchQuery = "";
-      let hospitalData = []; // Now empty, will be filled by API
+      let hospitalData = []; 
 
       // Initialize
       window.addEventListener("DOMContentLoaded", () => {
@@ -620,13 +616,13 @@
         socket.onmessage = (event) => {
           if (event.data === "UPDATE") {
             console.log("Change detected! Refreshing data...");
-            loadHospitals(false); // False means don't show loading spinner again
+            loadHospitals(false); 
           }
         };
 
         socket.onclose = () => {
           console.log("Disconnected. Retrying in 3s...");
-          setTimeout(setupWebSocket, 3000); // Auto-reconnect
+          setTimeout(setupWebSocket, 3000); 
         };
       }
 
@@ -644,7 +640,7 @@
           const response = await fetch(`${API_URL}/dashboard/city-stats`);
           if (!response.ok) throw new Error("Failed to fetch data");
 
-          hospitalData = await response.json(); // Store real data
+          hospitalData = await response.json(); 
 
           if (showSpinner) loadingState.style.display = "none";
           displayHospitals(hospitalData);
@@ -655,7 +651,7 @@
         }
       }
 
-      // --- 3. DISPLAY & FILTER LOGIC (Kept mostly same) ---
+      // --- 3. DISPLAY & FILTER LOGIC ---
       function displayHospitals(hospitals) {
         const hospitalGrid = document.getElementById("hospitalGrid");
         const noResults = document.getElementById("noResults");
@@ -682,20 +678,14 @@
         const card = document.createElement("div");
         card.className = "hospital-card";
 
-        // Calculate Totals (Assuming logic: Available + Occupied = Total,
-        // but your API returns Available counts. For Hackathon, let's assume Total is static or calculated)
-        // Note: Your current API returns 'available_icu' and 'available_general'.
-        // To make the bar work, we need a 'total'. For now, I'll mock totals or use a fixed number.
-
-        const totalICU = 20; // Mock total for demo
-        const totalGen = 50; // Mock total for demo
+        const totalICU = 20; 
+        const totalGen = 50; 
 
         let bedInfo = "";
 
         // ICU SECTION
         if (currentFilter === "all" || currentFilter === "icu") {
           const icuPercentage = (hospital.available_icu / totalICU) * 100;
-          // Color logic: Red if low, Green if high
           const barColor = icuPercentage < 20 ? "#dc3545" : "#28a745";
 
           bedInfo += `
@@ -793,25 +783,33 @@
       const loginForm = document.getElementById("loginForm");
       const alertBox = document.getElementById("alertBox");
 
-      // Check if already logged in
+      // Check if already logged in and handle Navigation Button
       function checkLoginStatus() {
         const token = localStorage.getItem("token");
         if (token) {
+          // Change Login button to Dashboard button
           openLoginBtn.textContent = "Dashboard (Logged In)";
           openLoginBtn.onclick = (e) => {
             e.preventDefault();
-            // Redirect based on role (simple check)
             const role = localStorage.getItem("role");
-            alert(
-              `You are already logged in as ${role}. Redirecting to Dashboard...`,
-            );
-            // In real app: window.location.href = `/${role}_dashboard.html`;
+            redirectUser(role);
           };
         }
       }
 
+      // Helper for Redirection
+      function redirectUser(role) {
+          if (role === "super_admin") window.location.href = "/super-admin";
+          else if (role === "hospital_admin") window.location.href = "/hospital-admin"; // Ensure you map this in main.py
+          else if (role === "doctor") window.location.href = "/doctor";
+          else if (role === "receptionist") window.location.href = "/receptionist";
+          else if (role === "patient") window.location.href = "/patient";
+          else alert("Unknown Role: " + role);
+      }
+
       openLoginBtn.addEventListener("click", (e) => {
         e.preventDefault();
+        // Only open modal if NOT logged in
         if (!localStorage.getItem("token")) loginModal.classList.add("show");
       });
 
@@ -853,7 +851,7 @@
 
           const data = await response.json();
 
-          // SAVE TOKEN
+          // SAVE TOKEN & INFO
           localStorage.setItem("token", data.access_token);
           localStorage.setItem("role", data.role);
           localStorage.setItem("user_id", data.user_id);
@@ -864,7 +862,8 @@
           setTimeout(() => {
             loginModal.classList.remove("show");
             checkLoginStatus();
-            // window.location.href = 'dashboard.html'; // Uncomment when you have dashboard page
+            // AUTOMATIC REDIRECT
+            redirectUser(data.role);
           }, 1000);
         } catch (error) {
           showAlert("Login Failed: Invalid Username or Password", "error");

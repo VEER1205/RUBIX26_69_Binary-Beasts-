@@ -40,3 +40,23 @@ app.include_router(auth.router)
 @app.get("/")
 async def read_root(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
+
+@app.get("/doctor")
+async def read_doctor_page(request: Request):
+    return templates.TemplateResponse("doctor.html", {"request": request})
+
+@app.get("/super-admin")
+async def read_super_admin_page(request: Request):
+    return templates.TemplateResponse("super_admin.html", {"request": request})
+
+@app.get("/hospital-admin")
+async def read_hospital_admin_page(request: Request):
+    return templates.TemplateResponse("admin.html", {"request": request})
+
+@app.get("/receptionist")
+async def read_receptionist_page(request: Request):
+    return templates.TemplateResponse("receptionist.html", {"request": request})
+
+@app.get("/patient")
+async def read_patient_page(request: Request):
+    return templates.TemplateResponse("patient.html", {"request": request})
