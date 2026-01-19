@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from .. import database, schemas, crud, models
 from .auth import get_current_user # Import the security guard
+from .dashboard import public_manager
 
 router = APIRouter(
     prefix="/hospital",
@@ -110,6 +111,7 @@ async def admit_patient(
     queue_entry.status = "COMPLETED"
     
     await db.commit()
+    await public_manager.broadcast("UPDATE")
     return {"message": f"Patient admitted to Bed {bed.bed_number}"}
 
 # 4. DOCTOR ONLY: Discharge Patient
@@ -132,6 +134,7 @@ async def discharge_patient(
     bed.current_patient_id = None
     
     await db.commit()
+    await public_manager.broadcast("UPDATE")
     return {"message": f"Bed {bed.bed_number} is now AVAILABLE"}
 
 # 5. ADMIN ONLY: Create Hospital

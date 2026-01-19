@@ -1,0 +1,886 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MediSync - Hospital Management System</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: #f5f7fa;
+        min-height: 100vh;
+      }
+
+      /* Navigation Bar */
+      .navbar {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        padding: 15px 0;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+      }
+
+      .nav-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .logo {
+        color: white;
+        font-size: 1.5rem;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 30px;
+        align-items: center;
+      }
+
+      .nav-links a {
+        color: white;
+        text-decoration: none;
+        font-weight: 500;
+        transition: opacity 0.3s;
+      }
+
+      .nav-links a:hover {
+        opacity: 0.8;
+      }
+
+      .login-nav-btn {
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+      }
+
+      /* Hero Section */
+      .hero {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 60px 20px;
+        text-align: center;
+      }
+
+      .hero h1 {
+        font-size: 3rem;
+        margin-bottom: 20px;
+      }
+
+      .hero p {
+        font-size: 1.2rem;
+        opacity: 0.9;
+        max-width: 600px;
+        margin: 0 auto;
+      }
+
+      /* Main Content */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+      }
+
+      /* Search and Filter Section */
+      .search-filter-section {
+        background: white;
+        padding: 30px;
+        border-radius: 15px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+
+      .search-bar {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .search-input {
+        flex: 1;
+        min-width: 250px;
+        padding: 12px 20px;
+        border: 2px solid #e0e0e0;
+        border-radius: 25px;
+        font-size: 1rem;
+        transition: all 0.3s;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 30px rgba(102, 126, 234, 0.1);
+      }
+
+      .search-btn {
+        padding: 12px 30px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 25px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+      }
+
+      .search-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .filter-tabs {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+      }
+
+      .filter-tab {
+        padding: 10px 25px;
+        background: #f0f0f0;
+        border: 2px solid transparent;
+        border-radius: 20px;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 500;
+      }
+
+      .filter-tab.active {
+        background: #667eea;
+        color: white;
+        border-color: #667eea;
+      }
+
+      .filter-tab:hover {
+        border-color: #667eea;
+      }
+
+      /* Hospital Grid */
+      .hospital-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+        margin-top: 30px;
+      }
+
+      .hospital-card {
+        background: white;
+        border-radius: 15px;
+        padding: 25px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition:
+          transform 0.3s,
+          box-shadow 0.3s;
+      }
+
+      .hospital-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+      }
+
+      .hospital-name {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #333;
+        margin-bottom: 10px;
+      }
+
+      .hospital-location {
+        color: #666;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+
+      .bed-info {
+        background: #f8f9fa;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 10px;
+      }
+
+      .bed-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+
+      .bed-row:last-child {
+        margin-bottom: 0;
+      }
+
+      .bed-label {
+        font-weight: 500;
+        color: #555;
+      }
+
+      .bed-count {
+        font-weight: bold;
+        font-size: 1.1rem;
+      }
+
+      .bed-available {
+        color: #28a745;
+      }
+
+      .bed-occupied {
+        color: #dc3545;
+      }
+
+      .bed-total {
+        color: #667eea;
+      }
+
+      .availability-bar {
+        height: 8px;
+        background: #e0e0e0;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-top: 10px;
+      }
+
+      .availability-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+        transition: width 0.3s;
+      }
+
+      .no-results {
+        text-align: center;
+        padding: 60px 20px;
+        color: #666;
+      }
+
+      .no-results h3 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+      }
+
+      /* Loading Spinner */
+      .loading {
+        text-align: center;
+        padding: 60px 20px;
+      }
+
+      .spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid #f3f3f3;
+        border-top: 4px solid #667eea;
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto 20px;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Login Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+      }
+
+      .modal.show {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 20px;
+        max-width: 500px;
+        width: 100%;
+        max-height: 90vh;
+        overflow-y: auto;
+        position: relative;
+      }
+
+      .modal-close {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        background: none;
+        border: none;
+        font-size: 2rem;
+        cursor: pointer;
+        color: #666;
+        line-height: 1;
+      }
+
+      .modal-close:hover {
+        color: #333;
+      }
+
+      .login-form-container {
+        padding: 60px 40px 40px;
+      }
+
+      .login-header {
+        text-align: center;
+        margin-bottom: 30px;
+      }
+
+      .login-header h2 {
+        color: #333;
+        font-size: 2rem;
+        margin-bottom: 10px;
+      }
+
+      .login-header p {
+        color: #666;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: 500;
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 12px 15px;
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .password-wrapper {
+        position: relative;
+      }
+
+      .toggle-password {
+        position: absolute;
+        right: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: none;
+        border: none;
+        cursor: pointer;
+        color: #666;
+        font-size: 1.2rem;
+      }
+
+      .login-btn {
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s;
+        margin-top: 10px;
+      }
+
+      .login-btn:hover {
+        transform: translateY(-2px);
+      }
+
+      .login-btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+
+      .alert {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 20px;
+        display: none;
+      }
+
+      .alert.show {
+        display: block;
+      }
+
+      .alert-error {
+        background-color: #fee;
+        color: #c33;
+        border: 1px solid #fcc;
+      }
+
+      .alert-success {
+        background-color: #efe;
+        color: #3c3;
+        border: 1px solid #cfc;
+      }
+
+      @media (max-width: 768px) {
+        .hero h1 {
+          font-size: 2rem;
+        }
+
+        .nav-links {
+          gap: 15px;
+        }
+
+        .hospital-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .login-form-container {
+          padding: 40px 30px 30px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo">
+          <span></span>
+          <span>MediSync</span>
+        </div>
+        <div class="nav-links">
+          <a href="#home">Home</a>
+          <a href="#about">About</a>
+          <a href="#" class="login-nav-btn" id="openLoginBtn">Staff Login</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+      <h1>Real-Time Hospital Bed Availability</h1>
+      <p>
+        Find available hospital beds across the city in real-time. Access
+        critical healthcare information when you need it most.
+      </p>
+    </section>
+
+    <!-- Main Content -->
+    <div class="container">
+      <!-- Search and Filter Section -->
+      <div class="search-filter-section">
+        <div class="search-bar">
+          <input
+            type="text"
+            class="search-input"
+            id="searchInput"
+            placeholder="Search by hospital name or area..."
+          />
+          <button class="search-btn" id="searchBtn">Search</button>
+        </div>
+
+        <div class="filter-tabs">
+          <div class="filter-tab active" data-filter="all">All Beds</div>
+          <div class="filter-tab" data-filter="icu">ICU Beds</div>
+          <div class="filter-tab" data-filter="general">General Beds</div>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div class="loading" id="loadingState">
+        <div class="spinner"></div>
+        <p>Loading hospital data...</p>
+      </div>
+
+      <!-- Hospital Grid -->
+      <div class="hospital-grid" id="hospitalGrid" style="display: none"></div>
+
+      <!-- No Results -->
+      <div class="no-results" id="noResults" style="display: none">
+        <h3>No hospitals found</h3>
+        <p>Try adjusting your search or filters</p>
+      </div>
+    </div>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+      <div class="modal-content">
+        <button class="modal-close" id="closeLoginBtn">&times;</button>
+        <div class="login-form-container">
+          <div class="login-header">
+            <h2>Staff Login</h2>
+            <p>Please login to access your dashboard</p>
+          </div>
+
+          <div id="alertBox" class="alert"></div>
+
+          <form id="loginForm">
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter your username"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <div class="password-wrapper">
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  placeholder="Enter your password"
+                  required
+                />
+                <button
+                  type="button"
+                  class="toggle-password"
+                  id="togglePassword"
+                >
+                  👁️
+                </button>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="role">Role</label>
+              <select id="role" name="role" required>
+                <option value="">Select your role</option>
+                <option value="doctor">Doctor</option>
+                <option value="receptionist">Receptionist</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+              <span id="btnText">Login</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = window.location.origin;
+      const WS_PROTOCOL = window.location.protocol === "https:" ? "wss:" : "ws:";
+      const WS_URL = `${WS_PROTOCOL}//${window.location.host}/dashboard/ws/city-beds`;
+
+      // State
+      let currentFilter = "all";
+      let searchQuery = "";
+      let hospitalData = []; // Now empty, will be filled by API
+
+      // Initialize
+      window.addEventListener("DOMContentLoaded", () => {
+        loadHospitals();
+        setupWebSocket();
+        checkLoginStatus();
+      });
+
+      // --- 1. REAL-TIME WEBSOCKET SETUP ---
+      function setupWebSocket() {
+        console.log("Connecting to WebSocket...");
+        const socket = new WebSocket(WS_URL);
+
+        socket.onopen = () => {
+          console.log("Connected to Live Updates ✅");
+        };
+
+        socket.onmessage = (event) => {
+          if (event.data === "UPDATE") {
+            console.log("Change detected! Refreshing data...");
+            loadHospitals(false); // False means don't show loading spinner again
+          }
+        };
+
+        socket.onclose = () => {
+          console.log("Disconnected. Retrying in 3s...");
+          setTimeout(setupWebSocket, 3000); // Auto-reconnect
+        };
+      }
+
+      // --- 2. FETCH REAL DATA ---
+      async function loadHospitals(showSpinner = true) {
+        const loadingState = document.getElementById("loadingState");
+        const hospitalGrid = document.getElementById("hospitalGrid");
+
+        if (showSpinner) {
+          loadingState.style.display = "block";
+          hospitalGrid.style.display = "none";
+        }
+
+        try {
+          const response = await fetch(`${API_URL}/dashboard/city-stats`);
+          if (!response.ok) throw new Error("Failed to fetch data");
+
+          hospitalData = await response.json(); // Store real data
+
+          if (showSpinner) loadingState.style.display = "none";
+          displayHospitals(hospitalData);
+        } catch (error) {
+          console.error("Error:", error);
+          loadingState.innerHTML =
+            "<p style='color:red'>Failed to load data. Is Backend running?</p>";
+        }
+      }
+
+      // --- 3. DISPLAY & FILTER LOGIC (Kept mostly same) ---
+      function displayHospitals(hospitals) {
+        const hospitalGrid = document.getElementById("hospitalGrid");
+        const noResults = document.getElementById("noResults");
+
+        const filteredHospitals = filterHospitals(hospitals);
+
+        if (filteredHospitals.length === 0) {
+          hospitalGrid.style.display = "none";
+          noResults.style.display = "block";
+          return;
+        }
+
+        noResults.style.display = "none";
+        hospitalGrid.style.display = "grid";
+        hospitalGrid.innerHTML = "";
+
+        filteredHospitals.forEach((hospital) => {
+          const card = createHospitalCard(hospital);
+          hospitalGrid.appendChild(card);
+        });
+      }
+
+      function createHospitalCard(hospital) {
+        const card = document.createElement("div");
+        card.className = "hospital-card";
+
+        // Calculate Totals (Assuming logic: Available + Occupied = Total,
+        // but your API returns Available counts. For Hackathon, let's assume Total is static or calculated)
+        // Note: Your current API returns 'available_icu' and 'available_general'.
+        // To make the bar work, we need a 'total'. For now, I'll mock totals or use a fixed number.
+
+        const totalICU = 20; // Mock total for demo
+        const totalGen = 50; // Mock total for demo
+
+        let bedInfo = "";
+
+        // ICU SECTION
+        if (currentFilter === "all" || currentFilter === "icu") {
+          const icuPercentage = (hospital.available_icu / totalICU) * 100;
+          // Color logic: Red if low, Green if high
+          const barColor = icuPercentage < 20 ? "#dc3545" : "#28a745";
+
+          bedInfo += `
+                    <div class="bed-info">
+                        <div class="bed-row">
+                            <span class="bed-label">ICU Available:</span>
+                            <span class="bed-count ${hospital.available_icu > 0 ? "bed-available" : "bed-occupied"}">
+                                ${hospital.available_icu}
+                            </span>
+                        </div>
+                        <div class="availability-bar">
+                            <div class="availability-fill" style="width: ${icuPercentage}%; background: ${barColor}"></div>
+                        </div>
+                    </div>
+                `;
+        }
+
+        // GENERAL SECTION
+        if (currentFilter === "all" || currentFilter === "general") {
+          const genPercentage = (hospital.available_general / totalGen) * 100;
+          const barColor = genPercentage < 20 ? "#dc3545" : "#17a2b8";
+
+          bedInfo += `
+                    <div class="bed-info">
+                        <div class="bed-row">
+                            <span class="bed-label">General Available:</span>
+                            <span class="bed-count bed-available">${hospital.available_general}</span>
+                        </div>
+                        <div class="availability-bar">
+                            <div class="availability-fill" style="width: ${genPercentage}%; background: ${barColor}"></div>
+                        </div>
+                    </div>
+                `;
+        }
+
+        // QUEUE BADGE
+        const queueBadge =
+          hospital.active_queue > 0
+            ? `<div style="margin-top:10px; color: #d9534f; font-weight:bold;">⏳ Queue: ${hospital.active_queue} Patients</div>`
+            : `<div style="margin-top:10px; color: #5cb85c; font-weight:bold;">✅ No Queue</div>`;
+
+        card.innerHTML = `
+                <div class="hospital-name">${hospital.hospital_name}</div>
+                <div class="hospital-location">📍 ${hospital.location}</div>
+                <div style="font-size: 0.9em; color: #666; margin-bottom: 10px;">📞 ${hospital.contact}</div>
+                ${bedInfo}
+                ${queueBadge}
+            `;
+
+        return card;
+      }
+
+      function filterHospitals(hospitals) {
+        return hospitals.filter((hospital) => {
+          const matchesSearch =
+            searchQuery === "" ||
+            hospital.hospital_name
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()) ||
+            hospital.location.toLowerCase().includes(searchQuery.toLowerCase());
+          return matchesSearch;
+        });
+      }
+
+      // --- FILTER & SEARCH LISTENERS ---
+      document.querySelectorAll(".filter-tab").forEach((tab) => {
+        tab.addEventListener("click", () => {
+          document
+            .querySelectorAll(".filter-tab")
+            .forEach((t) => t.classList.remove("active"));
+          tab.classList.add("active");
+          currentFilter = tab.dataset.filter;
+          displayHospitals(hospitalData);
+        });
+      });
+
+      document.getElementById("searchBtn").addEventListener("click", () => {
+        searchQuery = document.getElementById("searchInput").value;
+        displayHospitals(hospitalData);
+      });
+
+      document
+        .getElementById("searchInput")
+        .addEventListener("keypress", (e) => {
+          if (e.key === "Enter") {
+            searchQuery = e.target.value;
+            displayHospitals(hospitalData);
+          }
+        });
+
+      // --- 4. REAL LOGIN LOGIC ---
+      const loginModal = document.getElementById("loginModal");
+      const openLoginBtn = document.getElementById("openLoginBtn");
+      const closeLoginBtn = document.getElementById("closeLoginBtn");
+      const loginForm = document.getElementById("loginForm");
+      const alertBox = document.getElementById("alertBox");
+
+      // Check if already logged in
+      function checkLoginStatus() {
+        const token = localStorage.getItem("token");
+        if (token) {
+          openLoginBtn.textContent = "Dashboard (Logged In)";
+          openLoginBtn.onclick = (e) => {
+            e.preventDefault();
+            // Redirect based on role (simple check)
+            const role = localStorage.getItem("role");
+            alert(
+              `You are already logged in as ${role}. Redirecting to Dashboard...`,
+            );
+            // In real app: window.location.href = `/${role}_dashboard.html`;
+          };
+        }
+      }
+
+      openLoginBtn.addEventListener("click", (e) => {
+        e.preventDefault();
+        if (!localStorage.getItem("token")) loginModal.classList.add("show");
+      });
+
+      closeLoginBtn.addEventListener("click", () =>
+        loginModal.classList.remove("show"),
+      );
+      loginModal.addEventListener("click", (e) => {
+        if (e.target === loginModal) loginModal.classList.remove("show");
+      });
+
+      function showAlert(message, type) {
+        alertBox.textContent = message;
+        alertBox.className = `alert alert-${type} show`;
+        setTimeout(() => (alertBox.className = "alert"), 5000);
+      }
+
+      loginForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const username = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const loginBtn = document.getElementById("loginBtn");
+
+        loginBtn.disabled = true;
+        loginBtn.textContent = "Verifying...";
+
+        try {
+          // Prepare Form Data for OAuth2
+          const formData = new URLSearchParams();
+          formData.append("username", username);
+          formData.append("password", password);
+
+          const response = await fetch(`${API_URL}/token`, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData,
+          });
+
+          if (!response.ok) throw new Error("Invalid Credentials");
+
+          const data = await response.json();
+
+          // SAVE TOKEN
+          localStorage.setItem("token", data.access_token);
+          localStorage.setItem("role", data.role);
+          localStorage.setItem("user_id", data.user_id);
+          localStorage.setItem("hospital_id", data.hospital_id);
+
+          showAlert(`Login Successful! Welcome ${data.role}`, "success");
+
+          setTimeout(() => {
+            loginModal.classList.remove("show");
+            checkLoginStatus();
+            // window.location.href = 'dashboard.html'; // Uncomment when you have dashboard page
+          }, 1000);
+        } catch (error) {
+          showAlert("Login Failed: Invalid Username or Password", "error");
+        } finally {
+          loginBtn.disabled = false;
+          loginBtn.textContent = "Login";
+        }
+      });
+
+      // Password Toggle
+      document
+        .getElementById("togglePassword")
+        .addEventListener("click", () => {
+          const input = document.getElementById("password");
+          input.type = input.type === "password" ? "text" : "password";
+        });
+    </script>
+  </body>
+</html>
