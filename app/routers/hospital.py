@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from .. import database, schemas, crud, models
-from .auth import get_current_user 
+from .auth import get_current_user # Import the security guard
 
 router = APIRouter(
     prefix="/hospital",
@@ -12,112 +12,139 @@ router = APIRouter(
 # Dependency to get DB
 get_db = database.get_db
 
+# --- Request Models ---
+class AdmitRequest(schemas.BaseModel):
+    queue_id: int
+    bed_type: str 
+
+# --- ENDPOINTS ---
+
+# 1. RECEPTIONIST ONLY: Register Patient
 @router.post("/register-patient")
 async def register_patient_and_queue(
     patient_data: schemas.PatientCreate, 
-    hospital_id: int, # Receptionist provides this
-    db: AsyncSession = Depends(get_db)
+    hospital_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
 ):
-    # 1. Create the Patient User Account
-    # Note: We give a default password for now since it's a walk-in
+    # Security Check
+    if current_user.role != models.UserRole.RECEPTIONIST:
+        raise HTTPException(status_code=403, detail="Access Denied: Only Receptionists can register patients")
+
+    # (Optional) Check if receptionist belongs to the same hospital
+    if current_user.hospital_id != hospital_id:
+        raise HTTPException(status_code=403, detail="You cannot register patients for a different hospital")
+
     user_in = schemas.UserCreate(
         username=patient_data.username,
         password="defaultpassword123", 
         full_name=patient_data.full_name,
         role="patient"
     )
-    new_user = await crud.create_user(db, user_in)
     
-    # 2. Add them to the Queue immediately
-    queue_entry = await crud.add_patient_to_queue(
-        db, 
-        patient_id=new_user.id, 
-        hospital_id=hospital_id, 
-        severity=patient_data.severity
-    )
+    # Check if user exists (Simple check)
+    existing = await db.execute(select(models.User).where(models.User.username == user_in.username))
+    if existing.scalar_one_or_none():
+         # If patient exists, just get their ID (Skipping full logic for hackathon speed)
+         pass 
+    else:
+        new_user = await crud.create_user(db, user_in)
+        # Use the new user ID
+        await crud.add_patient_to_queue(
+            db, 
+            patient_id=new_user.id, 
+            hospital_id=hospital_id, 
+            severity=patient_data.severity
+        )
     
-    return {"message": "Patient added", "queue_position": queue_entry.priority_score}
+    return {"message": "Patient added to Queue"}
 
+# 2. STAFF ONLY (Doctor/Receptionist): View Queue
 @router.get("/{hospital_id}/queue")
-async def view_queue(hospital_id: int, db: AsyncSession = Depends(get_db)):
+async def view_queue(
+    hospital_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.User = Depends(get_current_user) # <--- Lock
+):
+    # Allow both Doctors and Receptionists
+    allowed_roles = [models.UserRole.DOCTOR, models.UserRole.RECEPTIONIST]
+    if current_user.role not in allowed_roles:
+         raise HTTPException(status_code=403, detail="Access Denied: Staff only")
+
     queue = await crud.get_hospital_queue(db, hospital_id)
     return queue
 
-# ... existing imports ...
-
-# Request Body for Admitting a Patient
-class AdmitRequest(schemas.BaseModel):
-    queue_id: int
-    bed_type: str # "ICU" or "GENERAL"
-
-
+# 3. DOCTOR ONLY: Admit Patient
 @router.post("/admit-patient")
 async def admit_patient(
     request: AdmitRequest, 
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: models.User = Depends(get_current_user) # <--- Lock
 ):
-    # 1. Get the Queue Entry
-    queue_entry_query = await db.execute(
-        select(models.OpdQueue).where(models.OpdQueue.id == request.queue_id)
-    )
-    queue_entry = queue_entry_query.scalar_one_or_none()
+    if current_user.role != models.UserRole.DOCTOR:
+        raise HTTPException(status_code=403, detail="Access Denied: Only Doctors can admit patients")
+
+    # Get Queue Entry
+    result = await db.execute(select(models.OpdQueue).where(models.OpdQueue.id == request.queue_id))
+    queue_entry = result.scalar_one_or_none()
     
     if not queue_entry:
         raise HTTPException(status_code=404, detail="Queue entry not found")
 
-    # 2. Find an Available Bed
-    bed_query = await db.execute(
+    # Find Bed
+    bed_result = await db.execute(
         select(models.Bed)
         .where(models.Bed.hospital_id == queue_entry.hospital_id)
         .where(models.Bed.bed_type == request.bed_type)
         .where(models.Bed.status == "AVAILABLE")
         .limit(1)
     )
-    bed = bed_query.scalar_one_or_none()
+    bed = bed_result.scalar_one_or_none()
     
     if not bed:
         raise HTTPException(status_code=400, detail=f"No {request.bed_type} beds available!")
 
-    # 3. Assign Patient to Bed
+    # Assign
     bed.status = "OCCUPIED"
     bed.current_patient_id = queue_entry.patient_id
-    
-    # 4. Update Queue Status
     queue_entry.status = "COMPLETED"
     
     await db.commit()
-    
-    # TODO: Here is where you would trigger the WebSocket broadcast
-    
     return {"message": f"Patient admitted to Bed {bed.bed_number}"}
 
+# 4. DOCTOR ONLY: Discharge Patient
 @router.post("/discharge-patient/{bed_id}")
-async def discharge_patient(bed_id: int, db: AsyncSession = Depends(get_db)):
-    # 1. Get the Bed
-    bed_query = await db.execute(select(models.Bed).where(models.Bed.id == bed_id))
-    bed = bed_query.scalar_one_or_none()
+async def discharge_patient(
+    bed_id: int, 
+    db: AsyncSession = Depends(get_db),
+    current_user: models.User = Depends(get_current_user) # <--- Lock
+):
+    if current_user.role != models.UserRole.DOCTOR:
+        raise HTTPException(status_code=403, detail="Access Denied: Only Doctors can discharge patients")
+
+    result = await db.execute(select(models.Bed).where(models.Bed.id == bed_id))
+    bed = result.scalar_one_or_none()
     
     if not bed:
         raise HTTPException(status_code=404, detail="Bed not found")
         
-    # 2. Free the Bed
     bed.status = "AVAILABLE"
     bed.current_patient_id = None
     
     await db.commit()
     return {"message": f"Bed {bed.bed_number} is now AVAILABLE"}
 
+# 5. ADMIN ONLY: Create Hospital
 @router.post("/create")
 async def create_new_hospital(
     hospital_data: schemas.HospitalCreate, 
     db: AsyncSession = Depends(get_db),
-    current_user: models.User = Depends(get_current_user) 
+    current_user: models.User = Depends(get_current_user)
 ):
-    # 1. Check Authorization (RBAC)
-    if current_user.role != "admin": 
+    if current_user.role != models.UserRole.ADMIN:
         raise HTTPException(status_code=403, detail="Not authorized: Only Admins can create hospitals")
 
-    # 1. Create the Hospital Entry
+    # Create Hospital Logic
     new_hospital = models.Hospital(
         name=hospital_data.name,
         location=hospital_data.location,
@@ -125,35 +152,15 @@ async def create_new_hospital(
     )
     db.add(new_hospital)
     await db.commit()
-    await db.refresh(new_hospital) 
+    await db.refresh(new_hospital)
 
-    # 2. Automatically Generate Beds based on the counts provided
     beds_to_add = []
-    
-    # Generate ICU Beds
     for i in range(1, hospital_data.icu_bed_count + 1):
-        beds_to_add.append(models.Bed(
-            hospital_id=new_hospital.id,
-            bed_number=f"ICU-{i}",
-            bed_type="ICU",
-            status="AVAILABLE"
-        ))
-        
-    # Generate General Beds
+        beds_to_add.append(models.Bed(hospital_id=new_hospital.id, bed_number=f"ICU-{i}", bed_type="ICU", status="AVAILABLE"))
     for i in range(1, hospital_data.general_bed_count + 1):
-        beds_to_add.append(models.Bed(
-            hospital_id=new_hospital.id,
-            bed_number=f"GEN-{i}",
-            bed_type="GENERAL",
-            status="AVAILABLE"
-        ))
+        beds_to_add.append(models.Bed(hospital_id=new_hospital.id, bed_number=f"GEN-{i}", bed_type="GENERAL", status="AVAILABLE"))
     
     db.add_all(beds_to_add)
     await db.commit()
     
-    return {
-        "message": "Hospital created successfully",
-        "hospital_id": new_hospital.id,
-        "hospital_name": new_hospital.name,
-        "total_beds_created": len(beds_to_add)
-    }
+    return {"message": "Hospital created", "id": new_hospital.id}

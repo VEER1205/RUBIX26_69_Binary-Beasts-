@@ -6,14 +6,15 @@ from passlib.context import CryptContext
 from datetime import datetime, timedelta
 from jose import JWTError, jwt
 from .. import database, models
+from ..config import Settings
 
 router = APIRouter(tags=["Authentication"])
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 # --- CONFIGURATION (Keep these secret in production!) ---
-SECRET_KEY = "hackathon_secret_key_123" 
-ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 300 # 5 Hours for hackathon
+SECRET_KEY = Settings().SECRET_KEY
+ALGORITHM =  Settings().ALGORITHM
+ACCESS_TOKEN_EXPIRE_MINUTES = 300 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
