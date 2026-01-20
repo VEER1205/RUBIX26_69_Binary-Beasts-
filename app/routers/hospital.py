@@ -5,7 +5,7 @@ from passlib.context import CryptContext
 from ..schemas import AdmitRequest, VisitRequest, TransferRequest
 from .. import database, schemas, crud, models
 from .auth import get_current_user 
-from .dashboard import public_manager
+from ..websocket_manager import manager
 
 router = APIRouter(
     prefix="/hospital",
@@ -109,7 +109,7 @@ async def admit_patient(
     queue_entry.status = "COMPLETED"
     
     await db.commit()
-    await public_manager.broadcast("UPDATE") # Update Public Dashboard
+    await manager.broadcast("UPDATE") # Update Public Dashboard
     
     return {"message": f"Patient admitted to Bed {bed.bed_number}"}
 
@@ -133,7 +133,7 @@ async def discharge_patient(
     bed.current_patient_id = None
     
     await db.commit()
-    await public_manager.broadcast("UPDATE") # Update Public Dashboard
+    await manager.broadcast("UPDATE") # Update Public Dashboard
     
     return {"message": f"Bed {bed.bed_number} is now AVAILABLE"}
 
@@ -296,6 +296,6 @@ async def transfer_patient(
     target_bed.current_patient_id = patient_id
 
     await db.commit()
-    await public_manager.broadcast("UPDATE")
+    await manager.broadcast("UPDATE")
     
     return {"message": f"Patient transferred to {target_bed.bed_number}"}

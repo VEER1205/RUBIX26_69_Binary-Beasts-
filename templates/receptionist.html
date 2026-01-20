@@ -1,347 +1,632 @@
-<!DOCTYPE html>
+<!doctype html>
+
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Receptionist - MediSync</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
-        /* --- DARK THEME VARIABLES (Same as Admin) --- */
-        :root {
-            --bg: #0f172a;
-            --card: #1e293b;
-            --border: #334155;
-            --text: #f1f5f9;
-            --muted: #94a3b8;
-            --primary: #3b82f6;
-            --primary-hover: #2563eb;
-            --danger: #ef4444;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --radius: 16px;
-        }
+      /* --- DESIGN SYSTEM --- */
+      :root {
+        --bg: #0a0e17;
+        --card: #141b2d;
+        --border: #253347;
+        --text: #e2e8f0;
+        --text-sec: #94a3b8;
+        --primary: #3b82f6;
+        --primary-h: #2563eb;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        --radius: 12px;
+      }
 
-        * {
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        line-height: 1.5;
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .container {
+        max-width: 1400px;
+        padding: 24px 16px;
+        margin: 0 auto;
+        width: 100%;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* Cards */
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+      }
+
+      h2 {
+        margin-top: 0;
+        margin-bottom: 24px;
+        font-size: 1.25rem;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 16px;
+      }
+
+      /* Buttons */
+      button {
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+      }
+
+      button.action {
+        padding: 14px;
+        background: var(--success);
+        color: white;
+        border: none;
+        border-radius: var(--radius);
+        font-weight: 600;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        font-size: 1rem;
+      }
+      button.action:hover {
+        filter: brightness(1.1);
+      }
+
+      /* Floating Labels & Forms */
+      .form-group {
+        position: relative;
+        margin-bottom: 24px;
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 24px 16px 8px 16px;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s;
+        appearance: none;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        border-color: var(--primary);
+      }
+
+      .form-group label {
+        position: absolute;
+        top: 50%;
+        left: 16px;
+        transform: translateY(-50%);
+        color: var(--text-sec);
+        pointer-events: none;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+      }
+
+      .form-group input:focus + label,
+      .form-group input:not(:placeholder-shown) + label,
+      .form-group select:focus + label,
+      .form-group select:valid + label {
+        top: 14px;
+        font-size: 0.75rem;
+        color: var(--primary);
+        transform: translateY(-50%);
+        font-weight: 600;
+      }
+
+      /* Navbar */
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 24px;
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+      }
+      header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .btn-logout {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn-logout:hover {
+        background: var(--danger);
+        color: white;
+      }
+
+      /* Layout */
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        gap: 24px;
+        height: 100%;
+        margin-top: 10px;
+        overflow: hidden; /* Fix scroll */
+      }
+      @media (max-width: 900px) {
+        .dashboard-grid {
+          grid-template-columns: 1fr;
+          overflow-y: auto;
+        }
+      }
+
+      /* Queue List */
+      .scroll-area {
+        overflow-y: auto;
+        flex: 1;
+        padding-right: 8px;
+      }
+      .scroll-area::-webkit-scrollbar {
+        width: 6px;
+      }
+      .scroll-area::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+
+      .queue-item {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition:
+          transform 0.2s,
+          border-color 0.2s;
+      }
+      .queue-item:hover {
+        transform: translateX(4px);
+        border-color: var(--primary);
+      }
+
+      .patient-info strong {
+        display: block;
+        font-size: 1.05rem;
+        color: var(--text);
+      }
+      .patient-info span {
+        font-size: 0.85rem;
+        color: var(--text-sec);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin-top: 4px;
+      }
+
+      /* Badges */
+      .badge {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .badge-critical {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+      .badge-urgent {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+      }
+      .badge-stable {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+      }
+
+      /* Emergency Overlay */
+      @keyframes flashRed {
+        0% {
+          background: rgba(220, 38, 38, 0.95);
+        }
+        50% {
+          background: rgba(185, 28, 28, 0.95);
+        }
+        100% {
+          background: rgba(220, 38, 38, 0.95);
+        }
+      }
+
+      .emergency-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(220, 38, 38, 0.95);
+        z-index: 9999;
+        display: none;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        text-align: center;
+        animation: flashRed 1s infinite;
+      }
+      .emergency-overlay.active {
+        display: flex;
+      }
+
+      .emergency-content {
+        background: white;
+        color: #b91c1c;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        max-width: 500px;
+        width: 90%;
+      }
+
+      .emergency-btn {
+        margin-top: 24px;
+        padding: 16px 32px;
+        font-size: 1.1rem;
+        background: #b91c1c;
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+      }
+      .emergency-btn:hover {
+        transform: scale(1.05);
+      }
+
+      /* Animation */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      .animate-fade {
+        animation: fadeIn 0.4s ease-out;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="emergencyAlert" class="emergency-overlay">
+      <div class="emergency-content">
+        <i
+          class="fa-solid fa-truck-medical fa-beat"
+          style="font-size: 4rem; margin-bottom: 20px"
+        ></i>
+        <h1
+          style="
             margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        }
+            font-size: 2rem;
+            text-transform: uppercase;
+            font-weight: 900;
+          "
+        >
+          Incoming Emergency
+        </h1>
 
-        body {
-            background-color: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-        }
+        Shutterstock Explore
 
-        /* --- HEADER --- */
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 40px;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
-            border-bottom: 1px solid var(--border);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
-
-        header h1 {
-            margin: 0;
-            font-size: 24px;
-            color: var(--primary);
-            font-weight: 700;
-        }
-
-        header button {
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        
-        header button:hover { opacity: 0.9; }
-
-        /* --- MAIN LAYOUT --- */
-        main {
-            padding: 40px;
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr 1.5fr; /* Form takes less space than Queue */
-            gap: 30px;
-        }
-
-        /* --- CARDS --- */
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 30px;
-            height: fit-content;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        }
-
-        .card h2 {
-            margin-top: 0;
-            margin-bottom: 20px;
-            font-size: 1.25rem;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 15px;
-            color: var(--text);
-        }
-
-        /* --- FORMS --- */
-        .form-group { margin-bottom: 20px; }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--muted);
-            font-size: 0.9rem;
-            font-weight: 500;
-        }
-
-        input, select {
-            width: 100%;
-            background: #0f172a; /* Darker input bg */
-            border: 1px solid var(--border);
-            color: white;
-            padding: 12px 16px;
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: border-color 0.2s;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-        }
-
-        button[type="submit"] {
-            width: 100%;
-            background: var(--primary);
-            color: white;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.2s;
-            margin-top: 10px;
-        }
-
-        button[type="submit"]:hover {
-            background: var(--primary-hover);
-        }
-
-        /* --- QUEUE LIST --- */
-        #queueList {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-height: 600px;
-            overflow-y: auto;
-            padding-right: 5px;
-        }
-
-        .queue-item {
-            background: #0f172a;
-            border: 1px solid var(--border);
+        <h2 id="alertEta" style="margin: 16px 0; font-size: 1.5rem">
+          ETA: 5 Mins
+        </h2>
+        <div
+          style="
+            background: rgba(185, 28, 28, 0.1);
             padding: 16px;
             border-radius: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: transform 0.2s;
-        }
+            margin: 16px 0;
+          "
+        >
+          <p
+            id="alertCondition"
+            style="font-size: 1.25rem; font-weight: bold; margin: 0"
+          >
+            Condition: Cardiac Arrest
+          </p>
+          <p
+            id="alertDriver"
+            style="color: #7f1d1d; margin: 8px 0 0 0; font-size: 0.9rem"
+          >
+            Driver: Unit 42
+          </p>
+        </div>
+        <button class="emergency-btn" onclick="acknowledgeAlert()">
+          <i class="fa-solid fa-check-circle"></i> Acknowledge
+        </button>
+      </div>
+    </div>
 
-        .queue-item:hover {
-            transform: translateX(5px);
-            border-color: var(--primary);
-        }
-
-        .patient-info strong {
-            display: block;
-            font-size: 1.1em;
-            color: var(--text);
-        }
-        
-        .patient-info span {
-            font-size: 0.85em;
-            color: var(--muted);
-        }
-
-        /* --- BADGES --- */
-        .badge {
-            padding: 6px 12px;
-            border-radius: 6px;
-            font-size: 0.8em;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-
-        .badge-critical {
-            background: rgba(239, 68, 68, 0.15);
-            color: #fca5a5;
-            border: 1px solid rgba(239, 68, 68, 0.3);
-        }
-
-        .badge-stable {
-            background: rgba(16, 185, 129, 0.15);
-            color: #6ee7b7;
-            border: 1px solid rgba(16, 185, 129, 0.3);
-        }
-
-        .badge-urgent {
-            background: rgba(245, 158, 11, 0.15);
-            color: #fcd34d;
-            border: 1px solid rgba(245, 158, 11, 0.3);
-        }
-
-        /* Scrollbar styling for dark mode */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
-
-        @media (max-width: 900px) {
-            main { grid-template-columns: 1fr; }
-        }
-    </style>
-</head>
-<body>
     <header>
-        <h1>🏥 Receptionist Console</h1>
-        <button onclick="logout()">Logout</button>
+      <h1><i class="fa-solid fa-hospital-user"></i> Receptionist Console</h1>
+      <button class="btn-logout" onclick="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
     </header>
 
-    <main>
+    <div class="container animate-fade">
+      <div class="dashboard-grid">
         <div class="card">
-            <h2>New Patient Registration</h2>
-            <form id="regForm">
-                <div class="form-group">
-                    <label>Patient Full Name</label>
-                    <input type="text" id="fullname" required placeholder="e.g. John Doe">
-                </div>
-                
-                <div class="form-group">
-                    <label>Username (Unique ID)</label>
-                    <input type="text" id="username" required placeholder="e.g. john_doe_99">
-                </div>
-
-                <div class="form-group">
-                    <label>Triage Severity (1-10)</label>
-                    <select id="severity" required>
-                        <option value="" disabled selected>Select condition severity...</option>
-                        <option value="1">1 - Mild (General Checkup)</option>
-                        <option value="5">5 - Urgent (High Fever, Pain)</option>
-                        <option value="7">7 - Severe (Difficulty Breathing)</option>
-                        <option value="10">10 - Critical (Cardiac/Trauma)</option>
-                    </select>
-                </div>
-
-                <button type="submit">Register & Add to Queue</button>
-            </form>
-        </div>
-
-        <div class="card">
-            <h2>Current Live Queue</h2>
-            <div id="queueList">
-                <p style="text-align:center; color: var(--muted); padding: 20px;">Loading status...</p>
+          <h2><i class="fa-solid fa-user-plus"></i> Patient Registration</h2>
+          <form id="regForm">
+            <div class="form-group">
+              <input type="text" id="fullname" placeholder=" " required />
+              <label for="fullname">Patient Full Name</label>
             </div>
+
+            <div class="form-group">
+              <input type="text" id="username" placeholder=" " required />
+              <label for="username">Username (Unique ID)</label>
+            </div>
+
+            <div class="form-group">
+              <select id="severity" required>
+                <option value="" disabled selected hidden></option>
+                <option value="1">1 - Mild (Checkup)</option>
+                <option value="5">5 - Urgent (Fever/Pain)</option>
+                <option value="7">7 - Severe (Breathing Issues)</option>
+                <option value="10">10 - Critical (Trauma)</option>
+              </select>
+              <label for="severity">Triage Severity Level</label>
+              <i
+                class="fa-solid fa-chevron-down"
+                style="
+                  position: absolute;
+                  right: 16px;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  color: var(--text-sec);
+                  pointer-events: none;
+                  font-size: 0.8rem;
+                "
+              ></i>
+            </div>
+
+            <button type="submit" class="action">
+              <i class="fa-solid fa-check-circle"></i> Register & Queue
+            </button>
+          </form>
         </div>
-    </main>
+
+        <div class="card" style="min-height: 0; overflow: hidden">
+          <h2><i class="fa-solid fa-list-ol"></i> Live Patient Queue</h2>
+          <div id="queueList" class="scroll-area">
+            <div
+              style="text-align: center; color: var(--text-sec); padding: 40px"
+            >
+              <i
+                class="fa-solid fa-circle-notch fa-spin"
+                style="font-size: 1.5rem; margin-bottom: 12px"
+              ></i>
+              <p>Syncing live data...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <script>
-        const API_URL = window.location.origin;
-        const TOKEN = localStorage.getItem('token');
-        const HOSP_ID = localStorage.getItem('hospital_id');
+      const API_URL = window.location.origin;
+      const TOKEN = localStorage.getItem("token");
+      const HOSP_ID = localStorage.getItem("hospital_id");
 
-        if (!TOKEN) window.location.href = "/";
+      if (!TOKEN) window.location.href = "/";
 
-        // 1. REGISTER PATIENT
-        document.getElementById('regForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const payload = {
-                username: document.getElementById('username').value,
-                full_name: document.getElementById('fullname').value,
-                severity: parseInt(document.getElementById('severity').value)
-            };
+      // --- 1. WEBSOCKET FOR ALERTS ---
+      function setupWebSocket() {
+        const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+        // Graceful fallback if WS fails or path differs
+        try {
+          const socket = new WebSocket(
+            `${proto}//${window.location.host}/dashboard/ws/city-beds`,
+          );
 
+          socket.onmessage = (event) => {
             try {
-                const res = await fetch(`${API_URL}/hospital/register-patient?hospital_id=${HOSP_ID}`, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(payload)
-                });
+              const data = JSON.parse(event.data);
 
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.detail);
-
-                alert(`Success! Priority Score: ${data.queue_position}`);
-                document.getElementById('regForm').reset();
-                loadQueue(); 
-
-            } catch (err) {
-                alert("Error: " + err.message);
+              // CHECK: Is it an EMERGENCY for THIS hospital?
+              if (
+                data.type === "EMERGENCY" &&
+                String(data.hospital_id) === String(HOSP_ID)
+              ) {
+                triggerEmergency(data);
+              } else if (data === "UPDATE") {
+                loadQueue();
+              }
+            } catch (e) {
+              if (event.data === "UPDATE") loadQueue();
             }
+          };
+
+          socket.onclose = () => setTimeout(setupWebSocket, 3000);
+        } catch (e) {
+          console.log("WebSocket init error", e);
+        }
+      }
+
+      // --- 2. EMERGENCY LOGIC ---
+      function triggerEmergency(data) {
+        document.getElementById("alertEta").innerText = `ETA: ${data.eta}`;
+        document.getElementById("alertCondition").innerText =
+          `Condition: ${data.condition}`;
+        document.getElementById("alertDriver").innerText =
+          `Source: ${data.driver}`;
+        document.getElementById("emergencyAlert").classList.add("active");
+        // Optional: sound here
+      }
+
+      function acknowledgeAlert() {
+        document.getElementById("emergencyAlert").classList.remove("active");
+      }
+
+      // --- 3. REGISTER PATIENT ---
+      document
+        .getElementById("regForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const btn = e.target.querySelector("button");
+          const originalText = btn.innerHTML;
+          btn.innerHTML =
+            '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+          btn.disabled = true;
+
+          const payload = {
+            username: document.getElementById("username").value,
+            full_name: document.getElementById("fullname").value,
+            severity: parseInt(document.getElementById("severity").value),
+          };
+
+          try {
+            const res = await fetch(
+              `${API_URL}/hospital/register-patient?hospital_id=${HOSP_ID}`,
+              {
+                method: "POST",
+                headers: {
+                  Authorization: `Bearer ${TOKEN}`,
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify(payload),
+              },
+            );
+
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.detail);
+
+            alert(`Patient Registered! Priority Score: ${data.queue_position}`);
+            document.getElementById("regForm").reset();
+            loadQueue();
+          } catch (err) {
+            alert("Error: " + err.message);
+          } finally {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }
         });
 
-        // 2. FETCH QUEUE (Read-Only View)
-        async function loadQueue() {
-            try {
-                const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/queue`, {
-                    headers: { 'Authorization': `Bearer ${TOKEN}` }
-                });
-                const queue = await res.json();
-                
-                const list = document.getElementById('queueList');
-                
-                if (queue.length === 0) {
-                    list.innerHTML = "<div style='text-align:center; padding:40px; color:var(--muted);'>✅ Queue is currently empty.</div>";
-                    return;
-                }
+      // --- 4. FETCH QUEUE ---
+      async function loadQueue() {
+        try {
+          const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/queue`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const queue = await res.json();
+          const list = document.getElementById("queueList");
 
-                list.innerHTML = "";
-                queue.forEach(p => {
-                    // Logic for Badge Styling
-                    let badgeClass = 'badge-stable';
-                    let badgeText = 'STABLE';
-                    
-                    if (p.severity >= 7) { badgeClass = 'badge-critical'; badgeText = 'CRITICAL'; }
-                    else if (p.severity >= 5) { badgeClass = 'badge-urgent'; badgeText = 'URGENT'; }
+          if (queue.length === 0) {
+            list.innerHTML = `
+            <div style="text-align:center; padding:40px; color:var(--text-sec);">
+                <i class="fa-solid fa-clipboard-check" style="font-size: 2rem; margin-bottom: 16px; opacity: 0.5;"></i>
+                <p>Queue is currently empty.</p>
+            </div>`;
+            return;
+          }
 
-                    list.innerHTML += `
-                        <div class="queue-item" style="border-left: 4px solid ${p.severity >= 7 ? '#ef4444' : '#10b981'}">
-                            <div class="patient-info">
-                                <strong>Patient #${p.patient_id}</strong>
-                                <span>Priority Score: ${p.priority_score}</span>
-                            </div>
-                            <span class="badge ${badgeClass}">${badgeText} (Lvl ${p.severity})</span>
-                        </div>`;
-                });
-            } catch (error) {
-                console.error("Queue Load Error:", error);
+          list.innerHTML = "";
+          queue.forEach((p) => {
+            let badgeClass = "badge-stable";
+            let badgeText = "STABLE";
+            let icon = "fa-user";
+
+            if (p.severity >= 7) {
+              badgeClass = "badge-critical";
+              badgeText = "CRITICAL";
+              icon = "fa-user-injured";
+            } else if (p.severity >= 5) {
+              badgeClass = "badge-urgent";
+              badgeText = "URGENT";
+              icon = "fa-user-clock";
             }
-        }
 
-        function logout() { localStorage.clear(); window.location.href = "/"; }
-        
-        loadQueue();
-        setInterval(loadQueue, 5000); 
+            list.innerHTML += `
+          <div class="queue-item" style="border-left: 4px solid ${p.severity >= 7 ? "var(--danger)" : p.severity >= 5 ? "var(--warning)" : "var(--success)"}">
+            <div class="patient-info">
+              <strong>Patient #${p.patient_id}</strong>
+              <span><i class="fa-solid fa-sort-amount-up"></i> Priority Score: ${p.priority_score}</span>
+            </div>
+            <div class="badge ${badgeClass}">
+                <i class="fa-solid ${icon}"></i> ${badgeText} (Lvl ${p.severity})
+            </div>
+          </div>`;
+          });
+        } catch (error) {
+          console.error("Queue Load Error:", error);
+        }
+      }
+
+      function logout() {
+        localStorage.clear();
+        window.location.href = "/";
+      }
+
+      // Initial Load
+      loadQueue();
+      setupWebSocket();
+      setInterval(loadQueue, 5000);
     </script>
-</body>
+  </body>
 </html>

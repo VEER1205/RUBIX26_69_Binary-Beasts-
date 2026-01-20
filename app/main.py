@@ -3,8 +3,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles 
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
-from .routers import hospital, dashboard, seed, auth,super_admin,analytics
+from .routers import hospital, dashboard, seed, auth,super_admin,analytics,emergency
 import os
+
 
 app = FastAPI(title="Hospital Operations Sync")
 
@@ -28,6 +29,7 @@ app.add_middleware(
 @app.on_event("startup")
 async def startup():
     async with engine.begin() as conn:
+        # await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
 
 # Include Routers
@@ -37,6 +39,7 @@ app.include_router(seed.router)
 app.include_router(auth.router)
 app.include_router(super_admin.router)
 app.include_router(analytics.router)
+app.include_router(emergency.router)
 
 # --- 2. THE NEW HOME PAGE ROUTE ---
 @app.get("/")
@@ -62,3 +65,7 @@ async def read_receptionist_page(request: Request):
 @app.get("/patient")
 async def read_patient_page(request: Request):
     return templates.TemplateResponse("patient.html", {"request": request})
+
+@app.get("/ambulance")
+async def read_ambulance_page(request: Request):
+    return templates.TemplateResponse("ambulance.html", {"request": request})

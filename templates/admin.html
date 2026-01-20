@@ -1,124 +1,291 @@
 <!doctype html>
+
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Hospital Command Center</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+
     <style>
+      /* --- DESIGN SYSTEM START --- */
       :root {
-        --bg: #0f172a;
-        --card: #1e293b;
-        --text: #f1f5f9;
+        --bg: #0a0e17;
+        --card: #141b2d;
+        --border: #253347;
+        --text: #e2e8f0;
+        --text-sec: #94a3b8;
         --primary: #3b82f6;
-        --danger: #ef4444;
+        --primary-h: #2563eb;
         --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        --radius: 12px;
       }
+
+      * {
+        box-sizing: border-box;
+      }
+
       body {
         background: var(--bg);
         color: var(--text);
-        font-family: sans-serif;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        line-height: 1.5;
         margin: 0;
-        padding: 20px;
       }
 
-      /* Layout */
       .container {
-        max-width: 1200px;
+        max-width: 1400px;
+        padding: 24px 16px;
         margin: 0 auto;
       }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+      }
+
+      h3 {
+        margin-top: 0;
+        color: var(--text);
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      /* Buttons */
+      button {
+        border: none;
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+      }
+
+      button.action {
+        padding: 14px;
+        background: var(--success);
+        color: white;
+        border-radius: var(--radius);
+        font-weight: 600;
+        width: 100%;
+        font-size: 1rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+      }
+      button.action:hover {
+        filter: brightness(1.1);
+      }
+
+      /* Tables */
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 10px;
+      }
+      thead th {
+        background: #1e293b;
+        position: sticky;
+        top: 0;
+        text-align: left;
+        padding: 16px;
+        color: var(--text-sec);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        z-index: 10;
+        border-bottom: 1px solid var(--border);
+      }
+      thead th:first-child {
+        border-top-left-radius: 8px;
+      }
+      thead th:last-child {
+        border-top-right-radius: 8px;
+      }
+
+      td {
+        padding: 16px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+      }
+      tr:hover {
+        background: rgba(59, 130, 246, 0.08);
+      }
+
+      /* Floating Labels & Forms */
+      .form-group {
+        position: relative;
+        margin-bottom: 20px;
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 24px 16px 8px 16px; /* Top padding for label space */
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s;
+        appearance: none;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        border-color: var(--primary);
+      }
+
+      .form-group label {
+        position: absolute;
+        top: 50%;
+        left: 16px;
+        transform: translateY(-50%);
+        color: var(--text-sec);
+        pointer-events: none;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+      }
+
+      /* Float label up when focused or has value */
+      .form-group input:focus + label,
+      .form-group input:not(:placeholder-shown) + label,
+      .form-group select:focus + label,
+      .form-group select:valid + label {
+        top: 14px;
+        font-size: 0.75rem;
+        color: var(--primary);
+        transform: translateY(-50%);
+        font-weight: 600;
+      }
+
+      /* Layout Utilities */
       header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 20px;
-        border-bottom: 1px solid #334155;
-        padding-bottom: 10px;
+        margin-bottom: 32px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      header h1 {
+        margin: 0;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+      }
+      @media (max-width: 768px) {
+        .grid-2 {
+          grid-template-columns: 1fr;
+        }
       }
 
       /* Tabs */
       .tabs {
         display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
+        gap: 12px;
+        margin-bottom: 24px;
+        overflow-x: auto;
+        padding-bottom: 4px;
       }
       .tab-btn {
-        background: #334155;
-        color: #94a3b8;
-        border: none;
+        background: transparent;
+        color: var(--text-sec);
+        border: 1px solid var(--border);
         padding: 10px 20px;
-        cursor: pointer;
-        border-radius: 8px;
-        font-weight: bold;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .tab-btn:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: var(--text);
       }
       .tab-btn.active {
         background: var(--primary);
         color: white;
+        border-color: var(--primary);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
       }
 
+      /* Sections & Animation */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
       .section {
         display: none;
       }
       .section.active {
         display: block;
+        animation: fadeIn 0.4s ease-out;
       }
 
-      /* Cards & Grids */
-      .grid-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 20px;
+      /* Status Badges */
+      .badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: bold;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
       }
-      .card {
-        background: var(--card);
-        padding: 20px;
-        border-radius: 12px;
-        border: 1px solid #334155;
-      }
-
-      /* Tables & Forms */
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-      }
-      th,
-      td {
-        text-align: left;
-        padding: 12px;
-        border-bottom: 1px solid #334155;
-      }
-      input,
-      select {
-        width: 100%;
-        padding: 10px;
-        margin-bottom: 10px;
-        background: #020617;
-        border: 1px solid #334155;
-        color: white;
-        border-radius: 6px;
-      }
-      button.action {
-        width: 100%;
-        padding: 10px;
-        background: var(--success);
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-      }
-
-      /* Inventory Status Badges */
       .status-ok {
+        background: rgba(16, 185, 129, 0.1);
         color: var(--success);
+        border: 1px solid rgba(16, 185, 129, 0.2);
       }
       .status-low {
-        color: #f59e0b;
-        font-weight: bold;
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border: 1px solid rgba(245, 158, 11, 0.2);
         animation: pulse 2s infinite;
       }
       .status-out {
+        background: rgba(239, 68, 68, 0.1);
         color: var(--danger);
-        font-weight: bold;
+        border: 1px solid rgba(239, 68, 68, 0.2);
       }
 
       @keyframes pulse {
@@ -126,83 +293,120 @@
           opacity: 1;
         }
         50% {
-          opacity: 0.5;
+          opacity: 0.6;
         }
         100% {
           opacity: 1;
         }
+      }
+
+      /* Logout Button */
+      .btn-logout {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid var(--danger);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn-logout:hover {
+        background: var(--danger);
+        color: white;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <header>
-        <h1>🏥 Command Center</h1>
+        <h1><i class="fa-solid fa-hospital-user"></i> Command Center</h1>
         <button
+          class="btn-logout"
           onclick="
             localStorage.clear();
             window.location.href = '/';
           "
-          style="
-            background: var(--danger);
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-          "
         >
-          Logout
+          <i class="fa-solid fa-sign-out-alt"></i> Logout
         </button>
       </header>
 
       <div class="tabs">
         <button class="tab-btn active" onclick="showTab('staff')">
-          👥 Staff
+          <i class="fa-solid fa-user-doctor"></i> Staff Management
         </button>
         <button class="tab-btn" onclick="showTab('inventory')">
-          📦 Inventory & Auto-Alerts
+          <i class="fa-solid fa-boxes-stacked"></i> Inventory & Alerts
         </button>
         <button class="tab-btn" onclick="showTab('analytics')">
-          📊 Analytics & Graphs
+          <i class="fa-solid fa-chart-pie"></i> Live Analytics
         </button>
       </div>
 
       <div id="staff" class="section active">
         <div class="grid-2">
           <div class="card">
-            <h3>Add Staff</h3>
+            <h3><i class="fa-solid fa-user-plus"></i> Add New Staff</h3>
             <form id="addStaffForm">
-              <input
-                type="text"
-                id="fullname"
-                placeholder="Full Name"
-                required
-              />
-              <input
-                type="text"
-                id="username"
-                placeholder="Username"
-                required
-              />
-              <input
-                type="password"
-                id="password"
-                placeholder="Password"
-                required
-              />
-              <select id="role">
-                <option value="doctor">Doctor</option>
-                <option value="receptionist">Receptionist</option>
-              </select>
-              <button type="submit" class="action">Create User</button>
+              <div class="form-group">
+                <input type="text" id="fullname" placeholder=" " required />
+                <label for="fullname">Full Name</label>
+              </div>
+
+              <div class="form-group">
+                <input type="text" id="username" placeholder=" " required />
+                <label for="username">Username</label>
+              </div>
+
+              <div class="form-group">
+                <input type="password" id="password" placeholder=" " required />
+                <label for="password">Password</label>
+              </div>
+
+              <div class="form-group">
+                <select id="role" required>
+                  <option value="" disabled selected hidden></option>
+                  <option value="doctor">Doctor</option>
+                  <option value="receptionist">Receptionist</option>
+                </select>
+                <label for="role">Role Permission</label>
+                <i
+                  class="fa-solid fa-chevron-down"
+                  style="
+                    position: absolute;
+                    right: 16px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: var(--text-sec);
+                    pointer-events: none;
+                    font-size: 0.8rem;
+                  "
+                ></i>
+              </div>
+
+              <button type="submit" class="action">
+                <i class="fa-solid fa-plus-circle"></i> Create User Account
+              </button>
             </form>
           </div>
+
           <div class="card">
-            <h3>Staff List</h3>
-            <table id="staffTable">
-              <tbody></tbody>
-            </table>
+            <h3>
+              <i class="fa-solid fa-users-rectangle"></i> Active Staff Directory
+            </h3>
+            <div style="overflow-y: auto; flex: 1">
+              <table id="staffTable">
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Role</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -210,40 +414,72 @@
       <div id="inventory" class="section">
         <div class="grid-2">
           <div class="card">
-            <h3>Add Item</h3>
+            <h3><i class="fa-solid fa-box-open"></i> Add Inventory Item</h3>
             <form id="addItemForm">
-              <input
-                type="text"
-                id="itemName"
-                placeholder="Item Name (e.g. Oxygen Mask)"
-                required
-              />
-              <select id="category">
-                <option value="Medicine">Medicine</option>
-                <option value="Equipment">Equipment</option>
-              </select>
-              <input type="number" id="qty" placeholder="Quantity" required />
-              <input
-                type="number"
-                id="threshold"
-                placeholder="Low Stock Alert Level (e.g. 10)"
-                value="10"
-              />
-              <button type="submit" class="action">Add to Inventory</button>
+              <div class="form-group">
+                <input type="text" id="itemName" placeholder=" " required />
+                <label for="itemName">Item Name (e.g. Oxygen Mask)</label>
+              </div>
+
+              <div class="form-group">
+                <select id="category" required>
+                  <option value="" disabled selected hidden></option>
+                  <option value="Medicine">Medicine</option>
+                  <option value="Equipment">Equipment</option>
+                </select>
+                <label for="category">Category</label>
+                <i
+                  class="fa-solid fa-chevron-down"
+                  style="
+                    position: absolute;
+                    right: 16px;
+                    top: 50%;
+                    transform: translateY(-50%);
+                    color: var(--text-sec);
+                    pointer-events: none;
+                    font-size: 0.8rem;
+                  "
+                ></i>
+              </div>
+
+              <div class="form-group">
+                <input type="number" id="qty" placeholder=" " required />
+                <label for="qty">Quantity On Hand</label>
+              </div>
+
+              <div class="form-group">
+                <input
+                  type="number"
+                  id="threshold"
+                  placeholder=" "
+                  value="10"
+                  required
+                />
+                <label for="threshold">Low Stock Alert Threshold</label>
+              </div>
+
+              <button type="submit" class="action">
+                <i class="fa-solid fa-dolly"></i> Add to Inventory
+              </button>
             </form>
           </div>
+
           <div class="card">
-            <h3>Current Stock</h3>
-            <table id="invTable">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Qty</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+            <h3>
+              <i class="fa-solid fa-clipboard-list"></i> Current Stock Status
+            </h3>
+            <div style="overflow-y: auto; flex: 1">
+              <table id="invTable">
+                <thead>
+                  <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody></tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -251,11 +487,34 @@
       <div id="analytics" class="section">
         <div
           class="card"
-          style="height: 400px; display: flex; justify-content: center"
+          style="
+            align-items: center;
+            justify-content: center;
+            min-height: 500px;
+          "
         >
-          <div style="width: 350px">
-            <h3 style="text-align: center">Real-Time Bed Occupancy</h3>
-            <canvas id="bedChart"></canvas>
+          <div style="width: 100%; max-width: 450px; text-align: center">
+            <h3>
+              <i class="fa-solid fa-bed-pulse"></i> Real-Time Bed Occupancy
+            </h3>
+            <div style="position: relative; margin-top: 20px">
+              <canvas id="bedChart"></canvas>
+              <div
+                style="
+                  position: absolute;
+                  top: 50%;
+                  left: 50%;
+                  transform: translate(-50%, -50%);
+                  pointer-events: none;
+                  text-align: center;
+                "
+              >
+                <i
+                  class="fa-solid fa-procedures"
+                  style="font-size: 2rem; color: var(--text-sec); opacity: 0.5"
+                ></i>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -274,31 +533,46 @@
         document
           .querySelectorAll(".tab-btn")
           .forEach((el) => el.classList.remove("active"));
+
         document.getElementById(id).classList.add("active");
-        event.target.classList.add("active");
+
+        // Find the button that called this function (or match by text/id if needed, but event.target is simpler)
+        const buttons = document.querySelectorAll(".tab-btn");
+        if (id === "staff") buttons[0].classList.add("active");
+        if (id === "inventory") buttons[1].classList.add("active");
+        if (id === "analytics") buttons[2].classList.add("active");
 
         if (id === "inventory") loadInventory();
         if (id === "analytics") loadCharts();
         if (id === "staff") loadStaff();
       }
 
-      // --- STAFF LOGIC (Existing) ---
+      // --- STAFF LOGIC ---
       async function loadStaff() {
-        const res = await fetch(`${API}/hospital/staff/all`, {
-          headers: { Authorization: `Bearer ${TOKEN}` },
-        });
-        const data = await res.json();
-        document.querySelector("#staffTable tbody").innerHTML = data
-          .map((u) => `<tr><td>${u.full_name}</td><td>${u.role}</td></tr>`)
-          .join("");
+        try {
+          const res = await fetch(`${API}/hospital/staff/all`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const data = await res.json();
+          document.querySelector("#staffTable tbody").innerHTML = data
+            .map(
+              (u) => `
+            <tr>
+                <td><div style="display:flex; align-items:center; gap:8px;"><i class="fa-solid fa-user-circle" style="color:var(--primary)"></i> ${u.full_name}</div></td>
+                <td><span style="color:var(--text-sec); text-transform:capitalize;">${u.role}</span></td>
+            </tr>
+        `,
+            )
+            .join("");
+        } catch (e) {
+          console.error("API Mock/Error", e);
+        }
       }
 
       document
         .getElementById("addStaffForm")
         .addEventListener("submit", async (e) => {
           e.preventDefault();
-
-          // 1. Get values from the form
           const payload = {
             full_name: document.getElementById("fullname").value,
             username: document.getElementById("username").value,
@@ -307,7 +581,6 @@
           };
 
           try {
-            // 2. Send real POST request to backend
             const res = await fetch(`${API}/hospital/staff/add`, {
               method: "POST",
               headers: {
@@ -317,11 +590,10 @@
               body: JSON.stringify(payload),
             });
 
-            // 3. Handle success or error
             if (res.ok) {
               alert("Staff member created successfully! 🎉");
-              document.getElementById("addStaffForm").reset(); // Clear form
-              loadStaff(); // Refresh the table instantly
+              document.getElementById("addStaffForm").reset();
+              loadStaff();
             } else {
               const err = await res.json();
               alert("Error: " + err.detail);
@@ -332,25 +604,34 @@
           }
         });
 
-      // --- INVENTORY LOGIC (New) ---
+      // --- INVENTORY LOGIC ---
       async function loadInventory() {
-        const res = await fetch(`${API}/analytics/inventory`, {
-          headers: { Authorization: `Bearer ${TOKEN}` },
-        });
-        const data = await res.json();
+        try {
+          const res = await fetch(`${API}/analytics/inventory`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const data = await res.json();
 
-        const tbody = document.querySelector("#invTable tbody");
-        tbody.innerHTML = "";
+          const tbody = document.querySelector("#invTable tbody");
+          tbody.innerHTML = "";
 
-        data.forEach((item) => {
-          let statusBadge = `<span class="status-ok">OK</span>`;
-          if (item.status === "LOW_STOCK")
-            statusBadge = `<span class="status-low">⚠️ LOW STOCK</span>`;
-          if (item.status === "OUT_OF_STOCK")
-            statusBadge = `<span class="status-out">❌ EMPTY</span>`;
+          data.forEach((item) => {
+            let statusBadge = `<span class="badge status-ok"><i class="fa-solid fa-check"></i> OK</span>`;
+            if (item.status === "LOW_STOCK")
+              statusBadge = `<span class="badge status-low"><i class="fa-solid fa-triangle-exclamation"></i> LOW</span>`;
+            if (item.status === "OUT_OF_STOCK")
+              statusBadge = `<span class="badge status-out"><i class="fa-solid fa-xmark"></i> EMPTY</span>`;
 
-          tbody.innerHTML += `<tr><td>${item.name}</td><td>${item.qty}</td><td>${statusBadge}</td></tr>`;
-        });
+            tbody.innerHTML += `
+            <tr>
+                <td style="font-weight:500;">${item.name}</td>
+                <td>${item.qty}</td>
+                <td>${statusBadge}</td>
+            </tr>`;
+          });
+        } catch (e) {
+          console.error("API Mock/Error", e);
+        }
       }
 
       document
@@ -363,45 +644,72 @@
             quantity: +document.getElementById("qty").value,
             threshold: +document.getElementById("threshold").value,
           };
-          await fetch(`${API}/analytics/inventory/add`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${TOKEN}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          });
-          loadInventory();
-          document.getElementById("addItemForm").reset();
+          try {
+            await fetch(`${API}/analytics/inventory/add`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${TOKEN}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(payload),
+            });
+            loadInventory();
+            document.getElementById("addItemForm").reset();
+          } catch (e) {
+            console.error(e);
+          }
         });
 
-      // --- CHARTS LOGIC (New) ---
+      // --- CHARTS LOGIC ---
       let myChart = null;
       async function loadCharts() {
-        const res = await fetch(`${API}/analytics/stats`, {
-          headers: { Authorization: `Bearer ${TOKEN}` },
-        });
-        const stats = await res.json();
+        try {
+          const res = await fetch(`${API}/analytics/stats`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const stats = await res.json();
 
-        const ctx = document.getElementById("bedChart").getContext("2d");
-        if (myChart) myChart.destroy(); // Prevent duplicate charts
+          const ctx = document.getElementById("bedChart").getContext("2d");
+          if (myChart) myChart.destroy();
 
-        myChart = new Chart(ctx, {
-          type: "doughnut",
-          data: {
-            labels: ["Available", "Occupied"],
-            datasets: [
-              {
-                data: [stats.AVAILABLE, stats.OCCUPIED],
-                backgroundColor: ["#10b981", "#ef4444"],
-                borderWidth: 0,
+          Chart.defaults.color = "#94a3b8";
+          Chart.defaults.font.family = "system-ui";
+
+          myChart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+              labels: ["Available Beds", "Occupied Beds"],
+              datasets: [
+                {
+                  data: [stats.AVAILABLE, stats.OCCUPIED],
+                  backgroundColor: ["#10b981", "#ef4444"], // Success and Danger vars
+                  borderWidth: 0,
+                  hoverOffset: 4,
+                },
+              ],
+            },
+            options: {
+              cutout: "70%",
+              responsive: true,
+              plugins: {
+                legend: {
+                  position: "bottom",
+                  labels: {
+                    color: "#e2e8f0", // var(--text)
+                    padding: 20,
+                    usePointStyle: true,
+                    pointStyle: "circle",
+                  },
+                },
               },
-            ],
-          },
-          options: { plugins: { legend: { labels: { color: "white" } } } },
-        });
+            },
+          });
+        } catch (e) {
+          console.error("API Mock/Error", e);
+        }
       }
 
+      // Initial Load
       loadStaff();
     </script>
   </body>

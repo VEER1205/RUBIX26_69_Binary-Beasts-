@@ -1,480 +1,455 @@
 <!doctype html>
+
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Super Admin Dashboard</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
+      /* --- DESIGN SYSTEM --- */
       :root {
-        --bg: #0f172a;
-        --card: #1e293b; /* Slightly lighter for contrast */
-        --border: #334155;
-        --text: #f1f5f9;
-        --muted: #94a3b8;
+        --bg: #0a0e17;
+        --card: #141b2d;
+        --border: #253347;
+        --text: #e2e8f0;
+        --text-sec: #94a3b8;
         --primary: #3b82f6;
-        --primary-hover: #2563eb;
+        --primary-h: #2563eb;
+        --success: #10b981;
+        --warning: #f59e0b;
         --danger: #ef4444;
-        --danger-hover: #dc2626;
-        --radius: 16px;
+        --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        --radius: 12px;
       }
 
       * {
         box-sizing: border-box;
-        font-family:
-          "Inter",
-          -apple-system,
-          BlinkMacSystemFont,
-          "Segoe UI",
-          Roboto,
-          sans-serif;
       }
 
       body {
-        margin: 0;
-        background-color: var(--bg);
+        background: var(--bg);
         color: var(--text);
-        min-height: 100vh;
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        line-height: 1.5;
+        margin: 0;
       }
 
-      /* --- Header --- */
+      .container {
+        max-width: 1400px;
+        padding: 24px 16px;
+        margin: 0 auto;
+      }
+
+      /* Cards */
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s;
+        height: 100%;
+      }
+      .card:hover {
+        transform: translateY(-2px);
+      }
+
+      h2 {
+        margin-top: 0;
+        color: var(--text);
+        font-size: 1.25rem;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 24px;
+      }
+
+      /* Buttons */
+      button {
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+      }
+
+      button.action {
+        padding: 14px;
+        background: var(--success);
+        color: white;
+        border: none;
+        border-radius: var(--radius);
+        font-weight: 600;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        font-size: 1rem;
+      }
+      button.action:hover {
+        filter: brightness(1.1);
+      }
+
+      /* Tables */
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        margin-top: 10px;
+      }
+      thead th {
+        background: #1e293b;
+        position: sticky;
+        top: 0;
+        text-align: left;
+        padding: 16px;
+        color: var(--text-sec);
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        z-index: 10;
+        border-bottom: 1px solid var(--border);
+      }
+      thead th:first-child {
+        border-top-left-radius: 8px;
+      }
+      thead th:last-child {
+        border-top-right-radius: 8px;
+      }
+
+      td {
+        padding: 16px;
+        border-bottom: 1px solid var(--border);
+        color: var(--text);
+      }
+      tr:hover {
+        background: rgba(59, 130, 246, 0.08);
+      }
+
+      /* Action Buttons in Table */
+      .table-btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        border: 1px solid transparent;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+      }
+      .btn-select {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary);
+        border-color: rgba(59, 130, 246, 0.2);
+      }
+      .btn-select:hover {
+        background: var(--primary);
+        color: white;
+      }
+
+      .btn-delete {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border-color: rgba(239, 68, 68, 0.2);
+      }
+      .btn-delete:hover {
+        background: var(--danger);
+        color: white;
+      }
+
+      /* Floating Labels & Forms */
+      .form-group {
+        position: relative;
+        margin-bottom: 20px;
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 24px 16px 8px 16px;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s;
+        appearance: none;
+      }
+
+      .form-group input:focus {
+        border-color: var(--primary);
+      }
+      .form-group input[readonly] {
+        cursor: not-allowed;
+        opacity: 0.6;
+        border-style: dashed;
+      }
+
+      .form-group label {
+        position: absolute;
+        top: 50%;
+        left: 16px;
+        transform: translateY(-50%);
+        color: var(--text-sec);
+        pointer-events: none;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+      }
+
+      .form-group input:focus + label,
+      .form-group input:not(:placeholder-shown) + label {
+        top: 14px;
+        font-size: 0.75rem;
+        color: var(--primary);
+        transform: translateY(-50%);
+        font-weight: 600;
+      }
+
+      /* Navbar */
       header {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 20px 40px;
-        background: rgba(15, 23, 42, 0.8);
-        backdrop-filter: blur(10px);
+        margin-bottom: 32px;
+        padding-bottom: 20px;
         border-bottom: 1px solid var(--border);
-        position: sticky;
-        top: 0;
-        z-index: 100;
       }
-
       header h1 {
         margin: 0;
-        font-size: 24px;
-        font-weight: 700;
-        background: linear-gradient(90deg, #3b82f6, #8b5cf6);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-      }
-
-      header button {
-        background: var(--danger);
-        color: white;
-        padding: 10px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 600;
-        border: none;
-        cursor: pointer;
-        transition: 0.2s;
-      }
-
-      header button:hover {
-        background: var(--danger-hover);
-      }
-
-      /* --- Layout --- */
-      main {
-        padding: 40px;
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-
-      .grid-layout {
-        display: grid;
-        /* Responsive Grid: Cards shrink to 350px before stacking */
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 30px;
-      }
-
-      .full-width {
-        grid-column: 1 / -1;
-      }
-
-      /* --- Cards --- */
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 30px;
-        box-shadow:
-          0 4px 6px -1px rgba(0, 0, 0, 0.1),
-          0 2px 4px -1px rgba(0, 0, 0, 0.06);
-      }
-
-      .card h2 {
-        margin-top: 0;
-        font-size: 1.25rem;
-        margin-bottom: 20px;
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 15px;
-        color: var(--text);
-      }
-
-      /* --- Forms --- */
-      form {
+        font-size: 1.5rem;
         display: flex;
-        flex-direction: column;
-        gap: 15px;
+        align-items: center;
+        gap: 12px;
       }
 
-      input {
-        background: #0f172a;
-        border: 1px solid var(--border);
-        color: var(--text);
-        padding: 12px 16px;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: 0.2s;
-        width: 100%;
-      }
-
-      input:focus {
-        outline: none;
-        border-color: var(--primary);
-        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-      }
-
-      .row {
-        display: flex;
-        gap: 15px;
-      }
-
-      .row input {
-        width: 100%;
-      }
-
-      button[type="submit"] {
-        background: var(--primary);
-        color: white;
-        padding: 12px;
-        border-radius: 8px;
-        border: none;
-        font-weight: 600;
-        cursor: pointer;
-        margin-top: 10px;
-        transition: 0.2s;
-      }
-
-      button[type="submit"]:hover {
-        background: var(--primary-hover);
-      }
-
-      /* --- Table --- */
-      .table-container {
-        overflow-x: auto;
-      }
-
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-      }
-
-      th {
-        text-align: left;
-        padding: 15px;
-        color: var(--muted);
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        border-bottom: 1px solid var(--border);
-      }
-
-      td {
-        padding: 15px;
-        border-bottom: 1px solid var(--border);
-        color: var(--text);
-        font-size: 0.95rem;
-      }
-
-      tbody tr:last-child td {
-        border-bottom: none;
-      }
-
-      tbody tr:hover {
-        background-color: rgba(255, 255, 255, 0.02);
-      }
-
-      .action-btn {
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 12px;
-        cursor: pointer;
-        border: none;
-        margin-right: 5px;
-      }
-
-      .select-btn {
-        background: rgba(59, 130, 246, 0.1);
-        color: var(--primary);
-        border: 1px solid rgba(59, 130, 246, 0.2);
-      }
-
-      .select-btn:hover {
-        background: rgba(59, 130, 246, 0.2);
-      }
-
-      .delete-btn {
+      .btn-logout {
         background: rgba(239, 68, 68, 0.1);
         color: var(--danger);
-        border: 1px solid rgba(239, 68, 68, 0.2);
+        border: 1px solid var(--danger);
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .btn-logout:hover {
+        background: var(--danger);
+        color: white;
       }
 
-      .delete-btn:hover {
-        background: rgba(239, 68, 68, 0.2);
+      /* Grid System */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 24px;
+        margin-bottom: 24px;
       }
-
       @media (max-width: 768px) {
-        .grid-layout {
+        .grid-2 {
           grid-template-columns: 1fr;
         }
-        main {
-          padding: 20px;
+      }
+
+      .row-inputs {
+        display: flex;
+        gap: 16px;
+      }
+      .row-inputs .form-group {
+        flex: 1;
+      }
+
+      /* Animation */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
       }
-      /* ... KEEP YOUR EXISTING CSS ... */
-      /* Just adding one specific style for the delete badge */
+      .animate-fade {
+        animation: fadeIn 0.4s ease-out;
+      }
+
       .badge-admin {
-        background: rgba(139, 92, 246, 0.1);
-        color: #8b5cf6;
-        border: 1px solid rgba(139, 92, 246, 0.2);
-        padding: 2px 8px;
-        border-radius: 4px;
-        font-size: 0.8em;
-      }
-      /* Make sure to copy the CSS from the previous message if you lost it */
-      :root {
-        --bg: #0f172a;
-        --card: #1e293b;
-        --border: #334155;
-        --text: #f1f5f9;
-        --muted: #94a3b8;
-        --primary: #3b82f6;
-        --danger: #ef4444;
-        --radius: 16px;
-      }
-      * {
-        box-sizing: border-box;
-        font-family: "Inter", sans-serif;
-      }
-      body {
-        margin: 0;
-        background-color: var(--bg);
-        color: var(--text);
-        min-height: 100vh;
-      }
-      header {
-        display: flex;
-        justify-content: space-between;
-        padding: 20px 40px;
-        background: rgba(15, 23, 42, 0.8);
-        border-bottom: 1px solid var(--border);
-        position: sticky;
-        top: 0;
-        z-index: 100;
-        backdrop-filter: blur(10px);
-      }
-      header h1 {
-        margin: 0;
-        font-size: 24px;
-        color: var(--primary);
-      }
-      header button {
-        background: var(--danger);
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        cursor: pointer;
-      }
-      main {
-        padding: 40px;
-        max-width: 1400px;
-        margin: 0 auto;
-      }
-      .grid-layout {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-        gap: 30px;
-      }
-      .full-width {
-        grid-column: 1 / -1;
-      }
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 30px;
-      }
-      input {
-        width: 100%;
-        background: #0f172a;
-        border: 1px solid var(--border);
-        color: white;
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 10px;
-      }
-      button[type="submit"] {
-        background: var(--primary);
-        color: white;
-        width: 100%;
-        padding: 12px;
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-      }
-      th,
-      td {
-        text-align: left;
-        padding: 15px;
-        border-bottom: 1px solid var(--border);
-      }
-      th {
-        color: var(--muted);
-      }
-      .action-btn {
-        padding: 6px 12px;
-        border-radius: 6px;
-        cursor: pointer;
-        border: none;
-        margin-right: 5px;
-        font-size: 12px;
-      }
-      .select-btn {
         background: rgba(59, 130, 246, 0.1);
         color: var(--primary);
-      }
-      .delete-btn {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
-      }
-      .row {
-        display: flex;
-        gap: 10px;
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        font-family: monospace;
       }
     </style>
   </head>
-
   <body>
-    <header>
-      <h1>🛡️ Platform Overview</h1>
-      <button onclick="logout()">Logout</button>
-    </header>
+    <div class="container animate-fade">
+      <header>
+        <h1><i class="fa-solid fa-shield-halved"></i> Super Admin Dashboard</h1>
+        <button class="btn-logout" onclick="logout()">
+          <i class="fa-solid fa-right-from-bracket"></i> Logout
+        </button>
+      </header>
 
-    <main class="grid-layout">
-      <section class="card">
-        <h2>Add New Hospital</h2>
-        <form id="createHospForm">
-          <input
-            type="text"
-            id="hospName"
-            placeholder="Hospital Name"
-            required
-          />
-          <input type="text" id="location" placeholder="Location" required />
-          <input
-            type="text"
-            id="contact"
-            placeholder="Contact Number"
-            required
-          />
-          <div class="row">
-            <input
-              type="number"
-              id="icuCount"
-              placeholder="ICU Beds"
-              value="10"
-            />
-            <input
-              type="number"
-              id="genCount"
-              placeholder="Gen Beds"
-              value="30"
-            />
-          </div>
-          <button type="submit">Create Hospital</button>
-        </form>
-      </section>
+      <div class="grid-2">
+        <div class="card">
+          <h2><i class="fa-solid fa-hospital-user"></i> Add New Hospital</h2>
+          <form id="createHospForm">
+            <div class="form-group">
+              <input type="text" id="hospName" placeholder=" " required />
+              <label for="hospName">Hospital Name</label>
+            </div>
 
-      <section class="card">
-        <h2>Assign Hospital Admin</h2>
-        <form id="createAdminForm">
-          <input
-            type="number"
-            id="targetHospId"
-            placeholder="Select ID from list below"
-            readonly
-            style="cursor: not-allowed; opacity: 0.7; background: #334155"
-          />
-          <input
-            type="text"
-            id="adminName"
-            placeholder="Admin Full Name"
-            required
-          />
-          <input type="text" id="adminUser" placeholder="Username" required />
-          <input
-            type="password"
-            id="adminPass"
-            placeholder="Password"
-            required
-          />
-          <button type="submit">Create Admin</button>
-        </form>
-      </section>
+            <div class="form-group">
+              <input type="text" id="location" placeholder=" " required />
+              <label for="location">Location (City/Area)</label>
+            </div>
 
-      <section class="card full-width">
-        <h2>🏥 Active Hospitals</h2>
+            <div class="form-group">
+              <input type="text" id="contact" placeholder=" " required />
+              <label for="contact">Contact Number</label>
+            </div>
+
+            <div class="row-inputs">
+              <div class="form-group">
+                <input
+                  type="number"
+                  id="icuCount"
+                  placeholder=" "
+                  value="10"
+                  required
+                />
+                <label for="icuCount">ICU Beds</label>
+              </div>
+              <div class="form-group">
+                <input
+                  type="number"
+                  id="genCount"
+                  placeholder=" "
+                  value="30"
+                  required
+                />
+                <label for="genCount">Gen Beds</label>
+              </div>
+            </div>
+
+            <button type="submit" class="action">
+              <i class="fa-solid fa-plus-circle"></i> Create Hospital
+            </button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2><i class="fa-solid fa-user-lock"></i> Assign Hospital Admin</h2>
+          <form id="createAdminForm">
+            <div class="form-group">
+              <input type="number" id="targetHospId" placeholder=" " readonly />
+              <label for="targetHospId"
+                >Target Hospital ID (Select from list)</label
+              >
+              <i
+                class="fa-solid fa-lock"
+                style="
+                  position: absolute;
+                  right: 16px;
+                  top: 50%;
+                  transform: translateY(-50%);
+                  color: var(--text-sec);
+                "
+              ></i>
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="adminName" placeholder=" " required />
+              <label for="adminName">Admin Full Name</label>
+            </div>
+
+            <div class="form-group">
+              <input type="text" id="adminUser" placeholder=" " required />
+              <label for="adminUser">Username</label>
+            </div>
+
+            <div class="form-group">
+              <input type="password" id="adminPass" placeholder=" " required />
+              <label for="adminPass">Password</label>
+            </div>
+
+            <button
+              type="submit"
+              class="action"
+              style="background: var(--primary)"
+            >
+              <i class="fa-solid fa-user-plus"></i> Create Admin Account
+            </button>
+          </form>
+        </div>
+      </div>
+
+      <div class="card" style="margin-bottom: 24px">
+        <h2>
+          <i class="fa-regular fa-building"></i> Active Hospitals Registry
+        </h2>
         <div style="overflow-x: auto">
           <table id="hospTable">
             <thead>
               <tr>
-                <th>ID</th>
+                <th width="80">ID</th>
                 <th>Name</th>
                 <th>Location</th>
-                <th>Action</th>
+                <th width="200">Action</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td colspan="4">Loading...</td>
+                <td
+                  colspan="4"
+                  style="text-align: center; color: var(--text-sec)"
+                >
+                  Loading records...
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
-      </section>
+      </div>
 
-      <section class="card full-width">
-        <h2>👤 Hospital Admins Registry</h2>
+      <div class="card">
+        <h2><i class="fa-solid fa-users-gear"></i> Hospital Admins Registry</h2>
         <div style="overflow-x: auto">
           <table id="adminTable">
             <thead>
               <tr>
-                <th>ID</th>
+                <th width="80">ID</th>
                 <th>Name</th>
                 <th>Username</th>
                 <th>Assigned Hospital</th>
-                <th>Action</th>
+                <th width="180">Action</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td colspan="5">Loading...</td>
+                <td
+                  colspan="5"
+                  style="text-align: center; color: var(--text-sec)"
+                >
+                  Loading records...
+                </td>
               </tr>
             </tbody>
           </table>
         </div>
-      </section>
-    </main>
+      </div>
+    </div>
 
     <script>
       const API_URL = window.location.origin;
@@ -490,27 +465,32 @@
           tbody.innerHTML = "";
 
           if (data.length === 0)
-            tbody.innerHTML = "<tr><td colspan='4'>No data found</td></tr>";
+            tbody.innerHTML =
+              "<tr><td colspan='4' style='text-align:center'>No data found</td></tr>";
 
           data.forEach((h) => {
             const hid = h.id || "?";
             tbody.innerHTML += `
-                    <tr>
-                        <td>#${hid}</td>
-                        <td>${h.hospital_name}</td>
-                        <td>${h.location}</td>
-                        <td>
-                            <button class="action-btn select-btn" onclick="selectHospital(${hid})">Select</button>
-                            <button class="action-btn delete-btn" onclick="deleteHospital(${hid})">Delete</button>
-                        </td>
-                    </tr>`;
+            <tr>
+                <td><span style="color:var(--text-sec)">#${hid}</span></td>
+                <td style="font-weight:600">${h.hospital_name}</td>
+                <td><i class="fa-solid fa-location-dot" style="color:var(--primary); margin-right:6px;"></i> ${h.location}</td>
+                <td>
+                    <button class="table-btn btn-select" onclick="selectHospital(${hid})">
+                        <i class="fa-solid fa-check"></i> Select
+                    </button>
+                    <button class="table-btn btn-delete" onclick="deleteHospital(${hid})">
+                        <i class="fa-solid fa-trash"></i> Delete
+                    </button>
+                </td>
+            </tr>`;
           });
         } catch (e) {
           console.error(e);
         }
       }
 
-      // --- NEW: LOAD ADMINS ---
+      // --- LOAD ADMINS ---
       async function loadAdmins() {
         try {
           const res = await fetch(`${API_URL}/super-admin/admins`, {
@@ -521,19 +501,22 @@
           tbody.innerHTML = "";
 
           if (data.length === 0)
-            tbody.innerHTML = "<tr><td colspan='5'>No admins found</td></tr>";
+            tbody.innerHTML =
+              "<tr><td colspan='5' style='text-align:center'>No admins found</td></tr>";
 
           data.forEach((u) => {
             tbody.innerHTML += `
-                    <tr>
-                        <td>${u.id}</td>
-                        <td>${u.full_name}</td>
-                        <td><span class="badge-admin">${u.username}</span></td>
-                        <td>${u.hospital_name}</td>
-                        <td>
-                            <button class="action-btn delete-btn" onclick="deleteAdmin(${u.id})">Remove Access</button>
-                        </td>
-                    </tr>`;
+            <tr>
+                <td><span style="color:var(--text-sec)">#${u.id}</span></td>
+                <td style="font-weight:600">${u.full_name}</td>
+                <td><span class="badge-admin"><i class="fa-solid fa-user-tag"></i> ${u.username}</span></td>
+                <td>${u.hospital_name}</td>
+                <td>
+                    <button class="table-btn btn-delete" onclick="deleteAdmin(${u.id})">
+                        <i class="fa-solid fa-ban"></i> Revoke Access
+                    </button>
+                </td>
+            </tr>`;
           });
         } catch (e) {
           console.error(e);
@@ -542,8 +525,15 @@
 
       // --- ACTIONS ---
       function selectHospital(id) {
-        document.getElementById("targetHospId").value = id;
+        const input = document.getElementById("targetHospId");
+        input.value = id;
         window.scrollTo({ top: 0, behavior: "smooth" });
+        // Trigger visual focus effect
+        input.parentElement.style.borderColor = "var(--primary)";
+        setTimeout(
+          () => (input.parentElement.style.borderColor = "var(--border)"),
+          1000,
+        );
       }
 
       document
@@ -565,7 +555,8 @@
             },
             body: JSON.stringify(payload),
           });
-          alert("Hospital Created");
+          alert("Hospital Created Successfully! 🎉");
+          document.getElementById("createHospForm").reset();
           loadHospitals();
         });
 
@@ -588,16 +579,22 @@
             body: JSON.stringify(payload),
           });
           if (res.ok) {
-            alert("Admin Created");
+            alert("Admin Created Successfully! 🛡️");
+            document.getElementById("createAdminForm").reset();
             loadAdmins();
           } else {
             const d = await res.json();
-            alert(d.detail);
+            alert("Error: " + d.detail);
           }
         });
 
       async function deleteHospital(id) {
-        if (!confirm("Delete Hospital?")) return;
+        if (
+          !confirm(
+            "Are you sure you want to delete this hospital? This cannot be undone.",
+          )
+        )
+          return;
         await fetch(`${API_URL}/super-admin/hospital/${id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${TOKEN}` },
@@ -605,9 +602,9 @@
         loadHospitals();
       }
 
-      // --- NEW: DELETE ADMIN FUNCTION ---
       async function deleteAdmin(id) {
-        if (!confirm("Revoke access for this admin?")) return;
+        if (!confirm("Are you sure you want to revoke access for this admin?"))
+          return;
         const res = await fetch(`${API_URL}/super-admin/admin/${id}`, {
           method: "DELETE",
           headers: { Authorization: `Bearer ${TOKEN}` },
@@ -621,9 +618,9 @@
         window.location.href = "/";
       }
 
-      // Init
+      // Initial Load
       loadHospitals();
-      loadAdmins(); // <--- Load the new table
+      loadAdmins();
     </script>
   </body>
 </html>

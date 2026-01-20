@@ -3,28 +3,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, case
 from .. import database, models
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
-from typing import List
+from ..websocket_manager import manager
 
 
-class PublicConnectionManager:
-    def __init__(self):
-        self.active_connections: List[WebSocket] = []
-
-    async def connect(self, websocket: WebSocket):
-        await websocket.accept()
-        self.active_connections.append(websocket)
-
-    def disconnect(self, websocket: WebSocket):
-        self.active_connections.remove(websocket)
-
-    async def broadcast(self, message: str):
-        # Sends a message to EVERYONE connected (No filter)
-        for connection in self.active_connections:
-            await connection.send_text(message)
-
-public_manager = PublicConnectionManager()
-
-# 2. Public Endpoint (NO TOKEN REQUIRED)
 
 
 router = APIRouter(
@@ -33,15 +14,13 @@ router = APIRouter(
 )
 
 @router.websocket("/ws/city-beds")
-async def public_websocket_endpoint(websocket: WebSocket):
-    await public_manager.connect(websocket)
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
     try:
         while True:
-            # Keep connection open. We generally don't expect 
-            # the public dashboard to send us messages, just listen.
             await websocket.receive_text()
     except WebSocketDisconnect:
-        public_manager.disconnect(websocket)
+        manager.disconnect(websocket)
 
 @router.get("/city-stats")
 async def get_city_stats(db: AsyncSession = Depends(database.get_db)):

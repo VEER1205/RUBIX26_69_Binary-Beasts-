@@ -55,3 +55,9 @@ class VisitRequest(BaseModel):
 class TransferRequest(BaseModel):
     current_bed_id: int
     target_bed_type: str # "GENERAL" or "ICU"
+
+class EmergencyAlert(BaseModel):
+    hospital_id: int
+    driver_name: str
+    eta: str # Estimated Time of Arrival (e.g., "10 mins")
+    patient_condition: str # e.g., "Cardiac Arrest"

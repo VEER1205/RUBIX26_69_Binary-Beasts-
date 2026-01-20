@@ -1,482 +1,792 @@
 <!doctype html>
+
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Hospital Admin - MediSync</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Doctor Dashboard - MediSync</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
     <style>
+      /* --- DESIGN SYSTEM START --- */
       :root {
-        --bg: #0f172a;
-        --card: #1e293b;
-        --border: #334155;
-        --text: #f1f5f9;
+        --bg: #0a0e17;
+        --card: #141b2d;
+        --border: #253347;
+        --text: #e2e8f0;
+        --text-sec: #94a3b8;
         --primary: #3b82f6;
-        --danger: #ef4444;
+        --primary-h: #2563eb;
         --success: #10b981;
         --warning: #f59e0b;
-      }
-      * {
-        box-sizing: border-box;
-        font-family: "Inter", sans-serif;
-      }
-      body {
-        margin: 0;
-        background: var(--bg);
-        color: var(--text);
-        padding: 20px;
-        min-height: 100vh;
+        --danger: #ef4444;
+        --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        --radius: 12px;
       }
 
-      header {
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        line-height: 1.5;
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden; /* App-like feel */
+      }
+
+      .container {
+        max-width: 100%;
+        padding: 16px 24px;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      /* Cards */
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 24px;
+        box-shadow: var(--shadow-sm);
+        transition: transform 0.2s;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 0;   
+        overflow: hidden;
+      }
+      /* .card:hover { transform: translateY(-2px); } Removed hover for main layout panels */
+
+      /* Buttons */
+      button {
+        cursor: pointer;
+        font-family: inherit;
+        transition: all 0.2s;
+      }
+
+      button.action {
+        padding: 10px 16px;
+        background: var(--success);
+        color: white;
+        border: none;
+        border-radius: var(--radius);
+        font-weight: 600;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+      }
+      button.action:hover {
+        filter: brightness(1.1);
+      }
+
+      .btn-danger {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+      }
+      .btn-danger:hover {
+        background: var(--danger);
+        color: white;
+      }
+
+      .btn-warning {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+      }
+      .btn-warning:hover {
+        background: var(--warning);
+        color: #000;
+      }
+
+      .btn-primary {
+        background: var(--primary);
+        color: white;
+        border: none;
+      }
+      .btn-primary:hover {
+        background: var(--primary-h);
+      }
+
+      /* Floating Labels & Forms */
+      .form-group {
+        position: relative;
+        margin-bottom: 20px;
+      }
+
+      .form-group input,
+      .form-group select {
+        width: 100%;
+        padding: 24px 16px 8px 16px;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        color: var(--text);
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.2s;
+        appearance: none;
+      }
+
+      .form-group input:focus,
+      .form-group select:focus {
+        border-color: var(--primary);
+      }
+
+      .form-group label {
+        position: absolute;
+        top: 50%;
+        left: 16px;
+        transform: translateY(-50%);
+        color: var(--text-sec);
+        pointer-events: none;
+        transition: all 0.2s ease;
+        font-size: 1rem;
+      }
+
+      .form-group input:focus + label,
+      .form-group input:not(:placeholder-shown) + label,
+      .form-group select:focus + label,
+      .form-group select:valid + label {
+        top: 14px;
+        font-size: 0.75rem;
+        color: var(--primary);
+        transform: translateY(-50%);
+        font-weight: 600;
+      }
+
+      /* Navbar */
+      header.top-nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
+        padding: 16px 24px;
+        background: var(--bg);
         border-bottom: 1px solid var(--border);
-        padding-bottom: 15px;
+        z-index: 10;
       }
-      header h1 {
+      header.top-nav h1 {
         margin: 0;
-        font-size: 24px;
-        color: var(--primary);
-      }
-
-      /* Navigation Tabs */
-      .tabs {
+        font-size: 1.5rem;
         display: flex;
-        gap: 10px;
-        margin-bottom: 25px;
-      }
-      .tab-btn {
-        background: var(--card);
-        color: #94a3b8;
-        border: 1px solid var(--border);
-        padding: 12px 24px;
-        cursor: pointer;
-        border-radius: 8px;
-        font-weight: 600;
-        transition: 0.2s;
-      }
-      .tab-btn:hover {
-        border-color: var(--primary);
-        color: var(--text);
-      }
-      .tab-btn.active {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
+        align-items: center;
+        gap: 12px;
       }
 
-      .section {
-        display: none;
-        animation: fadeIn 0.3s ease;
+      /* Layout Grid */
+      .dashboard-grid {
+        display: grid;
+        grid-template-columns: 350px 1fr 320px;
+        gap: 20px;
+        height: 100%;
+        overflow: hidden;
+        margin-top: 16px;
       }
-      .section.active {
-        display: block;
+
+      @media (max-width: 1200px) {
+        .dashboard-grid {
+          grid-template-columns: 300px 1fr;
+        }
+        .pharmacy-panel {
+          display: none;
+        }
+      }
+
+      /* Panel Specifics */
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      .panel-header h2 {
+        margin: 0;
+        font-size: 1.1rem;
+        color: var(--text-sec);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      .scroll-area {
+        overflow-y: auto;
+        flex: 1;
+        padding-right: 8px;
+      }
+
+      /* Scrollbar Styling */
+      .scroll-area::-webkit-scrollbar {
+        width: 6px;
+      }
+      .scroll-area::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .scroll-area::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 3px;
+      }
+      .scroll-area::-webkit-scrollbar-thumb:hover {
+        background: var(--text-sec);
+      }
+
+      /* Queue Items */
+      .queue-item {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        margin-bottom: 12px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        transition: border-color 0.2s;
+      }
+      .queue-item:hover {
+        border-color: var(--primary);
+      }
+      .queue-item.critical {
+        border-left: 3px solid var(--danger);
+      }
+      .queue-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .severity-badge {
+        font-size: 0.75rem;
+        padding: 2px 8px;
+        border-radius: 4px;
+        background: rgba(255, 255, 255, 0.05);
+      }
+
+      /* Bed Grid */
+      .bed-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+
+      .bed-card {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 16px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        position: relative;
+      }
+      .bed-card.occupied {
+        border-top: 3px solid var(--danger);
+      }
+      .bed-card.available {
+        border-top: 3px solid var(--success);
+      }
+
+      .bed-icon {
+        font-size: 1.5rem;
+        margin-bottom: 8px;
+        color: var(--text-sec);
+      }
+      .occupied .bed-icon {
+        color: var(--danger);
+      }
+      .available .bed-icon {
+        color: var(--success);
+      }
+
+      .bed-actions {
+        display: flex;
+        gap: 8px;
+        width: 100%;
+        margin-top: 12px;
+      }
+      .bed-actions button {
+        flex: 1;
+        font-size: 0.8rem;
+        padding: 6px;
+      }
+
+      /* Inventory Items */
+      .inv-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+        transition: background 0.2s;
+      }
+      .inv-item:hover {
+        background: rgba(255, 255, 255, 0.02);
+      }
+      .inv-meta {
+        display: flex;
+        flex-direction: column;
+      }
+      .inv-name {
+        font-weight: 500;
+      }
+      .inv-qty {
+        font-size: 0.8rem;
+        color: var(--text-sec);
+      }
+
+      /* Modal */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(10, 14, 23, 0.85);
+        backdrop-filter: blur(4px);
+        z-index: 2000;
+        align-items: center;
+        justify-content: center;
+      }
+      .modal.active {
+        display: flex;
+        animation: fadeIn 0.3s;
+      }
+      .modal-content {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        width: 100%;
+        max-width: 400px;
+        padding: 32px;
+        position: relative;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
       }
       @keyframes fadeIn {
         from {
           opacity: 0;
-          transform: translateY(5px);
+          transform: translateY(8px);
         }
         to {
           opacity: 1;
           transform: translateY(0);
         }
       }
-
-      /* Grid & Cards */
-      .grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-        gap: 25px;
-      }
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: 16px;
-        padding: 25px;
-      }
-      .card h3 {
-        margin-top: 0;
-        border-bottom: 1px solid var(--border);
-        padding-bottom: 10px;
-        margin-bottom: 20px;
-      }
-
-      /* Forms */
-      input,
-      select {
-        width: 100%;
-        background: #020617;
-        border: 1px solid var(--border);
-        color: white;
-        padding: 12px;
-        border-radius: 8px;
-        margin-bottom: 15px;
-      }
-      button.action {
-        width: 100%;
-        padding: 12px;
-        background: var(--success);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-      }
-      button.action:hover {
-        opacity: 0.9;
-      }
-
-      /* Tables */
-      table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      th,
-      td {
-        text-align: left;
-        padding: 12px;
-        border-bottom: 1px solid var(--border);
-      }
-      th {
-        color: #94a3b8;
-        font-size: 0.9em;
-      }
-
-      /* Status Badges */
-      .badge {
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.85em;
-        font-weight: bold;
-      }
-      .ok {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success);
-      }
-      .low {
-        background: rgba(245, 158, 11, 0.1);
-        color: var(--warning);
-        animation: pulse 1.5s infinite;
-      }
-      .out {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
-      }
-      @keyframes pulse {
-        50% {
-          opacity: 0.5;
-        }
-      }
     </style>
   </head>
   <body>
-    <header>
-      <h1>🏥 Hospital Command Center</h1>
-      <button
-        onclick="logout()"
-        style="
-          background: var(--danger);
-          color: white;
-          border: none;
-          padding: 10px 20px;
-          border-radius: 8px;
-          cursor: pointer;
-          font-weight: 600;
-        "
-      >
-        Logout
+    <header class="top-nav">
+      <h1><i class="fa-solid fa-user-doctor"></i> Doctor Console</h1>
+      <button onclick="logout()" class="action btn-danger" style="width: auto">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
       </button>
     </header>
 
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab('analytics')">
-        📊 Analytics
-      </button>
-      <button class="tab-btn" onclick="switchTab('inventory')">
-        📦 Inventory
-      </button>
-      <button class="tab-btn" onclick="switchTab('staff')">
-        👥 Staff Management
-      </button>
-    </div>
+    <div class="container">
+      <div class="dashboard-grid">
+        <aside class="card">
+          <div class="panel-header">
+            <h2>
+              <i class="fa-solid fa-clipboard-list"></i> Waiting List
+              <span id="q-count" style="color: var(--primary)">(0)</span>
+            </h2>
+          </div>
+          <div id="queue-list" class="scroll-area"></div>
+        </aside>
 
-    <div id="analytics" class="section active">
-      <div class="grid">
-        <div
+        <main
           class="card"
-          style="display: flex; flex-direction: column; align-items: center"
+          style="
+            background: var(--bg);
+            border: none;
+            box-shadow: none;
+            padding: 0;
+          "
         >
-          <h3>Bed Occupancy</h3>
-          <div style="height: 300px; width: 100%; max-width: 400px">
-            <canvas id="bedChart"></canvas>
-          </div>
-        </div>
-        <div class="card">
-          <h3>Quick Alerts</h3>
-          <div id="alertsArea">
-            <p style="color: #94a3b8">System running normally.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="inventory" class="section">
-      <div class="grid">
-        <div class="card">
-          <h3>Add Stock</h3>
-          <form id="addItemForm">
-            <input
-              type="text"
-              id="itemName"
-              placeholder="Item Name (e.g. Paracetamol)"
-              required
-            />
-            <select id="category">
-              <option value="Medicine">Medicine</option>
-              <option value="Equipment">Equipment</option>
-              <option value="Supplies">Supplies</option>
-            </select>
-            <div style="display: flex; gap: 10px">
-              <input type="number" id="qty" placeholder="Qty" required />
-              <input
-                type="number"
-                id="threshold"
-                placeholder="Low Alert (e.g. 10)"
-                value="10"
-              />
+          <div class="scroll-area" style="padding-right: 12px">
+            <div
+              class="panel-header"
+              style="
+                background: var(--card);
+                padding: 16px;
+                border-radius: var(--radius);
+                border: 1px solid var(--border);
+                margin-bottom: 24px;
+              "
+            >
+              <h2 style="margin: 0">
+                <i
+                  class="fa-solid fa-procedures"
+                  style="color: var(--danger)"
+                ></i>
+                ICU Ward
+              </h2>
             </div>
-            <button type="submit" class="action">Add Item</button>
-          </form>
-        </div>
-        <div class="card">
-          <h3>Current Inventory</h3>
-          <div style="overflow-y: auto; max-height: 400px">
-            <table id="invTable">
-              <thead>
-                <tr>
-                  <th>Item</th>
-                  <th>Category</th>
-                  <th>Qty</th>
-                  <th>Status</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+            <div id="icu-grid" class="bed-grid"></div>
+
+            <div
+              class="panel-header"
+              style="
+                background: var(--card);
+                padding: 16px;
+                border-radius: var(--radius);
+                border: 1px solid var(--border);
+                margin-bottom: 24px;
+                margin-top: 40px;
+              "
+            >
+              <h2 style="margin: 0">
+                <i class="fa-solid fa-bed" style="color: var(--primary)"></i>
+                General Ward
+              </h2>
+            </div>
+            <div id="gen-grid" class="bed-grid"></div>
           </div>
-        </div>
+        </main>
+
+        <aside class="card pharmacy-panel">
+          <div class="panel-header">
+            <h2>
+              <i class="fa-solid fa-prescription-bottle-medical"></i> Pharmacy
+            </h2>
+          </div>
+          <p
+            style="
+              color: var(--text-sec);
+              font-size: 0.85rem;
+              margin-bottom: 16px;
+            "
+          >
+            <i class="fa-solid fa-circle-info"></i> Select item to dispense
+          </p>
+          <div id="inventory-list" class="scroll-area"></div>
+        </aside>
       </div>
     </div>
 
-    <div id="staff" class="section">
-      <div class="grid">
-        <div class="card">
-          <h3>Register Staff</h3>
-          <form id="addStaffForm">
-            <input type="text" id="fullname" placeholder="Full Name" required />
-            <input type="text" id="username" placeholder="Username" required />
-            <input
-              type="password"
-              id="password"
-              placeholder="Password"
-              required
-            />
-            <select id="role">
-              <option value="doctor">Doctor</option>
-              <option value="receptionist">Receptionist</option>
-            </select>
-            <button type="submit" class="action">Create User</button>
-          </form>
-        </div>
-        <div class="card">
-          <h3>Staff Directory</h3>
-          <table id="staffTable">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Role</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
+    <div id="actionModal" class="modal">
+      <div class="modal-content">
+        <h3 id="modalTitle" style="margin-top: 0; margin-bottom: 20px">
+          Action
+        </h3>
+        <form id="modalForm">
+          <input type="hidden" id="modalActionType" />
+          <input type="hidden" id="modalTargetId" />
+          <input type="hidden" id="modalExtra" />
+
+          <div id="modalInputs"></div>
+
+          <div style="display: flex; gap: 12px; margin-top: 24px">
+            <button
+              type="button"
+              class="action btn-danger"
+              onclick="closeModal()"
+            >
+              Cancel
+            </button>
+            <button type="submit" class="action btn-primary">Confirm</button>
+          </div>
+        </form>
       </div>
     </div>
 
     <script>
-      const API = window.location.origin;
+      const API_URL = window.location.origin;
       const TOKEN = localStorage.getItem("token");
+      const HOSP_ID = localStorage.getItem("hospital_id");
+
       if (!TOKEN) window.location.href = "/";
 
-      function switchTab(id) {
-        document
-          .querySelectorAll(".section")
-          .forEach((el) => el.classList.remove("active"));
-        document
-          .querySelectorAll(".tab-btn")
-          .forEach((el) => el.classList.remove("active"));
-        document.getElementById(id).classList.add("active");
-        event.target.classList.add("active");
-        refreshAll();
-      }
-
+      // --- 1. INITIAL LOAD ---
       async function refreshAll() {
-        loadCharts();
-        loadInventory();
-        loadStaff();
+        await Promise.all([loadQueue(), loadBeds(), loadInventory()]);
       }
 
-      // --- CHARTS ---
-      let bedChart = null;
-      async function loadCharts() {
+      // --- 2. BEDS LOGIC ---
+      async function loadBeds() {
         try {
-          const res = await fetch(`${API}/analytics/stats`, {
+          const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/beds`, {
             headers: { Authorization: `Bearer ${TOKEN}` },
           });
-          const stats = await res.json();
+          const beds = await res.json();
 
-          const ctx = document.getElementById("bedChart").getContext("2d");
-          if (bedChart) bedChart.destroy();
+          const icu = document.getElementById("icu-grid");
+          const gen = document.getElementById("gen-grid");
+          icu.innerHTML = "";
+          gen.innerHTML = "";
 
-          bedChart = new Chart(ctx, {
-            type: "doughnut",
-            data: {
-              labels: ["Available", "Occupied"],
-              datasets: [
-                {
-                  data: [stats.AVAILABLE, stats.OCCUPIED],
-                  backgroundColor: ["#10b981", "#ef4444"],
-                  borderWidth: 0,
-                },
-              ],
-            },
-            options: {
-              responsive: true,
-              plugins: {
-                legend: { position: "bottom", labels: { color: "#f1f5f9" } },
-              },
-            },
+          beds.forEach((b) => {
+            const isOccupied = b.status === "OCCUPIED";
+            const targetType = b.bed_type === "ICU" ? "GENERAL" : "ICU";
+            const targetLabel = b.bed_type === "ICU" ? "Gen Ward" : "ICU";
+
+            let content = "";
+
+            if (isOccupied) {
+              content = `
+                <i class="fa-solid fa-bed-pulse bed-icon"></i>
+                <div style="font-weight:700; font-size:1.1rem; margin-bottom:4px;">Bed ${b.bed_number}</div>
+                <div style="background:rgba(59,130,246,0.1); color:var(--primary); padding:2px 8px; border-radius:4px; font-size:0.8rem; margin-bottom:8px;">
+                    Patient #${b.current_patient_id}
+                </div>
+                <div class="bed-actions">
+                    <button class="action btn-warning" onclick="openTransferModal(${b.id}, '${targetType}', '${targetLabel}')" title="Transfer">
+                        <i class="fa-solid fa-right-left"></i>
+                    </button>
+                    <button class="action btn-danger" onclick="openDischargeModal(${b.id})" title="Discharge">
+                        <i class="fa-solid fa-door-open"></i>
+                    </button>
+                </div>
+            `;
+            } else {
+              content = `
+                <i class="fa-solid fa-check-circle bed-icon"></i>
+                <div style="font-weight:700; font-size:1.1rem;">Bed ${b.bed_number}</div>
+                <div style="color:var(--success); font-size:0.85rem; margin-top:4px;">Available</div>
+            `;
+            }
+
+            const html = `<div class="bed-card ${isOccupied ? "occupied" : "available"}">${content}</div>`;
+
+            if (b.bed_type === "ICU") icu.innerHTML += html;
+            else gen.innerHTML += html;
           });
         } catch (e) {
-          console.error("Chart Error", e);
+          console.error(e);
         }
       }
 
-      // --- INVENTORY ---
+      // --- 3. QUEUE LOGIC ---
+      async function loadQueue() {
+        try {
+          const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/queue`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const queue = await res.json();
+          document.getElementById("q-count").innerText = `(${queue.length})`;
+
+          const list = document.getElementById("queue-list");
+          list.innerHTML = "";
+
+          if (queue.length === 0) {
+            list.innerHTML = `<div style="text-align:center; color:var(--text-sec); padding:20px;">No patients waiting</div>`;
+            return;
+          }
+
+          queue.forEach((p) => {
+            const isCritical = p.severity >= 7;
+            list.innerHTML += `
+                <div class="queue-item ${isCritical ? "critical" : ""}">
+                    <div class="queue-header">
+                        <span style="font-weight:700"><i class="fa-solid fa-user-injured"></i> #${p.patient_id}</span>
+                        <span class="severity-badge" style="color:${isCritical ? "var(--danger)" : "var(--warning)"}">
+                            Severity: ${p.severity}
+                        </span>
+                    </div>
+                    <button class="action btn-primary" onclick="openAdmitModal(${p.id})">
+                        <i class="fa-solid fa-user-check"></i> Admit Patient
+                    </button>
+                </div>
+            `;
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // --- 4. INVENTORY LOGIC ---
       async function loadInventory() {
-        const res = await fetch(`${API}/analytics/inventory`, {
-          headers: { Authorization: `Bearer ${TOKEN}` },
-        });
-        const data = await res.json();
-        const tbody = document.querySelector("#invTable tbody");
-        tbody.innerHTML = "";
-        const alerts = document.getElementById("alertsArea");
-        alerts.innerHTML = "";
-
-        data.forEach((i) => {
-          let badge = `<span class="badge ok">OK</span>`;
-          if (i.status === "LOW_STOCK") {
-            badge = `<span class="badge low">LOW</span>`;
-            alerts.innerHTML += `<p style="color:#f59e0b">⚠️ Low Stock: ${i.name} (${i.qty} left)</p>`;
-          }
-          if (i.status === "OUT_OF_STOCK") {
-            badge = `<span class="badge out">EMPTY</span>`;
-            alerts.innerHTML += `<p style="color:#ef4444">❌ Out of Stock: ${i.name}</p>`;
-          }
-
-          tbody.innerHTML += `<tr><td>${i.name}</td><td>${i.category || "-"}</td><td>${i.qty}</td><td>${badge}</td></tr>`;
-        });
-        if (!alerts.innerHTML)
-          alerts.innerHTML = "<p style='color:#94a3b8'>All systems normal.</p>";
-      }
-
-      document
-        .getElementById("addItemForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const payload = {
-            item_name: document.getElementById("itemName").value,
-            category: document.getElementById("category").value,
-            quantity: +document.getElementById("qty").value,
-            threshold: +document.getElementById("threshold").value,
-          };
-          await fetch(`${API}/analytics/inventory/add`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${TOKEN}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
+        try {
+          const res = await fetch(`${API_URL}/analytics/inventory`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
           });
-          loadInventory();
-          document.getElementById("addItemForm").reset();
-        });
+          const data = await res.json();
+          const list = document.getElementById("inventory-list");
+          list.innerHTML = "";
 
-      // --- STAFF ---
-      async function loadStaff() {
-        const res = await fetch(`${API}/hospital/staff/all`, {
-          headers: { Authorization: `Bearer ${TOKEN}` },
-        });
-        const data = await res.json();
-        document.querySelector("#staffTable tbody").innerHTML = data
-          .map(
-            (u) => `
-                <tr>
-                    <td>${u.full_name}</td>
-                    <td style="text-transform:capitalize">${u.role}</td>
-                    <td><button onclick="removeStaff(${u.id})" style="background:none; border:none; color:#ef4444; cursor:pointer;">✖ Remove</button></td>
-                </tr>
-            `,
-          )
-          .join("");
-      }
-
-      async function removeStaff(id) {
-        if (!confirm("Remove staff?")) return;
-        await fetch(`${API}/hospital/staff/${id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${TOKEN}` },
-        });
-        loadStaff();
-      }
-
-      document
-        .getElementById("addStaffForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const payload = {
-            full_name: document.getElementById("fullname").value,
-            username: document.getElementById("username").value,
-            password: document.getElementById("password").value,
-            role: document.getElementById("role").value,
-          };
-          const res = await fetch(`${API}/hospital/staff/add`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${TOKEN}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          });
-          if (res.ok) {
-            loadStaff();
-            document.getElementById("addStaffForm").reset();
-            alert("Staff Added");
-          } else {
-            alert("Error adding staff");
+          if (data.length === 0) {
+            list.innerHTML = `<div style="text-align:center; color:var(--text-sec); padding:20px;">Stock Empty</div>`;
+            return;
           }
-        });
+
+          data.forEach((item) => {
+            const disabled = item.qty <= 0;
+            list.innerHTML += `
+                <div class="inv-item" style="${disabled ? "opacity:0.5" : ""}">
+                    <div class="inv-meta">
+                        <span class="inv-name">${item.name}</span>
+                        <span class="inv-qty">${item.qty} units available</span>
+                    </div>
+                    <button class="action btn-primary" style="width:auto; padding:6px 12px;" 
+                        ${disabled ? "disabled" : ""} 
+                        onclick="openDispenseModal(${item.id}, '${item.name}')">
+                        Use
+                    </button>
+                </div>`;
+          });
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      // --- 5. MODAL SYSTEM (Replaces prompts/confirms) ---
+      const modal = document.getElementById("actionModal");
+      const modalForm = document.getElementById("modalForm");
+      const modalTitle = document.getElementById("modalTitle");
+      const modalInputs = document.getElementById("modalInputs");
+
+      function closeModal() {
+        modal.classList.remove("active");
+        modalInputs.innerHTML = "";
+      }
+
+      // Admit Modal
+      window.openAdmitModal = (queueId) => {
+        document.getElementById("modalActionType").value = "ADMIT";
+        document.getElementById("modalTargetId").value = queueId;
+        modalTitle.innerText = "Admit Patient";
+        modalInputs.innerHTML = `
+        <div class="form-group">
+            <select id="admitType" required>
+                <option value="" disabled selected hidden></option>
+                <option value="GENERAL">General Ward</option>
+                <option value="ICU">ICU Ward</option>
+            </select>
+            <label for="admitType">Select Ward Type</label>
+            <i class="fa-solid fa-chevron-down" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-sec); pointer-events: none; font-size: 0.8rem;"></i>
+        </div>
+    `;
+        modal.classList.add("active");
+      };
+
+      // Dispense Modal
+      window.openDispenseModal = (itemId, itemName) => {
+        document.getElementById("modalActionType").value = "DISPENSE";
+        document.getElementById("modalTargetId").value = itemId;
+        modalTitle.innerText = `Dispense: ${itemName}`;
+        modalInputs.innerHTML = `
+        <div class="form-group">
+            <input type="number" id="dispenseQty" placeholder=" " min="1" required>
+            <label for="dispenseQty">Quantity to Dispense</label>
+        </div>
+    `;
+        modal.classList.add("active");
+      };
+
+      // Transfer Modal
+      window.openTransferModal = (bedId, targetType, targetLabel) => {
+        document.getElementById("modalActionType").value = "TRANSFER";
+        document.getElementById("modalTargetId").value = bedId;
+        document.getElementById("modalExtra").value = targetType;
+        modalTitle.innerText = "Transfer Patient";
+        modalInputs.innerHTML = `
+        <p style="color:var(--text); margin-bottom:20px;">
+            Are you sure you want to transfer this patient to <strong>${targetLabel}</strong>?
+        </p>
+    `;
+        modal.classList.add("active");
+      };
+
+      // Discharge Modal
+      window.openDischargeModal = (bedId) => {
+        document.getElementById("modalActionType").value = "DISCHARGE";
+        document.getElementById("modalTargetId").value = bedId;
+        modalTitle.innerText = "Discharge Patient";
+        modalInputs.innerHTML = `
+        <p style="color:var(--text); margin-bottom:20px;">
+            Confirm discharge for this patient? This action will free up the bed.
+        </p>
+    `;
+        modal.classList.add("active");
+      };
+
+      // Handle Form Submit
+      modalForm.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const type = document.getElementById("modalActionType").value;
+        const targetId = document.getElementById("modalTargetId").value;
+        const extra = document.getElementById("modalExtra").value;
+
+        try {
+          if (type === "ADMIT") {
+            const bedType = document.getElementById("admitType").value;
+            await fetch(`${API_URL}/hospital/admit-patient`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${TOKEN}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ queue_id: targetId, bed_type: bedType }),
+            });
+          } else if (type === "DISPENSE") {
+            const qty = document.getElementById("dispenseQty").value;
+            await fetch(`${API_URL}/analytics/inventory/use`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${TOKEN}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                item_id: targetId,
+                quantity: parseInt(qty),
+              }),
+            });
+          } else if (type === "TRANSFER") {
+            const res = await fetch(`${API_URL}/hospital/transfer-patient`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${TOKEN}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                current_bed_id: targetId,
+                target_bed_type: extra,
+              }),
+            });
+            if (!res.ok) {
+              const err = await res.json();
+              alert("Transfer Failed: " + err.detail);
+            }
+          } else if (type === "DISCHARGE") {
+            await fetch(`${API_URL}/hospital/discharge-patient/${targetId}`, {
+              method: "POST",
+              headers: { Authorization: `Bearer ${TOKEN}` },
+            });
+          }
+
+          closeModal();
+          refreshAll();
+        } catch (err) {
+          console.error(err);
+          alert("Action failed. Check console.");
+        }
+      });
 
       function logout() {
         localStorage.clear();
         window.location.href = "/";
       }
 
-      // Init
+      // Start
       refreshAll();
+      setInterval(refreshAll, 5000);
     </script>
   </body>
 </html>

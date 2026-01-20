@@ -32,6 +32,7 @@ class UserRole(str, enum.Enum):
     DOCTOR = "doctor"
     RECEPTIONIST = "receptionist"
     PATIENT = "patient"
+    AMBULANCE = "ambulance"
 
 
 # --- Database Tables ---
