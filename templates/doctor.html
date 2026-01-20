@@ -1,188 +1,482 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doctor Dashboard - MediSync</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Hospital Admin - MediSync</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #f1f5f9; --muted: #94a3b8; --primary: #3b82f6; --danger: #ef4444; --success: #22c55e; --warning: #f59e0b; --radius: 16px; }
-        * { box-sizing: border-box; font-family: "Inter", sans-serif; }
-        body { margin: 0; background: var(--bg); color: var(--text); min-height: 100vh; display: grid; grid-template-columns: 350px 1fr 300px; } /* Added 3rd column for Inventory */
+      :root {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --border: #334155;
+        --text: #f1f5f9;
+        --primary: #3b82f6;
+        --danger: #ef4444;
+        --success: #10b981;
+        --warning: #f59e0b;
+      }
+      * {
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--text);
+        padding: 20px;
+        min-height: 100vh;
+      }
 
-        /* --- COL 1: QUEUE --- */
-        .queue-panel { background: rgba(17, 24, 39, 0.95); border-right: 1px solid var(--border); padding: 25px; overflow-y: auto; height: 100vh; }
-        .queue-panel h2 { margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-        .queue-card { background: #020617; border: 1px solid var(--border); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .queue-card.critical { border-left: 4px solid var(--danger); }
-        .queue-card button { width: 100%; background: var(--primary); border: none; padding: 10px; border-radius: 8px; color: white; cursor: pointer; margin-top: 10px; }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 15px;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 24px;
+        color: var(--primary);
+      }
 
-        /* --- COL 2: BEDS --- */
-        .bed-panel { padding: 40px; overflow-y: auto; height: 100vh; border-right: 1px solid var(--border); }
-        header { display: flex; justify-content: space-between; margin-bottom: 30px; }
-        .bed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
-        .bed-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; }
-        .bed-occupied { border-top: 4px solid var(--danger); background: rgba(239, 68, 68, 0.05); }
-        .bed-available { border-top: 4px solid var(--success); }
-        .action-btn { width: 100%; padding: 8px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; margin-top: 5px; font-weight: 600; }
-        .btn-discharge { background: var(--danger); color: white; }
+      /* Navigation Tabs */
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 25px;
+      }
+      .tab-btn {
+        background: var(--card);
+        color: #94a3b8;
+        border: 1px solid var(--border);
+        padding: 12px 24px;
+        cursor: pointer;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: 0.2s;
+      }
+      .tab-btn:hover {
+        border-color: var(--primary);
+        color: var(--text);
+      }
+      .tab-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
 
-        /* --- COL 3: PHARMACY (NEW) --- */
-        .inv-panel { background: #1e293b; padding: 25px; overflow-y: auto; height: 100vh; }
-        .inv-item { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid var(--border); }
-        .inv-item:last-child { border-bottom: none; }
-        .inv-name { font-weight: bold; display: block; }
-        .inv-qty { font-size: 0.85em; color: var(--muted); }
-        .use-btn { background: var(--success); color: white; border: none; padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 0.8em; }
-        .use-btn:hover { background: #16a34a; }
-        
-        @media (max-width: 1200px) { body { grid-template-columns: 300px 1fr; } .inv-panel { display: none; /* Hide inventory on small screens or make it a modal */ } }
+      .section {
+        display: none;
+        animation: fadeIn 0.3s ease;
+      }
+      .section.active {
+        display: block;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Grid & Cards */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+        gap: 25px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 25px;
+      }
+      .card h3 {
+        margin-top: 0;
+        border-bottom: 1px solid var(--border);
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+      }
+
+      /* Forms */
+      input,
+      select {
+        width: 100%;
+        background: #020617;
+        border: 1px solid var(--border);
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+      }
+      button.action {
+        width: 100%;
+        padding: 12px;
+        background: var(--success);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button.action:hover {
+        opacity: 0.9;
+      }
+
+      /* Tables */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 12px;
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        color: #94a3b8;
+        font-size: 0.9em;
+      }
+
+      /* Status Badges */
+      .badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        font-weight: bold;
+      }
+      .ok {
+        background: rgba(16, 185, 129, 0.1);
+        color: var(--success);
+      }
+      .low {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        animation: pulse 1.5s infinite;
+      }
+      .out {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+      }
+      @keyframes pulse {
+        50% {
+          opacity: 0.5;
+        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
+    <header>
+      <h1>🏥 Hospital Command Center</h1>
+      <button
+        onclick="logout()"
+        style="
+          background: var(--danger);
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 8px;
+          cursor: pointer;
+          font-weight: 600;
+        "
+      >
+        Logout
+      </button>
+    </header>
 
-    <aside class="queue-panel">
-        <h2>Waiting List <span id="q-count">(0)</span></h2>
-        <div id="queue-list">Loading...</div>
-    </aside>
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('analytics')">
+        📊 Analytics
+      </button>
+      <button class="tab-btn" onclick="switchTab('inventory')">
+        📦 Inventory
+      </button>
+      <button class="tab-btn" onclick="switchTab('staff')">
+        👥 Staff Management
+      </button>
+    </div>
 
-    <main class="bed-panel">
-        <header>
-            <h1>👨‍⚕️ Doctor Console</h1>
-            <button onclick="logout()" style="background:var(--danger); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">Logout</button>
-        </header>
+    <div id="analytics" class="section active">
+      <div class="grid">
+        <div
+          class="card"
+          style="display: flex; flex-direction: column; align-items: center"
+        >
+          <h3>Bed Occupancy</h3>
+          <div style="height: 300px; width: 100%; max-width: 400px">
+            <canvas id="bedChart"></canvas>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Quick Alerts</h3>
+          <div id="alertsArea">
+            <p style="color: #94a3b8">System running normally.</p>
+          </div>
+        </div>
+      </div>
+    </div>
 
-        <h3>🔴 ICU Beds</h3>
-        <div class="bed-grid" id="icu-grid"></div>
-        
-        <h3 style="margin-top:30px;">🔵 General Beds</h3>
-        <div class="bed-grid" id="gen-grid"></div>
-    </main>
+    <div id="inventory" class="section">
+      <div class="grid">
+        <div class="card">
+          <h3>Add Stock</h3>
+          <form id="addItemForm">
+            <input
+              type="text"
+              id="itemName"
+              placeholder="Item Name (e.g. Paracetamol)"
+              required
+            />
+            <select id="category">
+              <option value="Medicine">Medicine</option>
+              <option value="Equipment">Equipment</option>
+              <option value="Supplies">Supplies</option>
+            </select>
+            <div style="display: flex; gap: 10px">
+              <input type="number" id="qty" placeholder="Qty" required />
+              <input
+                type="number"
+                id="threshold"
+                placeholder="Low Alert (e.g. 10)"
+                value="10"
+              />
+            </div>
+            <button type="submit" class="action">Add Item</button>
+          </form>
+        </div>
+        <div class="card">
+          <h3>Current Inventory</h3>
+          <div style="overflow-y: auto; max-height: 400px">
+            <table id="invTable">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Category</th>
+                  <th>Qty</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
 
-    <aside class="inv-panel">
-        <h2>💊 Pharmacy</h2>
-        <p style="color:var(--muted); font-size:0.9em; margin-bottom:20px;">Click to dispense to patient</p>
-        <div id="inventory-list">Loading Stock...</div>
-    </aside>
+    <div id="staff" class="section">
+      <div class="grid">
+        <div class="card">
+          <h3>Register Staff</h3>
+          <form id="addStaffForm">
+            <input type="text" id="fullname" placeholder="Full Name" required />
+            <input type="text" id="username" placeholder="Username" required />
+            <input
+              type="password"
+              id="password"
+              placeholder="Password"
+              required
+            />
+            <select id="role">
+              <option value="doctor">Doctor</option>
+              <option value="receptionist">Receptionist</option>
+            </select>
+            <button type="submit" class="action">Create User</button>
+          </form>
+        </div>
+        <div class="card">
+          <h3>Staff Directory</h3>
+          <table id="staffTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Role</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
 
     <script>
-        const API_URL = window.location.origin;
-        const TOKEN = localStorage.getItem('token');
-        const HOSP_ID = localStorage.getItem('hospital_id');
+      const API = window.location.origin;
+      const TOKEN = localStorage.getItem("token");
+      if (!TOKEN) window.location.href = "/";
 
-        if (!TOKEN) window.location.href = "/";
-
-        // --- LOAD DATA ---
-        async function refreshAll() {
-            loadQueue();
-            loadBeds();
-            loadInventory(); // <--- New Function
-        }
-
-        async function loadInventory() {
-            try {
-                const res = await fetch(`${API_URL}/analytics/inventory`, { headers: { 'Authorization': `Bearer ${TOKEN}` }});
-                const data = await res.json();
-                const list = document.getElementById('inventory-list');
-                
-                if(data.length === 0) { list.innerHTML = "<p>No medicines in stock.</p>"; return; }
-                
-                list.innerHTML = "";
-                data.forEach(item => {
-                    // Disable button if out of stock
-                    const disabled = item.qty <= 0 ? 'disabled style="background:#555; cursor:not-allowed;"' : '';
-                    const label = item.qty <= 0 ? 'Out' : 'Use';
-                    
-                    list.innerHTML += `
-                        <div class="inv-item">
-                            <div>
-                                <span class="inv-name">${item.name}</span>
-                                <span class="inv-qty">Stock: ${item.qty}</span>
-                            </div>
-                            <button class="use-btn" ${disabled} onclick="useMedicine(${item.id}, '${item.name}')">${label}</button>
-                        </div>
-                    `;
-                });
-            } catch(e) { console.error(e); }
-        }
-
-        // --- ACTIONS ---
-        async function useMedicine(itemId, name) {
-            const qty = prompt(`How many ${name} to dispense?`, "1");
-            if (!qty) return;
-
-            try {
-                const res = await fetch(`${API_URL}/analytics/inventory/use`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ item_id: itemId, quantity: parseInt(qty) })
-                });
-                
-                const data = await res.json();
-                if(res.ok) { 
-                    alert(data.message); 
-                    loadInventory(); // Update count immediately
-                } else { 
-                    alert("Error: " + data.detail); 
-                }
-            } catch(e) { alert("Network error"); }
-        }
-
-        // ... (Keep existing loadQueue, loadBeds, admitPatient, dischargePatient functions from previous turn) ...
-        // Re-paste them here if you overwrote the file completely.
-        
-        async function loadQueue() {
-            // (Same as previous turn)
-            const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/queue`, { headers: { 'Authorization': `Bearer ${TOKEN}` }});
-            const queue = await res.json();
-            document.getElementById('q-count').innerText = `(${queue.length})`;
-            document.getElementById('queue-list').innerHTML = queue.map(p => `
-                <div class="queue-card ${p.severity>=7?'critical':''}">
-                    <h4>Patient #${p.patient_id}</h4>
-                    <p>Sev: ${p.severity}</p>
-                    <button onclick="admitPatient(${p.id})">Admit</button>
-                </div>
-            `).join('');
-        }
-
-        async function loadBeds() {
-            // (Same as previous turn - simplified for brevity)
-            const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/beds`, { headers: { 'Authorization': `Bearer ${TOKEN}` }});
-            const beds = await res.json();
-            const icu = document.getElementById('icu-grid');
-            const gen = document.getElementById('gen-grid');
-            icu.innerHTML = ""; gen.innerHTML = "";
-            
-            beds.forEach(b => {
-                const html = `
-                    <div class="bed-card ${b.status==='OCCUPIED'?'bed-occupied':'bed-available'}">
-                        <h3>${b.bed_number}</h3>
-                        ${b.status==='OCCUPIED' ? `<button class="action-btn btn-discharge" onclick="dischargePatient(${b.id})">Discharge</button>` : 'Empty'}
-                    </div>`;
-                if(b.bed_type === 'ICU') icu.innerHTML += html; else gen.innerHTML += html;
-            });
-        }
-
-        async function admitPatient(qid) {
-             const type = confirm("ICU?") ? "ICU" : "GENERAL";
-             await fetch(`${API_URL}/hospital/admit-patient`, {
-                 method:'POST', headers:{'Authorization':`Bearer ${TOKEN}`, 'Content-Type':'application/json'},
-                 body: JSON.stringify({queue_id:qid, bed_type:type})
-             });
-             refreshAll();
-        }
-
-        async function dischargePatient(bid) {
-             if(!confirm("Discharge?")) return;
-             await fetch(`${API_URL}/hospital/discharge-patient/${bid}`, { method:'POST', headers:{'Authorization':`Bearer ${TOKEN}`} });
-             refreshAll();
-        }
-
-        function logout() { localStorage.clear(); window.location.href = "/"; }
-
-        // Init
+      function switchTab(id) {
+        document
+          .querySelectorAll(".section")
+          .forEach((el) => el.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((el) => el.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+        event.target.classList.add("active");
         refreshAll();
-        setInterval(refreshAll, 5000);
+      }
+
+      async function refreshAll() {
+        loadCharts();
+        loadInventory();
+        loadStaff();
+      }
+
+      // --- CHARTS ---
+      let bedChart = null;
+      async function loadCharts() {
+        try {
+          const res = await fetch(`${API}/analytics/stats`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const stats = await res.json();
+
+          const ctx = document.getElementById("bedChart").getContext("2d");
+          if (bedChart) bedChart.destroy();
+
+          bedChart = new Chart(ctx, {
+            type: "doughnut",
+            data: {
+              labels: ["Available", "Occupied"],
+              datasets: [
+                {
+                  data: [stats.AVAILABLE, stats.OCCUPIED],
+                  backgroundColor: ["#10b981", "#ef4444"],
+                  borderWidth: 0,
+                },
+              ],
+            },
+            options: {
+              responsive: true,
+              plugins: {
+                legend: { position: "bottom", labels: { color: "#f1f5f9" } },
+              },
+            },
+          });
+        } catch (e) {
+          console.error("Chart Error", e);
+        }
+      }
+
+      // --- INVENTORY ---
+      async function loadInventory() {
+        const res = await fetch(`${API}/analytics/inventory`, {
+          headers: { Authorization: `Bearer ${TOKEN}` },
+        });
+        const data = await res.json();
+        const tbody = document.querySelector("#invTable tbody");
+        tbody.innerHTML = "";
+        const alerts = document.getElementById("alertsArea");
+        alerts.innerHTML = "";
+
+        data.forEach((i) => {
+          let badge = `<span class="badge ok">OK</span>`;
+          if (i.status === "LOW_STOCK") {
+            badge = `<span class="badge low">LOW</span>`;
+            alerts.innerHTML += `<p style="color:#f59e0b">⚠️ Low Stock: ${i.name} (${i.qty} left)</p>`;
+          }
+          if (i.status === "OUT_OF_STOCK") {
+            badge = `<span class="badge out">EMPTY</span>`;
+            alerts.innerHTML += `<p style="color:#ef4444">❌ Out of Stock: ${i.name}</p>`;
+          }
+
+          tbody.innerHTML += `<tr><td>${i.name}</td><td>${i.category || "-"}</td><td>${i.qty}</td><td>${badge}</td></tr>`;
+        });
+        if (!alerts.innerHTML)
+          alerts.innerHTML = "<p style='color:#94a3b8'>All systems normal.</p>";
+      }
+
+      document
+        .getElementById("addItemForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const payload = {
+            item_name: document.getElementById("itemName").value,
+            category: document.getElementById("category").value,
+            quantity: +document.getElementById("qty").value,
+            threshold: +document.getElementById("threshold").value,
+          };
+          await fetch(`${API}/analytics/inventory/add`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+          loadInventory();
+          document.getElementById("addItemForm").reset();
+        });
+
+      // --- STAFF ---
+      async function loadStaff() {
+        const res = await fetch(`${API}/hospital/staff/all`, {
+          headers: { Authorization: `Bearer ${TOKEN}` },
+        });
+        const data = await res.json();
+        document.querySelector("#staffTable tbody").innerHTML = data
+          .map(
+            (u) => `
+                <tr>
+                    <td>${u.full_name}</td>
+                    <td style="text-transform:capitalize">${u.role}</td>
+                    <td><button onclick="removeStaff(${u.id})" style="background:none; border:none; color:#ef4444; cursor:pointer;">✖ Remove</button></td>
+                </tr>
+            `,
+          )
+          .join("");
+      }
+
+      async function removeStaff(id) {
+        if (!confirm("Remove staff?")) return;
+        await fetch(`${API}/hospital/staff/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${TOKEN}` },
+        });
+        loadStaff();
+      }
+
+      document
+        .getElementById("addStaffForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const payload = {
+            full_name: document.getElementById("fullname").value,
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value,
+            role: document.getElementById("role").value,
+          };
+          const res = await fetch(`${API}/hospital/staff/add`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+          if (res.ok) {
+            loadStaff();
+            document.getElementById("addStaffForm").reset();
+            alert("Staff Added");
+          } else {
+            alert("Error adding staff");
+          }
+        });
+
+      function logout() {
+        localStorage.clear();
+        window.location.href = "/";
+      }
+
+      // Init
+      refreshAll();
     </script>
-</body>
+  </body>
 </html>
