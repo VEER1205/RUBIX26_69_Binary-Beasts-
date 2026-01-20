@@ -5,6 +5,7 @@ from passlib.context import CryptContext
 from .. import database, models, schemas
 from ..routers.auth import get_current_user # Security Guard
 from ..schemas import AdminCreate
+from sqlalchemy.orm import selectinload
 
 router = APIRouter(
     prefix="/super-admin",
@@ -91,3 +92,46 @@ async def create_hospital_admin(
     await db.commit()
     
     return {"message": f"Admin created for {hospital.name}"}
+
+
+ # <--- Add this import at the top
+
+# --- 4. LIST ALL HOSPITAL ADMINS ---
+@router.get("/admins")
+async def get_all_hospital_admins(
+    db: AsyncSession = Depends(database.get_db),
+    _: models.User = Depends(check_super_admin)
+):
+    # Fetch users with role HOSPITAL_ADMIN and load their hospital details
+    result = await db.execute(
+        select(models.User)
+        .where(models.User.role == models.UserRole.HOSPITAL_ADMIN)
+        .options(selectinload(models.User.hospital)) 
+    )
+    admins = result.scalars().all()
+    
+    # Format the list for the frontend
+    return [{
+        "id": u.id,
+        "full_name": u.full_name,
+        "username": u.username,
+        "hospital_name": u.hospital.name if u.hospital else "Unassigned"
+    } for u in admins]
+
+# --- 5. DELETE ADMIN USER ---
+@router.delete("/admin/{user_id}")
+async def delete_admin(
+    user_id: int,
+    db: AsyncSession = Depends(database.get_db),
+    _: models.User = Depends(check_super_admin)
+):
+    user = await db.get(models.User, user_id)
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+        
+    if user.role == models.UserRole.SUPER_ADMIN:
+        raise HTTPException(status_code=400, detail="Cannot delete Super Admin")
+        
+    await db.delete(user)
+    await db.commit()
+    return {"message": "Admin deleted successfully"}

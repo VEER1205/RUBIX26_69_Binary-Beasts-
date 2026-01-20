@@ -1,12 +1,11 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Super Admin Dashboard</title>
-
     <style>
-    :root {
+      :root {
         --bg: #0f172a;
         --card: #1e293b; /* Slightly lighter for contrast */
         --border: #334155;
@@ -17,22 +16,28 @@
         --danger: #ef4444;
         --danger-hover: #dc2626;
         --radius: 16px;
-    }
+      }
 
-    * {
+      * {
         box-sizing: border-box;
-        font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
+        font-family:
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          sans-serif;
+      }
 
-    body {
+      body {
         margin: 0;
         background-color: var(--bg);
         color: var(--text);
         min-height: 100vh;
-    }
+      }
 
-    /* --- Header --- */
-    header {
+      /* --- Header --- */
+      header {
         display: flex;
         justify-content: space-between;
         align-items: center;
@@ -43,18 +48,18 @@
         position: sticky;
         top: 0;
         z-index: 100;
-    }
+      }
 
-    header h1 {
+      header h1 {
         margin: 0;
         font-size: 24px;
         font-weight: 700;
         background: linear-gradient(90deg, #3b82f6, #8b5cf6);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
-    }
+      }
 
-    header button {
+      header button {
         background: var(--danger);
         color: white;
         padding: 10px 20px;
@@ -64,56 +69,58 @@
         border: none;
         cursor: pointer;
         transition: 0.2s;
-    }
+      }
 
-    header button:hover {
+      header button:hover {
         background: var(--danger-hover);
-    }
+      }
 
-    /* --- Layout --- */
-    main {
+      /* --- Layout --- */
+      main {
         padding: 40px;
         max-width: 1400px;
         margin: 0 auto;
-    }
+      }
 
-    .grid-layout {
+      .grid-layout {
         display: grid;
         /* Responsive Grid: Cards shrink to 350px before stacking */
-        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); 
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
         gap: 30px;
-    }
+      }
 
-    .full-width {
+      .full-width {
         grid-column: 1 / -1;
-    }
+      }
 
-    /* --- Cards --- */
-    .card {
+      /* --- Cards --- */
+      .card {
         background: var(--card);
         border: 1px solid var(--border);
         border-radius: var(--radius);
         padding: 30px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    }
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.1),
+          0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      }
 
-    .card h2 {
+      .card h2 {
         margin-top: 0;
         font-size: 1.25rem;
         margin-bottom: 20px;
         border-bottom: 1px solid var(--border);
         padding-bottom: 15px;
         color: var(--text);
-    }
+      }
 
-    /* --- Forms --- */
-    form {
+      /* --- Forms --- */
+      form {
         display: flex;
         flex-direction: column;
         gap: 15px;
-    }
+      }
 
-    input {
+      input {
         background: #0f172a;
         border: 1px solid var(--border);
         color: var(--text);
@@ -122,24 +129,24 @@
         font-size: 14px;
         transition: 0.2s;
         width: 100%;
-    }
+      }
 
-    input:focus {
+      input:focus {
         outline: none;
         border-color: var(--primary);
         box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
-    }
+      }
 
-    .row {
+      .row {
         display: flex;
         gap: 15px;
-    }
+      }
 
-    .row input {
+      .row input {
         width: 100%;
-    }
+      }
 
-    button[type="submit"] {
+      button[type="submit"] {
         background: var(--primary);
         color: white;
         padding: 12px;
@@ -149,24 +156,24 @@
         cursor: pointer;
         margin-top: 10px;
         transition: 0.2s;
-    }
+      }
 
-    button[type="submit"]:hover {
+      button[type="submit"]:hover {
         background: var(--primary-hover);
-    }
+      }
 
-    /* --- Table --- */
-    .table-container {
+      /* --- Table --- */
+      .table-container {
         overflow-x: auto;
-    }
+      }
 
-    table {
+      table {
         width: 100%;
         border-collapse: collapse;
         margin-top: 10px;
-    }
+      }
 
-    th {
+      th {
         text-align: left;
         padding: 15px;
         color: var(--muted);
@@ -174,271 +181,449 @@
         text-transform: uppercase;
         letter-spacing: 0.05em;
         border-bottom: 1px solid var(--border);
-    }
+      }
 
-    td {
+      td {
         padding: 15px;
         border-bottom: 1px solid var(--border);
         color: var(--text);
         font-size: 0.95rem;
-    }
+      }
 
-    tbody tr:last-child td {
+      tbody tr:last-child td {
         border-bottom: none;
-    }
+      }
 
-    tbody tr:hover {
+      tbody tr:hover {
         background-color: rgba(255, 255, 255, 0.02);
-    }
+      }
 
-    .action-btn {
+      .action-btn {
         padding: 6px 12px;
         border-radius: 6px;
         font-size: 12px;
         cursor: pointer;
         border: none;
         margin-right: 5px;
-    }
+      }
 
-    .select-btn {
+      .select-btn {
         background: rgba(59, 130, 246, 0.1);
         color: var(--primary);
         border: 1px solid rgba(59, 130, 246, 0.2);
-    }
-    
-    .select-btn:hover {
-        background: rgba(59, 130, 246, 0.2);
-    }
+      }
 
-    .delete-btn {
+      .select-btn:hover {
+        background: rgba(59, 130, 246, 0.2);
+      }
+
+      .delete-btn {
         background: rgba(239, 68, 68, 0.1);
         color: var(--danger);
         border: 1px solid rgba(239, 68, 68, 0.2);
-    }
+      }
 
-    .delete-btn:hover {
+      .delete-btn:hover {
         background: rgba(239, 68, 68, 0.2);
-    }
+      }
 
-    @media (max-width: 768px) {
+      @media (max-width: 768px) {
         .grid-layout {
-            grid-template-columns: 1fr;
+          grid-template-columns: 1fr;
         }
         main {
-            padding: 20px;
+          padding: 20px;
         }
-    }
+      }
+      /* ... KEEP YOUR EXISTING CSS ... */
+      /* Just adding one specific style for the delete badge */
+      .badge-admin {
+        background: rgba(139, 92, 246, 0.1);
+        color: #8b5cf6;
+        border: 1px solid rgba(139, 92, 246, 0.2);
+        padding: 2px 8px;
+        border-radius: 4px;
+        font-size: 0.8em;
+      }
+      /* Make sure to copy the CSS from the previous message if you lost it */
+      :root {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --border: #334155;
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+        --primary: #3b82f6;
+        --danger: #ef4444;
+        --radius: 16px;
+      }
+      * {
+        box-sizing: border-box;
+        font-family: "Inter", sans-serif;
+      }
+      body {
+        margin: 0;
+        background-color: var(--bg);
+        color: var(--text);
+        min-height: 100vh;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        padding: 20px 40px;
+        background: rgba(15, 23, 42, 0.8);
+        border-bottom: 1px solid var(--border);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        backdrop-filter: blur(10px);
+      }
+      header h1 {
+        margin: 0;
+        font-size: 24px;
+        color: var(--primary);
+      }
+      header button {
+        background: var(--danger);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      main {
+        padding: 40px;
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+      .grid-layout {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+        gap: 30px;
+      }
+      .full-width {
+        grid-column: 1 / -1;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 30px;
+      }
+      input {
+        width: 100%;
+        background: #0f172a;
+        border: 1px solid var(--border);
+        color: white;
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+      }
+      button[type="submit"] {
+        background: var(--primary);
+        color: white;
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 15px;
+        border-bottom: 1px solid var(--border);
+      }
+      th {
+        color: var(--muted);
+      }
+      .action-btn {
+        padding: 6px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        border: none;
+        margin-right: 5px;
+        font-size: 12px;
+      }
+      .select-btn {
+        background: rgba(59, 130, 246, 0.1);
+        color: var(--primary);
+      }
+      .delete-btn {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+      }
     </style>
-</head>
+  </head>
 
-<body>
-<header>
-    <h1>🛡️ Platform Overview</h1>
-    <button onclick="logout()">Logout</button>
-</header>
+  <body>
+    <header>
+      <h1>🛡️ Platform Overview</h1>
+      <button onclick="logout()">Logout</button>
+    </header>
 
-<main class="grid-layout">
-    <section class="card">
+    <main class="grid-layout">
+      <section class="card">
         <h2>Add New Hospital</h2>
         <form id="createHospForm">
-            <input type="text" id="hospName" placeholder="Hospital Name (e.g. City Care)" required>
-            <input type="text" id="location" placeholder="Location (e.g. Bandra)" required>
-            <input type="text" id="contact" placeholder="Contact Number" required>
-            <div class="row">
-                <input type="number" id="icuCount" placeholder="ICU Beds" value="10">
-                <input type="number" id="genCount" placeholder="Gen Beds" value="30">
-            </div>
-            <button type="submit">Create Hospital</button>
+          <input
+            type="text"
+            id="hospName"
+            placeholder="Hospital Name"
+            required
+          />
+          <input type="text" id="location" placeholder="Location" required />
+          <input
+            type="text"
+            id="contact"
+            placeholder="Contact Number"
+            required
+          />
+          <div class="row">
+            <input
+              type="number"
+              id="icuCount"
+              placeholder="ICU Beds"
+              value="10"
+            />
+            <input
+              type="number"
+              id="genCount"
+              placeholder="Gen Beds"
+              value="30"
+            />
+          </div>
+          <button type="submit">Create Hospital</button>
         </form>
-    </section>
+      </section>
 
-    <section class="card">
+      <section class="card">
         <h2>Assign Hospital Admin</h2>
         <form id="createAdminForm">
-            <input type="number" id="targetHospId" placeholder="ID (Select from list below)" readonly style="cursor: not-allowed; opacity: 0.7;">
-            <input type="text" id="adminName" placeholder="Admin Full Name" required>
-            <input type="text" id="adminUser" placeholder="Username" required>
-            <input type="password" id="adminPass" placeholder="Password" required>
-            <button type="submit">Create Admin</button>
+          <input
+            type="number"
+            id="targetHospId"
+            placeholder="Select ID from list below"
+            readonly
+            style="cursor: not-allowed; opacity: 0.7; background: #334155"
+          />
+          <input
+            type="text"
+            id="adminName"
+            placeholder="Admin Full Name"
+            required
+          />
+          <input type="text" id="adminUser" placeholder="Username" required />
+          <input
+            type="password"
+            id="adminPass"
+            placeholder="Password"
+            required
+          />
+          <button type="submit">Create Admin</button>
         </form>
-    </section>
+      </section>
 
-    <section class="card full-width">
-        <h2>Active Hospitals Registry</h2>
-        <div class="table-container">
-            <table id="hospTable">
-                <thead>
-                    <tr>
-                        <th width="50">ID</th>
-                        <th>Name</th>
-                        <th>Location</th>
-                        <th width="150">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr><td colspan="4">Loading data...</td></tr>
-                </tbody>
-            </table>
+      <section class="card full-width">
+        <h2>🏥 Active Hospitals</h2>
+        <div style="overflow-x: auto">
+          <table id="hospTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Location</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="4">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-    </section>
-</main>
+      </section>
 
-<script>
-    // --- Configuration ---
-    const API_URL = window.location.origin;
-    const TOKEN = localStorage.getItem('token');
-    
-    // Security Check
-    if (!TOKEN) window.location.href = "/";
+      <section class="card full-width">
+        <h2>👤 Hospital Admins Registry</h2>
+        <div style="overflow-x: auto">
+          <table id="adminTable">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Username</th>
+                <th>Assigned Hospital</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colspan="5">Loading...</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </main>
 
-    // --- 1. Load Hospitals ---
-    async function loadHospitals() {
+    <script>
+      const API_URL = window.location.origin;
+      const TOKEN = localStorage.getItem("token");
+      if (!TOKEN) window.location.href = "/";
+
+      // --- LOAD HOSPITALS ---
+      async function loadHospitals() {
         try {
-            const res = await fetch(`${API_URL}/dashboard/city-stats`);
-            if (!res.ok) throw new Error("Failed to fetch data");
-            
-            const data = await res.json();
-            const tbody = document.querySelector("#hospTable tbody");
-            tbody.innerHTML = "";
+          const res = await fetch(`${API_URL}/dashboard/city-stats`);
+          const data = await res.json();
+          const tbody = document.querySelector("#hospTable tbody");
+          tbody.innerHTML = "";
 
-            if(data.length === 0) {
-                tbody.innerHTML = "<tr><td colspan='4' style='text-align:center'>No hospitals found. Add one above.</td></tr>";
-                return;
-            }
+          if (data.length === 0)
+            tbody.innerHTML = "<tr><td colspan='4'>No data found</td></tr>";
 
-            data.forEach(h => {
-                // Ensure ID exists (fallback to '?' if old data)
-                const hospId = h.id || '?';
-                
-                tbody.innerHTML += `
+          data.forEach((h) => {
+            const hid = h.id || "?";
+            tbody.innerHTML += `
                     <tr>
-                        <td><strong>#${hospId}</strong></td>
+                        <td>#${hid}</td>
                         <td>${h.hospital_name}</td>
                         <td>${h.location}</td>
                         <td>
-                            <button class="action-btn select-btn" onclick="selectHospital(${hospId})">Select</button>
-                            <button class="action-btn delete-btn" onclick="deleteHospital(${hospId})">Delete</button>
+                            <button class="action-btn select-btn" onclick="selectHospital(${hid})">Select</button>
+                            <button class="action-btn delete-btn" onclick="deleteHospital(${hid})">Delete</button>
                         </td>
-                    </tr>
-                `;
-            });
-        } catch (error) {
-            console.error(error);
-            document.querySelector("#hospTable tbody").innerHTML = `<tr><td colspan='4' style='color:red'>Error loading data. Is backend running?</td></tr>`;
+                    </tr>`;
+          });
+        } catch (e) {
+          console.error(e);
         }
-    }
+      }
 
-    // --- Helper: Select ID for Admin Creation ---
-    function selectHospital(id) {
-        document.getElementById('targetHospId').value = id;
-        // Optional: Scroll to top smoothly
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    // --- 2. Create Hospital ---
-    document.getElementById('createHospForm').addEventListener('submit', async e => {
-        e.preventDefault();
-        
-        // Get values explicitly
-        const payload = {
-            name: document.getElementById('hospName').value,
-            location: document.getElementById('location').value,
-            contact_number: document.getElementById('contact').value,
-            icu_bed_count: parseInt(document.getElementById('icuCount').value),
-            general_bed_count: parseInt(document.getElementById('genCount').value)
-        };
-
+      // --- NEW: LOAD ADMINS ---
+      async function loadAdmins() {
         try {
-            const res = await fetch(`${API_URL}/super-admin/hospital/add`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
+          const res = await fetch(`${API_URL}/super-admin/admins`, {
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
+          const data = await res.json();
+          const tbody = document.querySelector("#adminTable tbody");
+          tbody.innerHTML = "";
 
-            if (res.ok) {
-                alert("Hospital Created Successfully! 🎉");
-                document.getElementById('createHospForm').reset();
-                loadHospitals();
-            } else {
-                const err = await res.json();
-                alert("Error: " + err.detail);
-            }
-        } catch (error) {
-            alert("Network Error: " + error.message);
+          if (data.length === 0)
+            tbody.innerHTML = "<tr><td colspan='5'>No admins found</td></tr>";
+
+          data.forEach((u) => {
+            tbody.innerHTML += `
+                    <tr>
+                        <td>${u.id}</td>
+                        <td>${u.full_name}</td>
+                        <td><span class="badge-admin">${u.username}</span></td>
+                        <td>${u.hospital_name}</td>
+                        <td>
+                            <button class="action-btn delete-btn" onclick="deleteAdmin(${u.id})">Remove Access</button>
+                        </td>
+                    </tr>`;
+          });
+        } catch (e) {
+          console.error(e);
         }
-    });
+      }
 
-    // --- 3. Create Admin ---
-    document.getElementById('createAdminForm').addEventListener('submit', async e => {
-        e.preventDefault();
-        
-        const hospId = document.getElementById('targetHospId').value;
-        if(!hospId) {
-            alert("Please select a hospital from the list below first!");
-            return;
-        }
+      // --- ACTIONS ---
+      function selectHospital(id) {
+        document.getElementById("targetHospId").value = id;
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
 
-        const payload = {
-            hospital_id: parseInt(hospId),
-            full_name: document.getElementById('adminName').value,
-            username: document.getElementById('adminUser').value,
-            password: document.getElementById('adminPass').value
-        };
+      document
+        .getElementById("createHospForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const payload = {
+            name: document.getElementById("hospName").value,
+            location: document.getElementById("location").value,
+            contact_number: document.getElementById("contact").value,
+            icu_bed_count: +document.getElementById("icuCount").value,
+            general_bed_count: +document.getElementById("genCount").value,
+          };
+          await fetch(`${API_URL}/super-admin/hospital/add`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+          alert("Hospital Created");
+          loadHospitals();
+        });
 
-        try {
-            const res = await fetch(`${API_URL}/super-admin/create-admin`, {
-                method: 'POST',
-                headers: {
-                    'Authorization': `Bearer ${TOKEN}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
+      document
+        .getElementById("createAdminForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const payload = {
+            hospital_id: +document.getElementById("targetHospId").value,
+            full_name: document.getElementById("adminName").value,
+            username: document.getElementById("adminUser").value,
+            password: document.getElementById("adminPass").value,
+          };
+          const res = await fetch(`${API_URL}/super-admin/create-admin`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload),
+          });
+          if (res.ok) {
+            alert("Admin Created");
+            loadAdmins();
+          } else {
+            const d = await res.json();
+            alert(d.detail);
+          }
+        });
 
-            if (res.ok) {
-                alert(`Admin Created for Hospital #${hospId}`);
-                document.getElementById('createAdminForm').reset();
-            } else {
-                const err = await res.json();
-                alert("Error: " + err.detail);
-            }
-        } catch (error) {
-            alert("Network Error: " + error.message);
-        }
-    });
+      async function deleteHospital(id) {
+        if (!confirm("Delete Hospital?")) return;
+        await fetch(`${API_URL}/super-admin/hospital/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${TOKEN}` },
+        });
+        loadHospitals();
+      }
 
-    // --- 4. Delete Hospital ---
-    async function deleteHospital(id) {
-        if (!confirm("⚠️ Are you sure? This will delete the hospital and all its data.")) return;
-        
-        try {
-            const res = await fetch(`${API_URL}/super-admin/hospital/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${TOKEN}` }
-            });
-            
-            if(res.ok) {
-                loadHospitals();
-            } else {
-                alert("Failed to delete hospital");
-            }
-        } catch (error) {
-            alert("Error: " + error.message);
-        }
-    }
+      // --- NEW: DELETE ADMIN FUNCTION ---
+      async function deleteAdmin(id) {
+        if (!confirm("Revoke access for this admin?")) return;
+        const res = await fetch(`${API_URL}/super-admin/admin/${id}`, {
+          method: "DELETE",
+          headers: { Authorization: `Bearer ${TOKEN}` },
+        });
+        if (res.ok) loadAdmins();
+        else alert("Error deleting admin");
+      }
 
-    // --- Logout ---
-    function logout() {
+      function logout() {
         localStorage.clear();
         window.location.href = "/";
-    }
+      }
 
-    // Initial Load
-    loadHospitals();
-</script>
-
-</body>
+      // Init
+      loadHospitals();
+      loadAdmins(); // <--- Load the new table
+    </script>
+  </body>
 </html>

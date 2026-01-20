@@ -51,3 +51,7 @@ class AdmitRequest(BaseModel):
 class VisitRequest(BaseModel):
     patient_id: int
     visit_date: datetime.datetime
+
+class TransferRequest(BaseModel):
+    current_bed_id: int
+    target_bed_type: str # "GENERAL" or "ICU"

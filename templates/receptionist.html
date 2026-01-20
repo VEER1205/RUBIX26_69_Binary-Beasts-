@@ -2,49 +2,264 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Receptionist - MediSync</title>
-    </head>
+    <style>
+        /* --- DARK THEME VARIABLES (Same as Admin) --- */
+        :root {
+            --bg: #0f172a;
+            --card: #1e293b;
+            --border: #334155;
+            --text: #f1f5f9;
+            --muted: #94a3b8;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --danger: #ef4444;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --radius: 16px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 40px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--border);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        header button {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        
+        header button:hover { opacity: 0.9; }
+
+        /* --- MAIN LAYOUT --- */
+        main {
+            padding: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1.5fr; /* Form takes less space than Queue */
+            gap: 30px;
+        }
+
+        /* --- CARDS --- */
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 30px;
+            height: fit-content;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 15px;
+            color: var(--text);
+        }
+
+        /* --- FORMS --- */
+        .form-group { margin-bottom: 20px; }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--muted);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            background: #0f172a; /* Darker input bg */
+            border: 1px solid var(--border);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            background: var(--primary);
+            color: white;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        button[type="submit"]:hover {
+            background: var(--primary-hover);
+        }
+
+        /* --- QUEUE LIST --- */
+        #queueList {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .queue-item {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            padding: 16px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .queue-item:hover {
+            transform: translateX(5px);
+            border-color: var(--primary);
+        }
+
+        .patient-info strong {
+            display: block;
+            font-size: 1.1em;
+            color: var(--text);
+        }
+        
+        .patient-info span {
+            font-size: 0.85em;
+            color: var(--muted);
+        }
+
+        /* --- BADGES --- */
+        .badge {
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge-critical {
+            background: rgba(239, 68, 68, 0.15);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .badge-stable {
+            background: rgba(16, 185, 129, 0.15);
+            color: #6ee7b7;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .badge-urgent {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fcd34d;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+
+        /* Scrollbar styling for dark mode */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--muted); }
+
+        @media (max-width: 900px) {
+            main { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
 <body>
-    <div class="dashboard-container">
-        <header>
-            <h1>🏥 Receptionist Console</h1>
-            <button onclick="logout()">Logout</button>
-        </header>
+    <header>
+        <h1>🏥 Receptionist Console</h1>
+        <button onclick="logout()">Logout</button>
+    </header>
 
-        <main>
-            <div class="card">
-                <h2>New Patient Registration</h2>
-                <form id="regForm">
-                    <div class="form-group">
-                        <label>Full Name:</label>
-                        <input type="text" id="fullname" required placeholder="John Doe">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Username (Unique):</label>
-                        <input type="text" id="username" required placeholder="john_doe_123">
-                    </div>
+    <main>
+        <div class="card">
+            <h2>New Patient Registration</h2>
+            <form id="regForm">
+                <div class="form-group">
+                    <label>Patient Full Name</label>
+                    <input type="text" id="fullname" required placeholder="e.g. John Doe">
+                </div>
+                
+                <div class="form-group">
+                    <label>Username (Unique ID)</label>
+                    <input type="text" id="username" required placeholder="e.g. john_doe_99">
+                </div>
 
-                    <div class="form-group">
-                        <label>Triage Severity (1-10):</label>
-                        <select id="severity" required>
-                            <option value="1">1 - Mild (General Checkup)</option>
-                            <option value="5">5 - Urgent (High Fever, Pain)</option>
-                            <option value="7">7 - Severe (Difficulty Breathing)</option>
-                            <option value="10">10 - Critical (Cardiac/Trauma)</option>
-                        </select>
-                    </div>
+                <div class="form-group">
+                    <label>Triage Severity (1-10)</label>
+                    <select id="severity" required>
+                        <option value="" disabled selected>Select condition severity...</option>
+                        <option value="1">1 - Mild (General Checkup)</option>
+                        <option value="5">5 - Urgent (High Fever, Pain)</option>
+                        <option value="7">7 - Severe (Difficulty Breathing)</option>
+                        <option value="10">10 - Critical (Cardiac/Trauma)</option>
+                    </select>
+                </div>
 
-                    <button type="submit">Register & Add to Queue</button>
-                </form>
+                <button type="submit">Register & Add to Queue</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h2>Current Live Queue</h2>
+            <div id="queueList">
+                <p style="text-align:center; color: var(--muted); padding: 20px;">Loading status...</p>
             </div>
-
-            <div class="card">
-                <h2>Current Queue</h2>
-                <div id="queueList">Loading...</div>
-            </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
     <script>
         const API_URL = window.location.origin;
@@ -78,7 +293,7 @@
 
                 alert(`Success! Priority Score: ${data.queue_position}`);
                 document.getElementById('regForm').reset();
-                loadQueue(); // Refresh list
+                loadQueue(); 
 
             } catch (err) {
                 alert("Error: " + err.message);
@@ -87,27 +302,46 @@
 
         // 2. FETCH QUEUE (Read-Only View)
         async function loadQueue() {
-            const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/queue`, {
-                headers: { 'Authorization': `Bearer ${TOKEN}` }
-            });
-            const queue = await res.json();
-            
-            const list = document.getElementById('queueList');
-            list.innerHTML = queue.length === 0 ? "<p>Queue is empty</p>" : "";
+            try {
+                const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/queue`, {
+                    headers: { 'Authorization': `Bearer ${TOKEN}` }
+                });
+                const queue = await res.json();
+                
+                const list = document.getElementById('queueList');
+                
+                if (queue.length === 0) {
+                    list.innerHTML = "<div style='text-align:center; padding:40px; color:var(--muted);'>✅ Queue is currently empty.</div>";
+                    return;
+                }
 
-            queue.forEach(p => {
-                list.innerHTML += `
-                    <div class="queue-item">
-                        <strong>${p.patient_id}</strong> - Score: ${p.priority_score} 
-                        (${p.severity >= 7 ? 'CRITICAL' : 'Stable'})
-                    </div>`;
-            });
+                list.innerHTML = "";
+                queue.forEach(p => {
+                    // Logic for Badge Styling
+                    let badgeClass = 'badge-stable';
+                    let badgeText = 'STABLE';
+                    
+                    if (p.severity >= 7) { badgeClass = 'badge-critical'; badgeText = 'CRITICAL'; }
+                    else if (p.severity >= 5) { badgeClass = 'badge-urgent'; badgeText = 'URGENT'; }
+
+                    list.innerHTML += `
+                        <div class="queue-item" style="border-left: 4px solid ${p.severity >= 7 ? '#ef4444' : '#10b981'}">
+                            <div class="patient-info">
+                                <strong>Patient #${p.patient_id}</strong>
+                                <span>Priority Score: ${p.priority_score}</span>
+                            </div>
+                            <span class="badge ${badgeClass}">${badgeText} (Lvl ${p.severity})</span>
+                        </div>`;
+                });
+            } catch (error) {
+                console.error("Queue Load Error:", error);
+            }
         }
 
         function logout() { localStorage.clear(); window.location.href = "/"; }
         
         loadQueue();
-        setInterval(loadQueue, 5000); // Auto-refresh every 5s
+        setInterval(loadQueue, 5000); 
     </script>
 </body>
 </html>

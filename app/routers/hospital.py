@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from passlib.context import CryptContext
-from ..schemas import AdmitRequest, VisitRequest
+from ..schemas import AdmitRequest, VisitRequest, TransferRequest
 from .. import database, schemas, crud, models
 from .auth import get_current_user 
 from .dashboard import public_manager
@@ -192,3 +192,110 @@ async def get_hospital_doctors(hospital_id: int, db: AsyncSession = Depends(get_
     )
     doctors = result.scalars().all()
     return [{"name": d.full_name, "id": d.id} for d in doctors]
+
+# ... (existing imports)
+
+# --- 8. GET ALL STAFF (For Hospital Admin Dashboard) ---
+@router.get("/staff/all")
+async def get_all_my_staff(
+    db: AsyncSession = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    if current_user.role != models.UserRole.HOSPITAL_ADMIN:
+        raise HTTPException(status_code=403, detail="Access Denied")
+
+    # Fetch Doctors and Receptionists belonging to this Admin's Hospital
+    result = await db.execute(
+        select(models.User)
+        .where(models.User.hospital_id == current_user.hospital_id)
+        .where(models.User.role.in_([models.UserRole.DOCTOR, models.UserRole.RECEPTIONIST]))
+    )
+    staff = result.scalars().all()
+    return staff
+
+# --- 9. REMOVE STAFF MEMBER ---
+@router.delete("/staff/{user_id}")
+async def remove_staff(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    if current_user.role != models.UserRole.HOSPITAL_ADMIN:
+        raise HTTPException(status_code=403, detail="Access Denied")
+
+    # Fetch User
+    staff_member = await db.get(models.User, user_id)
+    
+    if not staff_member:
+        raise HTTPException(status_code=404, detail="Staff not found")
+
+    # Security: Ensure Admin owns this staff member
+    if staff_member.hospital_id != current_user.hospital_id:
+        raise HTTPException(status_code=403, detail="You cannot remove staff from other hospitals")
+
+    await db.delete(staff_member)
+    await db.commit()
+    return {"message": "Staff member removed successfully"}
+
+
+# --- 10. GET HOSPITAL BEDS (To display in Doctor Dashboard) ---
+@router.get("/{hospital_id}/beds")
+async def get_hospital_beds(
+    hospital_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    # Fetch all beds for this hospital
+    result = await db.execute(
+        select(models.Bed)
+        .where(models.Bed.hospital_id == hospital_id)
+        .order_by(models.Bed.bed_number)
+    )
+    beds = result.scalars().all()
+    return beds
+
+# --- 11. TRANSFER PATIENT (Shift Bed) ---
+
+
+@router.post("/transfer-patient")
+async def transfer_patient(
+    req: TransferRequest,
+    db: AsyncSession = Depends(get_db),
+    current_user: models.User = Depends(get_current_user)
+):
+    if current_user.role != models.UserRole.DOCTOR:
+        raise HTTPException(status_code=403, detail="Only Doctors can transfer")
+
+    # 1. Get Current Bed
+    current_bed = await db.get(models.Bed, req.current_bed_id)
+    if not current_bed or current_bed.status != "OCCUPIED":
+        raise HTTPException(status_code=400, detail="Current bed is not occupied")
+
+    # 2. Find Target Bed (Empty)
+    result = await db.execute(
+        select(models.Bed)
+        .where(models.Bed.hospital_id == current_user.hospital_id)
+        .where(models.Bed.bed_type == req.target_bed_type)
+        .where(models.Bed.status == "AVAILABLE")
+        .limit(1)
+    )
+    target_bed = result.scalar_one_or_none()
+
+    if not target_bed:
+        raise HTTPException(status_code=400, detail=f"No available {req.target_bed_type} beds!")
+
+    # 3. Swap Patient
+    patient_id = current_bed.current_patient_id
+    
+    # Empty old bed
+    current_bed.status = "AVAILABLE"
+    current_bed.current_patient_id = None
+    
+    # Fill new bed
+    target_bed.status = "OCCUPIED"
+    target_bed.current_patient_id = patient_id
+
+    await db.commit()
+    await public_manager.broadcast("UPDATE")
+    
+    return {"message": f"Patient transferred to {target_bed.bed_number}"}

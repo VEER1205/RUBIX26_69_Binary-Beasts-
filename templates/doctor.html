@@ -2,216 +2,71 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <style>
-:root {
-    --bg-dark: #020617;
-    --bg-main: #0f172a;
-    --bg-card: #111827;
-    --border: #1f2933;
-
-    --text: #e5e7eb;
-    --muted: #9ca3af;
-
-    --primary: #3b82f6;
-    --danger: #ef4444;
-    --warning: #f59e0b;
-    --success: #22c55e;
-
-    --radius: 18px;
-}
-
-* {
-    box-sizing: border-box;
-    font-family: Inter, system-ui, sans-serif;
-}
-
-body {
-    margin: 0;
-    background: linear-gradient(135deg, var(--bg-dark), var(--bg-main));
-    color: var(--text);
-    min-height: 100vh;
-}
-
-.container {
-    display: grid;
-    grid-template-columns: 360px 1fr;
-    height: 100vh;
-}
-
-/* ================= QUEUE PANEL ================= */
-
-.queue-panel {
-    background: rgba(17, 24, 39, 0.95);
-    border-right: 1px solid var(--border);
-    padding: 28px;
-    overflow-y: auto;
-}
-
-.queue-panel h2 {
-    margin: 0 0 20px;
-    font-size: 22px;
-}
-
-.queue-card {
-    background: #020617;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 18px;
-    margin-bottom: 16px;
-    transition: transform .15s ease;
-}
-
-.queue-card:hover {
-    transform: translateY(-2px);
-}
-
-.queue-card.critical {
-    border-left: 5px solid var(--danger);
-}
-
-.queue-card h4 {
-    margin: 0 0 8px;
-}
-
-.queue-card p {
-    margin: 0 0 14px;
-    color: var(--muted);
-    font-size: 14px;
-}
-
-.queue-card button {
-    width: 100%;
-    background: var(--primary);
-    border: none;
-    padding: 12px;
-    border-radius: 12px;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-/* ================= MAIN PANEL ================= */
-
-.bed-panel {
-    display: flex;
-    flex-direction: column;
-    padding: 32px 48px;
-    overflow-y: auto;
-}
-
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 32px;
-}
-
-header h1 {
-    margin: 0;
-    font-size: 28px;
-}
-
-header button {
-    background: var(--danger);
-    border: none;
-    padding: 14px 22px;
-    border-radius: 12px;
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-}
-
-.bed-section {
-    margin-bottom: 40px;
-}
-
-.bed-section h3 {
-    font-size: 20px;
-    margin-bottom: 20px;
-}
-
-/* ================= BED GRID ================= */
-
-.bed-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: 20px;
-}
-
-.bed {
-    background: #020617;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 24px;
-    text-align: center;
-    font-weight: 600;
-}
-
-.bed.available {
-    border-left: 5px solid var(--success);
-}
-
-.bed.occupied {
-    border-left: 5px solid var(--warning);
-}
-
-/* ================= FLOATING BUTTON ================= */
-
-.emergency-btn {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    padding: 18px 26px;
-    background: var(--danger);
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 999px;
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 20px 40px rgba(239, 68, 68, 0.45);
-}
-
-/* ================= RESPONSIVE ================= */
-
-@media (max-width: 900px) {
-    .container {
-        grid-template-columns: 1fr;
-    }
-
-    .queue-panel {
-        border-right: none;
-        border-bottom: 1px solid var(--border);
-    }
-}
-</style>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Dashboard - MediSync</title>
-    </head>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --border: #334155; --text: #f1f5f9; --muted: #94a3b8; --primary: #3b82f6; --danger: #ef4444; --success: #22c55e; --warning: #f59e0b; --radius: 16px; }
+        * { box-sizing: border-box; font-family: "Inter", sans-serif; }
+        body { margin: 0; background: var(--bg); color: var(--text); min-height: 100vh; display: grid; grid-template-columns: 350px 1fr; }
+
+        /* --- LEFT: QUEUE --- */
+        .queue-panel { background: rgba(17, 24, 39, 0.95); border-right: 1px solid var(--border); padding: 25px; overflow-y: auto; height: 100vh; }
+        .queue-panel h2 { margin-top: 0; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
+        
+        .queue-card { background: #020617; border: 1px solid var(--border); padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .queue-card.critical { border-left: 4px solid var(--danger); }
+        .queue-card h4 { margin: 0 0 5px 0; }
+        .queue-card button { width: 100%; background: var(--primary); border: none; padding: 10px; border-radius: 8px; color: white; cursor: pointer; margin-top: 10px; }
+
+        /* --- RIGHT: BEDS --- */
+        .bed-panel { padding: 40px; overflow-y: auto; height: 100vh; }
+        header { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        header button { background: var(--danger); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; }
+
+        .bed-section { margin-bottom: 40px; }
+        .bed-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+
+        .bed-card { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; position: relative; }
+        
+        /* Status Colors */
+        .bed-available { border-top: 4px solid var(--success); }
+        .bed-occupied { border-top: 4px solid var(--danger); background: rgba(239, 68, 68, 0.05); }
+
+        .bed-number { font-size: 1.2em; font-weight: 700; display: block; margin-bottom: 10px; }
+        .patient-info { font-size: 0.9em; color: var(--muted); margin-bottom: 15px; }
+        .patient-id { color: var(--text); font-weight: bold; font-size: 1.1em; }
+
+        /* Action Buttons */
+        .action-btn { width: 100%; padding: 8px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85em; margin-top: 5px; font-weight: 600; }
+        .btn-discharge { background: var(--danger); color: white; }
+        .btn-shift { background: var(--warning); color: #000; }
+
+        @media (max-width: 900px) { body { grid-template-columns: 1fr; } .queue-panel { height: auto; border-right: none; border-bottom: 1px solid var(--border); } }
+    </style>
+</head>
 <body>
-    <div class="container">
-        <aside class="queue-panel">
-            <h2>Waiting List <span id="q-count">(0)</span></h2>
-            <div id="queue-list">Loading...</div>
-        </aside>
 
-        <main class="bed-panel">
-            <header>
-                <h1>👨‍⚕️ Doctor Console</h1>
-                <button onclick="logout()">Logout</button>
-            </header>
+    <aside class="queue-panel">
+        <h2>Waiting List <span id="q-count">(0)</span></h2>
+        <div id="queue-list">Loading...</div>
+    </aside>
 
-            <div class="bed-section">
-                <h3>ICU Beds</h3>
-                <div class="bed-grid" id="icu-grid"></div>
-            </div>
+    <main class="bed-panel">
+        <header>
+            <h1>👨‍⚕️ Doctor Console</h1>
+            <button onclick="logout()">Logout</button>
+        </header>
 
-            <div class="bed-section">
-                <h3>General Beds</h3>
-                <div class="bed-grid" id="gen-grid"></div>
-            </div>
-        </main>
-    </div>
+        <div class="bed-section">
+            <h3>🔴 ICU Beds</h3>
+            <div class="bed-grid" id="icu-grid">Loading Beds...</div>
+        </div>
+
+        <div class="bed-section">
+            <h3>🔵 General Beds</h3>
+            <div class="bed-grid" id="gen-grid">Loading Beds...</div>
+        </div>
+    </main>
 
     <script>
         const API_URL = window.location.origin;
@@ -220,85 +75,130 @@ header button {
 
         if (!TOKEN) window.location.href = "/";
 
-        // 1. LOAD QUEUE
+        // --- 1. LOAD PATIENT QUEUE ---
         async function loadQueue() {
-            const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/queue`, {
-                headers: { 'Authorization': `Bearer ${TOKEN}` }
-            });
-            const queue = await res.json();
-            
-            const list = document.getElementById('queue-list');
-            document.getElementById('q-count').innerText = `(${queue.length})`;
-            list.innerHTML = queue.length ? "" : "<p>No patients waiting.</p>";
+            try {
+                const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/queue`, {
+                    headers: { 'Authorization': `Bearer ${TOKEN}` }
+                });
+                const queue = await res.json();
+                
+                const list = document.getElementById('queue-list');
+                document.getElementById('q-count').innerText = `(${queue.length})`;
+                list.innerHTML = queue.length ? "" : "<p style='color:#666'>No patients waiting.</p>";
 
-            queue.forEach(p => {
-                const isCritical = p.severity >= 7;
-                list.innerHTML += `
-                    <div class="queue-card ${isCritical ? 'critical' : ''}">
-                        <h4>Patient #${p.patient_id}</h4>
-                        <p>Severity: ${p.severity} | Score: ${p.priority_score}</p>
-                        <button onclick="admitPatient(${p.id})">Admit Patient</button>
-                    </div>
-                `;
-            });
+                queue.forEach(p => {
+                    const isCritical = p.severity >= 7;
+                    list.innerHTML += `
+                        <div class="queue-card ${isCritical ? 'critical' : ''}">
+                            <h4>Patient #${p.patient_id}</h4>
+                            <p>Severity: ${p.severity} | Score: ${p.priority_score}</p>
+                            <button onclick="admitPatient(${p.id})">Admit Patient</button>
+                        </div>
+                    `;
+                });
+            } catch(e) { console.error(e); }
         }
 
-        // 2. LOAD BEDS (Using City Stats API for visualization)
-        // Note: For real Discharge, we need bed IDs. 
-        // Hack: Since city-stats only gives counts, we will rely on Admit returning "Bed ID".
-        // Ideally, you'd add a GET /hospital/{id}/beds endpoint.
-        // For now, I will create a simpler "Discharge by ID" input for the demo.
-        
-        // 3. ADMIT LOGIC
+        // --- 2. LOAD BEDS (NEW) ---
+        async function loadBeds() {
+            try {
+                const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/beds`, {
+                    headers: { 'Authorization': `Bearer ${TOKEN}` }
+                });
+                const beds = await res.json();
+
+                const icuGrid = document.getElementById('icu-grid');
+                const genGrid = document.getElementById('gen-grid');
+                icuGrid.innerHTML = "";
+                genGrid.innerHTML = "";
+
+                beds.forEach(bed => {
+                    const isOccupied = bed.status === "OCCUPIED";
+                    const statusClass = isOccupied ? 'bed-occupied' : 'bed-available';
+                    
+                    // Buttons Logic
+                    let buttons = "";
+                    if (isOccupied) {
+                        const targetType = bed.bed_type === 'ICU' ? 'GENERAL' : 'ICU';
+                        const targetLabel = bed.bed_type === 'ICU' ? 'General' : 'ICU';
+                        
+                        buttons = `
+                            <button class="action-btn btn-shift" onclick="transferPatient(${bed.id}, '${targetType}')">⤵ Shift to ${targetLabel}</button>
+                            <button class="action-btn btn-discharge" onclick="dischargePatient(${bed.id})">✖ Discharge</button>
+                        `;
+                    } else {
+                        buttons = `<span style="color:var(--success); font-size:0.9em;">● Empty</span>`;
+                    }
+
+                    const cardHtml = `
+                        <div class="bed-card ${statusClass}">
+                            <span class="bed-number">${bed.bed_number}</span>
+                            <div class="patient-info">
+                                ${isOccupied ? `Patient ID: <span class="patient-id">#${bed.current_patient_id}</span>` : "Available"}
+                            </div>
+                            ${buttons}
+                        </div>
+                    `;
+
+                    if(bed.bed_type === 'ICU') icuGrid.innerHTML += cardHtml;
+                    else genGrid.innerHTML += cardHtml;
+                });
+
+            } catch(e) { console.error(e); }
+        }
+
+        // --- 3. ACTIONS ---
+
         async function admitPatient(queueId) {
             const bedType = confirm("Admit to ICU? (Cancel for General)") ? "ICU" : "GENERAL";
-            
             try {
                 const res = await fetch(`${API_URL}/hospital/admit-patient`, {
                     method: 'POST',
-                    headers: { 
-                        'Authorization': `Bearer ${TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
                     body: JSON.stringify({ queue_id: queueId, bed_type: bedType })
                 });
-                
                 const data = await res.json();
-                if(!res.ok) throw new Error(data.detail);
-                
-                alert(data.message);
-                loadQueue(); 
-                
-            } catch (e) { alert(e.message); }
-        }
-
-        // 4. DISCHARGE LOGIC (Added a prompt for simplicity)
-        // In a full app, you would click a "Occupied Bed" card.
-        function dischargePrompt() {
-            const bedId = prompt("Enter Bed ID to discharge:");
-            if(bedId) dischargePatient(parseInt(bedId));
+                if(res.ok) { alert(data.message); refreshAll(); }
+                else alert(data.detail);
+            } catch (e) { alert("Error admitting"); }
         }
 
         async function dischargePatient(bedId) {
+            if(!confirm("Discharge this patient?")) return;
             try {
                 const res = await fetch(`${API_URL}/hospital/discharge-patient/${bedId}`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${TOKEN}` }
                 });
-                const data = await res.json();
-                if(!res.ok) throw new Error(data.detail);
-                alert(data.message);
-            } catch (e) { alert(e.message); }
+                if(res.ok) { refreshAll(); }
+            } catch (e) { alert("Error discharging"); }
         }
 
-        loadQueue();
-        setInterval(loadQueue, 5000); // Polling
-        
+        async function transferPatient(bedId, targetType) {
+            if(!confirm(`Shift patient to ${targetType} bed?`)) return;
+            try {
+                const res = await fetch(`${API_URL}/hospital/transfer-patient`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ current_bed_id: bedId, target_bed_type: targetType })
+                });
+                const data = await res.json();
+                if(res.ok) { alert(data.message); refreshAll(); }
+                else alert(data.detail);
+            } catch (e) { alert("Error transferring"); }
+        }
+
+        function refreshAll() {
+            loadQueue();
+            loadBeds();
+        }
+
         function logout() { localStorage.clear(); window.location.href = "/"; }
+
+        // Start
+        refreshAll();
+        setInterval(refreshAll, 5000); // Live Updates
     </script>
-    
-    <button onclick="dischargePrompt()" style="position:fixed; bottom:20px; right:20px; padding:15px; background:red; color:white;">
-        🚑 Emergency Discharge
-    </button>
 </body>
 </html>
