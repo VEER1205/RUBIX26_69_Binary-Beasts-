@@ -2,6 +2,190 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <style>
+:root {
+    --bg-dark: #020617;
+    --bg-main: #0f172a;
+    --bg-card: #111827;
+    --border: #1f2933;
+
+    --text: #e5e7eb;
+    --muted: #9ca3af;
+
+    --primary: #3b82f6;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    --success: #22c55e;
+
+    --radius: 18px;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: Inter, system-ui, sans-serif;
+}
+
+body {
+    margin: 0;
+    background: linear-gradient(135deg, var(--bg-dark), var(--bg-main));
+    color: var(--text);
+    min-height: 100vh;
+}
+
+.container {
+    display: grid;
+    grid-template-columns: 360px 1fr;
+    height: 100vh;
+}
+
+/* ================= QUEUE PANEL ================= */
+
+.queue-panel {
+    background: rgba(17, 24, 39, 0.95);
+    border-right: 1px solid var(--border);
+    padding: 28px;
+    overflow-y: auto;
+}
+
+.queue-panel h2 {
+    margin: 0 0 20px;
+    font-size: 22px;
+}
+
+.queue-card {
+    background: #020617;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px;
+    margin-bottom: 16px;
+    transition: transform .15s ease;
+}
+
+.queue-card:hover {
+    transform: translateY(-2px);
+}
+
+.queue-card.critical {
+    border-left: 5px solid var(--danger);
+}
+
+.queue-card h4 {
+    margin: 0 0 8px;
+}
+
+.queue-card p {
+    margin: 0 0 14px;
+    color: var(--muted);
+    font-size: 14px;
+}
+
+.queue-card button {
+    width: 100%;
+    background: var(--primary);
+    border: none;
+    padding: 12px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* ================= MAIN PANEL ================= */
+
+.bed-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 32px 48px;
+    overflow-y: auto;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 32px;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+
+header button {
+    background: var(--danger);
+    border: none;
+    padding: 14px 22px;
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.bed-section {
+    margin-bottom: 40px;
+}
+
+.bed-section h3 {
+    font-size: 20px;
+    margin-bottom: 20px;
+}
+
+/* ================= BED GRID ================= */
+
+.bed-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 20px;
+}
+
+.bed {
+    background: #020617;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 24px;
+    text-align: center;
+    font-weight: 600;
+}
+
+.bed.available {
+    border-left: 5px solid var(--success);
+}
+
+.bed.occupied {
+    border-left: 5px solid var(--warning);
+}
+
+/* ================= FLOATING BUTTON ================= */
+
+.emergency-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 18px 26px;
+    background: var(--danger);
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 999px;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 20px 40px rgba(239, 68, 68, 0.45);
+}
+
+/* ================= RESPONSIVE ================= */
+
+@media (max-width: 900px) {
+    .container {
+        grid-template-columns: 1fr;
+    }
+
+    .queue-panel {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+    }
+}
+</style>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doctor Dashboard - MediSync</title>
     </head>
 <body>
