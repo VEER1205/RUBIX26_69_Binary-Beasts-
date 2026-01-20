@@ -45,7 +45,7 @@
       }
 
       .container {
-        max-width: 800px; /* Narrower for mobile/ambulance focus */
+        max-width: 800px;
         padding: 24px 16px;
         margin: 0 auto;
         width: 100%;
@@ -96,6 +96,17 @@
       }
       .btn-panic:active {
         transform: scale(0.98);
+      }
+
+      /* --- NEW DISABLED STATE --- */
+      .btn-panic:disabled {
+        background: #334155; /* Dark Grey */
+        color: #94a3b8; /* Muted Text */
+        cursor: not-allowed;
+        transform: none;
+        filter: none;
+        box-shadow: none;
+        border: 1px solid var(--border);
       }
 
       /* Floating Labels & Forms */
@@ -206,6 +217,12 @@
         gap: 6px;
       }
       .badge-icu.low {
+        background: rgba(245, 158, 11, 0.1);
+        color: var(--warning);
+        border-color: rgba(245, 158, 11, 0.2);
+      }
+      /* New Critical Badge for 0 Beds */
+      .badge-icu.critical {
         background: rgba(239, 68, 68, 0.1);
         color: var(--danger);
         border-color: rgba(239, 68, 68, 0.2);
@@ -289,7 +306,7 @@
           renderList(filtered);
         });
 
-      // 3. Render Cards
+      // 3. Render Cards (MODIFIED LOGIC)
       function renderList(data) {
         const container = document.getElementById("results");
         if (data.length === 0) {
@@ -303,20 +320,36 @@
 
         container.innerHTML = data
           .map((h) => {
+            // LOGIC FOR FULL HOSPITAL
+            const isFull = h.available_icu <= 0;
             const lowStock = h.available_icu < 2;
+
+            // Determine Badge Style
+            let badgeClass = "badge-icu";
+            if (isFull) badgeClass += " critical";
+            else if (lowStock) badgeClass += " low";
+
+            // Determine Button State
+            const btnState = isFull
+              ? "disabled"
+              : `onclick="sendAlert(${h.id}, '${h.hospital_name}')"`;
+            const btnText = isFull
+              ? "<i class='fa-solid fa-ban'></i> ICU FULL - REDIRECT"
+              : "<i class='fa-solid fa-bell'></i> Alert Trauma Team";
+
             return `
-        <div class="card animate-fade">
+        <div class="card animate-fade" style="${isFull ? "opacity: 0.7;" : ""}">
             <div class="hosp-header">
                 <div>
                     <h3 class="hosp-name">${h.hospital_name}</h3>
                     <div class="hosp-loc"><i class="fa-solid fa-location-dot"></i> ${h.location}</div>
                 </div>
-                <div class="badge-icu ${lowStock ? "low" : ""}">
+                <div class="${badgeClass}">
                     <i class="fa-solid fa-bed-pulse"></i> ICU: ${h.available_icu}
                 </div>
             </div>
-            <button class="btn-panic" onclick="sendAlert(${h.id}, '${h.hospital_name}')">
-                <i class="fa-solid fa-bell"></i> Alert Trauma Team
+            <button class="btn-panic" ${btnState}>
+                ${btnText}
             </button>
         </div>
       `;
@@ -326,7 +359,6 @@
 
       // 4. Send Emergency Call
       async function sendAlert(hospId, hospName) {
-        // Using standard prompt for simplicity as requested, but styled via CSS
         const eta = prompt(
           `🚑 EMERGENCY ALERT\n\nEnter ETA to ${hospName} (e.g. 10 mins):`,
           "10 mins",
