@@ -503,6 +503,7 @@
               <option value="receptionist">📝 Receptionist</option>
               <option value="hospital_admin">🏥 Hospital Admin</option>
               <option value="super_admin">🛡️ Super Admin</option>
+              <option value="patient">👤 Patient</option>
             </select>
             <label for="role">Role / Access Level</label>
             <i
@@ -743,6 +744,7 @@
               doctor: "/doctor",
               receptionist: "/receptionist",
               ambulance: "/ambulance",
+              patient: "/patient",
             };
 
             const target = redirectMap[data.role] || redirectMap[role];
