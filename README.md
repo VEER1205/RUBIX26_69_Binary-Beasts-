@@ -40,7 +40,7 @@ In critical medical emergencies, **time is the enemy**.
 * **Inventory Alerts:** Auto-alerts when Oxygen or critical meds drop below safe thresholds.
 
 ### 🌍 5. Public Portal
-* **City-Wide Map:** Real-time transparency on bed availability across all hospitals in the city.
+* **City-Wide Vacancy:** Real-time transparency on bed availability across all registered hospitals in the city.
 
 ---
 
