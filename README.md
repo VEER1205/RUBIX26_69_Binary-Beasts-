@@ -134,7 +134,3 @@ To avoid manual data entry, we have built a **Master Seed** script.
 ---
 
 **Made with ❤️ for [Hackathon Name]**
-
-```
-
-```
