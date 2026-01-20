@@ -3,7 +3,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles 
 from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
-from .routers import hospital, dashboard, seed, auth,super_admin
+from .routers import hospital, dashboard, seed, auth,super_admin,analytics
 import os
 
 app = FastAPI(title="Hospital Operations Sync")
@@ -36,6 +36,7 @@ app.include_router(dashboard.router)
 app.include_router(seed.router)
 app.include_router(auth.router)
 app.include_router(super_admin.router)
+app.include_router(analytics.router)
 
 # --- 2. THE NEW HOME PAGE ROUTE ---
 @app.get("/")

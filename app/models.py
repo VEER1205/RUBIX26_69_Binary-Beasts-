@@ -35,6 +35,20 @@ class UserRole(str, enum.Enum):
 
 
 # --- Database Tables ---
+
+class InventoryItem(Base):
+    __tablename__ = "inventory"
+    id = Column(Integer, primary_key=True, index=True)
+    item_name = Column(String(100))
+    category = Column(String(50)) # e.g., Medicine, Equipment
+    quantity = Column(Integer, default=0)
+    low_stock_threshold = Column(Integer, default=10) # Automation Trigger
+    hospital_id = Column(Integer, ForeignKey("hospitals.id"))
+
+    hospital = relationship("Hospital", back_populates="inventory")
+
+
+
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
@@ -61,6 +75,7 @@ class Hospital(Base):
     staff = relationship("User", back_populates="hospital")
     beds = relationship("Bed", back_populates="hospital")
     queue = relationship("OpdQueue", back_populates="hospital")
+    inventory = relationship("InventoryItem", back_populates="hospital")
 
 class Bed(Base):
     __tablename__ = "beds"
