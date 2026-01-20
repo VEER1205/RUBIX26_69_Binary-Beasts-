@@ -1,12 +1,11 @@
 fastapi
 uvicorn[standard]
 sqlalchemy
-asyncpg
+aiomysql
 pydantic
 pydantic-settings
 python-jose[cryptography]
 passlib[bcrypt]
 python-multipart
-aiomysql
 python-dotenv
-pydantic_settings
+jinja2
