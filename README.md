@@ -128,7 +128,7 @@ To avoid manual data entry, we have built a **Master Seed** script.
 ## 👥 Team Binary Beasts
 
 * **Veer Dodiya** - Team Leader & Full Stack Dev
-* **[Member Name]** - Frontend & Design
+* **Nirjal Jagtap** - Frontend & Design
 * **[Member Name]** - Database & Analytics
 
 ---
