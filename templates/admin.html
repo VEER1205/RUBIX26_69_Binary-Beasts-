@@ -271,6 +271,16 @@
         align-items: center;
         gap: 6px;
       }
+      option {
+        background-color: var(--card);
+        color: var(--text);
+      }
+
+      /* selected option (works in most browsers) */
+      option:checked {
+        background-color: var(--primary);
+        color: #ffffff;
+      }
       .status-ok {
         background: rgba(16, 185, 129, 0.1);
         color: var(--success);

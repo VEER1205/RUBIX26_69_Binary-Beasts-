@@ -170,6 +170,16 @@
         transform: translateY(-50%);
         font-weight: 600;
       }
+      option {
+        background-color: var(--card);
+        color: var(--text);
+      }
+
+      /* selected option (works in most browsers) */
+      option:checked {
+        background-color: var(--primary);
+        color: #ffffff;
+      }
 
       /* Navbar */
       header.top-nav {
