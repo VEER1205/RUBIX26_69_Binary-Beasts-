@@ -1,202 +1,408 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Hospital Command Center</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --text: #f1f5f9; --primary: #3b82f6; --danger: #ef4444; --success: #10b981; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; padding: 20px; }
-        
-        /* Layout */
-        .container { max-width: 1200px; margin: 0 auto; }
-        header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #334155; padding-bottom: 10px; }
-        
-        /* Tabs */
-        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-        .tab-btn { background: #334155; color: #94a3b8; border: none; padding: 10px 20px; cursor: pointer; border-radius: 8px; font-weight: bold; }
-        .tab-btn.active { background: var(--primary); color: white; }
-        
-        .section { display: none; }
-        .section.active { display: block; }
+      :root {
+        --bg: #0f172a;
+        --card: #1e293b;
+        --text: #f1f5f9;
+        --primary: #3b82f6;
+        --danger: #ef4444;
+        --success: #10b981;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: sans-serif;
+        margin: 0;
+        padding: 20px;
+      }
 
-        /* Cards & Grids */
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
-        .card { background: var(--card); padding: 20px; border-radius: 12px; border: 1px solid #334155; }
-        
-        /* Tables & Forms */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #334155; }
-        input, select { width: 100%; padding: 10px; margin-bottom: 10px; background: #020617; border: 1px solid #334155; color: white; border-radius: 6px; }
-        button.action { width: 100%; padding: 10px; background: var(--success); color: white; border: none; border-radius: 6px; cursor: pointer; }
-        
-        /* Inventory Status Badges */
-        .status-ok { color: var(--success); }
-        .status-low { color: #f59e0b; font-weight: bold; animation: pulse 2s infinite; }
-        .status-out { color: var(--danger); font-weight: bold; }
-        
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+      /* Layout */
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        border-bottom: 1px solid #334155;
+        padding-bottom: 10px;
+      }
+
+      /* Tabs */
+      .tabs {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+      .tab-btn {
+        background: #334155;
+        color: #94a3b8;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        border-radius: 8px;
+        font-weight: bold;
+      }
+      .tab-btn.active {
+        background: var(--primary);
+        color: white;
+      }
+
+      .section {
+        display: none;
+      }
+      .section.active {
+        display: block;
+      }
+
+      /* Cards & Grids */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .card {
+        background: var(--card);
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid #334155;
+      }
+
+      /* Tables & Forms */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 12px;
+        border-bottom: 1px solid #334155;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        background: #020617;
+        border: 1px solid #334155;
+        color: white;
+        border-radius: 6px;
+      }
+      button.action {
+        width: 100%;
+        padding: 10px;
+        background: var(--success);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+
+      /* Inventory Status Badges */
+      .status-ok {
+        color: var(--success);
+      }
+      .status-low {
+        color: #f59e0b;
+        font-weight: bold;
+        animation: pulse 2s infinite;
+      }
+      .status-out {
+        color: var(--danger);
+        font-weight: bold;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
     </style>
-</head>
-<body>
-
-<div class="container">
-    <header>
+  </head>
+  <body>
+    <div class="container">
+      <header>
         <h1>🏥 Command Center</h1>
-        <button onclick="localStorage.clear(); window.location.href='/'" style="background:var(--danger); color:white; border:none; padding:8px 16px; border-radius:4px; cursor:pointer;">Logout</button>
-    </header>
+        <button
+          onclick="
+            localStorage.clear();
+            window.location.href = '/';
+          "
+          style="
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+          "
+        >
+          Logout
+        </button>
+      </header>
 
-    <div class="tabs">
-        <button class="tab-btn active" onclick="showTab('staff')">👥 Staff</button>
-        <button class="tab-btn" onclick="showTab('inventory')">📦 Inventory & Auto-Alerts</button>
-        <button class="tab-btn" onclick="showTab('analytics')">📊 Analytics & Graphs</button>
-    </div>
+      <div class="tabs">
+        <button class="tab-btn active" onclick="showTab('staff')">
+          👥 Staff
+        </button>
+        <button class="tab-btn" onclick="showTab('inventory')">
+          📦 Inventory & Auto-Alerts
+        </button>
+        <button class="tab-btn" onclick="showTab('analytics')">
+          📊 Analytics & Graphs
+        </button>
+      </div>
 
-    <div id="staff" class="section active">
+      <div id="staff" class="section active">
         <div class="grid-2">
-            <div class="card">
-                <h3>Add Staff</h3>
-                <form id="addStaffForm">
-                    <input type="text" id="fullname" placeholder="Full Name" required>
-                    <input type="text" id="username" placeholder="Username" required>
-                    <input type="password" id="password" placeholder="Password" required>
-                    <select id="role"><option value="doctor">Doctor</option><option value="receptionist">Receptionist</option></select>
-                    <button type="submit" class="action">Create User</button>
-                </form>
-            </div>
-            <div class="card">
-                <h3>Staff List</h3>
-                <table id="staffTable"><tbody></tbody></table>
-            </div>
+          <div class="card">
+            <h3>Add Staff</h3>
+            <form id="addStaffForm">
+              <input
+                type="text"
+                id="fullname"
+                placeholder="Full Name"
+                required
+              />
+              <input
+                type="text"
+                id="username"
+                placeholder="Username"
+                required
+              />
+              <input
+                type="password"
+                id="password"
+                placeholder="Password"
+                required
+              />
+              <select id="role">
+                <option value="doctor">Doctor</option>
+                <option value="receptionist">Receptionist</option>
+              </select>
+              <button type="submit" class="action">Create User</button>
+            </form>
+          </div>
+          <div class="card">
+            <h3>Staff List</h3>
+            <table id="staffTable">
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
-    </div>
+      </div>
 
-    <div id="inventory" class="section">
+      <div id="inventory" class="section">
         <div class="grid-2">
-            <div class="card">
-                <h3>Add Item</h3>
-                <form id="addItemForm">
-                    <input type="text" id="itemName" placeholder="Item Name (e.g. Oxygen Mask)" required>
-                    <select id="category">
-                        <option value="Medicine">Medicine</option>
-                        <option value="Equipment">Equipment</option>
-                    </select>
-                    <input type="number" id="qty" placeholder="Quantity" required>
-                    <input type="number" id="threshold" placeholder="Low Stock Alert Level (e.g. 10)" value="10">
-                    <button type="submit" class="action">Add to Inventory</button>
-                </form>
-            </div>
-            <div class="card">
-                <h3>Current Stock</h3>
-                <table id="invTable">
-                    <thead><tr><th>Item</th><th>Qty</th><th>Status</th></tr></thead>
-                    <tbody></tbody>
-                </table>
-            </div>
+          <div class="card">
+            <h3>Add Item</h3>
+            <form id="addItemForm">
+              <input
+                type="text"
+                id="itemName"
+                placeholder="Item Name (e.g. Oxygen Mask)"
+                required
+              />
+              <select id="category">
+                <option value="Medicine">Medicine</option>
+                <option value="Equipment">Equipment</option>
+              </select>
+              <input type="number" id="qty" placeholder="Quantity" required />
+              <input
+                type="number"
+                id="threshold"
+                placeholder="Low Stock Alert Level (e.g. 10)"
+                value="10"
+              />
+              <button type="submit" class="action">Add to Inventory</button>
+            </form>
+          </div>
+          <div class="card">
+            <h3>Current Stock</h3>
+            <table id="invTable">
+              <thead>
+                <tr>
+                  <th>Item</th>
+                  <th>Qty</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
         </div>
+      </div>
+
+      <div id="analytics" class="section">
+        <div
+          class="card"
+          style="height: 400px; display: flex; justify-content: center"
+        >
+          <div style="width: 350px">
+            <h3 style="text-align: center">Real-Time Bed Occupancy</h3>
+            <canvas id="bedChart"></canvas>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div id="analytics" class="section">
-        <div class="card" style="height: 400px; display:flex; justify-content:center;">
-            <div style="width: 350px;">
-                <h3 style="text-align:center;">Real-Time Bed Occupancy</h3>
-                <canvas id="bedChart"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
+    <script>
+      const API = window.location.origin;
+      const TOKEN = localStorage.getItem("token");
+      if (!TOKEN) window.location.href = "/";
 
-<script>
-    const API = window.location.origin;
-    const TOKEN = localStorage.getItem('token');
-    if (!TOKEN) window.location.href = "/";
+      // --- TAB LOGIC ---
+      function showTab(id) {
+        document
+          .querySelectorAll(".section")
+          .forEach((el) => el.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((el) => el.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+        event.target.classList.add("active");
 
-    // --- TAB LOGIC ---
-    function showTab(id) {
-        document.querySelectorAll('.section').forEach(el => el.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        event.target.classList.add('active');
-        
-        if(id === 'inventory') loadInventory();
-        if(id === 'analytics') loadCharts();
-        if(id === 'staff') loadStaff();
-    }
+        if (id === "inventory") loadInventory();
+        if (id === "analytics") loadCharts();
+        if (id === "staff") loadStaff();
+      }
 
-    // --- STAFF LOGIC (Existing) ---
-    async function loadStaff() {
-        const res = await fetch(`${API}/hospital/staff/all`, { headers: { 'Authorization': `Bearer ${TOKEN}` }});
+      // --- STAFF LOGIC (Existing) ---
+      async function loadStaff() {
+        const res = await fetch(`${API}/hospital/staff/all`, {
+          headers: { Authorization: `Bearer ${TOKEN}` },
+        });
         const data = await res.json();
-        document.querySelector("#staffTable tbody").innerHTML = data.map(u => 
-            `<tr><td>${u.full_name}</td><td>${u.role}</td></tr>`
-        ).join('');
-    }
-    
-    document.getElementById('addStaffForm').addEventListener('submit', async e => {
-        e.preventDefault();
-        // ... (Keep your existing add staff logic here or copy from previous chat) ...
-        alert("Staff added (Simulated for brevity - add logic from previous step)");
-        loadStaff();
-    });
+        document.querySelector("#staffTable tbody").innerHTML = data
+          .map((u) => `<tr><td>${u.full_name}</td><td>${u.role}</td></tr>`)
+          .join("");
+      }
 
-    // --- INVENTORY LOGIC (New) ---
-    async function loadInventory() {
-        const res = await fetch(`${API}/analytics/inventory`, { headers: { 'Authorization': `Bearer ${TOKEN}` }});
+      document
+        .getElementById("addStaffForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+
+          // 1. Get values from the form
+          const payload = {
+            full_name: document.getElementById("fullname").value,
+            username: document.getElementById("username").value,
+            password: document.getElementById("password").value,
+            role: document.getElementById("role").value,
+          };
+
+          try {
+            // 2. Send real POST request to backend
+            const res = await fetch(`${API}/hospital/staff/add`, {
+              method: "POST",
+              headers: {
+                Authorization: `Bearer ${TOKEN}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(payload),
+            });
+
+            // 3. Handle success or error
+            if (res.ok) {
+              alert("Staff member created successfully! 🎉");
+              document.getElementById("addStaffForm").reset(); // Clear form
+              loadStaff(); // Refresh the table instantly
+            } else {
+              const err = await res.json();
+              alert("Error: " + err.detail);
+            }
+          } catch (error) {
+            console.error(error);
+            alert("Network Error: Could not connect to server.");
+          }
+        });
+
+      // --- INVENTORY LOGIC (New) ---
+      async function loadInventory() {
+        const res = await fetch(`${API}/analytics/inventory`, {
+          headers: { Authorization: `Bearer ${TOKEN}` },
+        });
         const data = await res.json();
-        
+
         const tbody = document.querySelector("#invTable tbody");
         tbody.innerHTML = "";
-        
-        data.forEach(item => {
-            let statusBadge = `<span class="status-ok">OK</span>`;
-            if (item.status === 'LOW_STOCK') statusBadge = `<span class="status-low">⚠️ LOW STOCK</span>`;
-            if (item.status === 'OUT_OF_STOCK') statusBadge = `<span class="status-out">❌ EMPTY</span>`;
-            
-            tbody.innerHTML += `<tr><td>${item.name}</td><td>${item.qty}</td><td>${statusBadge}</td></tr>`;
-        });
-    }
 
-    document.getElementById('addItemForm').addEventListener('submit', async e => {
-        e.preventDefault();
-        const payload = {
-            item_name: document.getElementById('itemName').value,
-            category: document.getElementById('category').value,
-            quantity: +document.getElementById('qty').value,
-            threshold: +document.getElementById('threshold').value
-        };
-        await fetch(`${API}/analytics/inventory/add`, {
-            method: 'POST',
-            headers: { 'Authorization': `Bearer ${TOKEN}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify(payload)
-        });
-        loadInventory();
-        document.getElementById('addItemForm').reset();
-    });
+        data.forEach((item) => {
+          let statusBadge = `<span class="status-ok">OK</span>`;
+          if (item.status === "LOW_STOCK")
+            statusBadge = `<span class="status-low">⚠️ LOW STOCK</span>`;
+          if (item.status === "OUT_OF_STOCK")
+            statusBadge = `<span class="status-out">❌ EMPTY</span>`;
 
-    // --- CHARTS LOGIC (New) ---
-    let myChart = null;
-    async function loadCharts() {
-        const res = await fetch(`${API}/analytics/stats`, { headers: { 'Authorization': `Bearer ${TOKEN}` }});
-        const stats = await res.json();
-        
-        const ctx = document.getElementById('bedChart').getContext('2d');
-        if (myChart) myChart.destroy(); // Prevent duplicate charts
-        
-        myChart = new Chart(ctx, {
-            type: 'doughnut',
-            data: {
-                labels: ['Available', 'Occupied'],
-                datasets: [{
-                    data: [stats.AVAILABLE, stats.OCCUPIED],
-                    backgroundColor: ['#10b981', '#ef4444'],
-                    borderWidth: 0
-                }]
+          tbody.innerHTML += `<tr><td>${item.name}</td><td>${item.qty}</td><td>${statusBadge}</td></tr>`;
+        });
+      }
+
+      document
+        .getElementById("addItemForm")
+        .addEventListener("submit", async (e) => {
+          e.preventDefault();
+          const payload = {
+            item_name: document.getElementById("itemName").value,
+            category: document.getElementById("category").value,
+            quantity: +document.getElementById("qty").value,
+            threshold: +document.getElementById("threshold").value,
+          };
+          await fetch(`${API}/analytics/inventory/add`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${TOKEN}`,
+              "Content-Type": "application/json",
             },
-            options: { plugins: { legend: { labels: { color: 'white' } } } }
+            body: JSON.stringify(payload),
+          });
+          loadInventory();
+          document.getElementById("addItemForm").reset();
         });
-    }
 
-    loadStaff();
-</script>
-</body>
+      // --- CHARTS LOGIC (New) ---
+      let myChart = null;
+      async function loadCharts() {
+        const res = await fetch(`${API}/analytics/stats`, {
+          headers: { Authorization: `Bearer ${TOKEN}` },
+        });
+        const stats = await res.json();
+
+        const ctx = document.getElementById("bedChart").getContext("2d");
+        if (myChart) myChart.destroy(); // Prevent duplicate charts
+
+        myChart = new Chart(ctx, {
+          type: "doughnut",
+          data: {
+            labels: ["Available", "Occupied"],
+            datasets: [
+              {
+                data: [stats.AVAILABLE, stats.OCCUPIED],
+                backgroundColor: ["#10b981", "#ef4444"],
+                borderWidth: 0,
+              },
+            ],
+          },
+          options: { plugins: { legend: { labels: { color: "white" } } } },
+        });
+      }
+
+      loadStaff();
+    </script>
+  </body>
 </html>
