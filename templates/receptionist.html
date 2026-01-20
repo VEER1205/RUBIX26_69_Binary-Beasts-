@@ -306,6 +306,16 @@
       .emergency-overlay.active {
         display: flex;
       }
+      option {
+        background-color: var(--card);
+        color: var(--text);
+      }
+
+      /* selected option (works in most browsers) */
+      option:checked {
+        background-color: var(--primary);
+        color: #ffffff;
+      }
 
       .emergency-content {
         background: white;
@@ -428,7 +438,6 @@
                 <option value="" disabled selected hidden></option>
                 <option value="1">1 - Mild (Checkup)</option>
                 <option value="5">5 - Urgent (Fever/Pain)</option>
-                <option value="7">7 - Severe (Breathing Issues)</option>
                 <option value="10">10 - Critical (Trauma)</option>
               </select>
               <label for="severity">Triage Severity Level</label>
