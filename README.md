@@ -129,8 +129,9 @@ To avoid manual data entry, we have built a **Master Seed** script.
 
 * **Veer Dodiya** - Team Leader & Full Stack Dev
 * **Nirjal Jagtap** - Frontend & Design
-* **[Member Name]** - Database & Analytics
+* **Hrishikesh Ganji** - Database & Analytics
+* **Chinmay Chopade** - PPT and UI/UX
 
 ---
 
-**Made with ❤️ for [Hackathon Name]**
+**Made with ❤️ for CSI-TSEC Rubix Hackathon '26**
