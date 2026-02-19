@@ -1,343 +1,111 @@
 <!doctype html>
 
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Ambulance - MediSync</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <style>
-      /* --- DESIGN SYSTEM START --- */
-      :root {
-        --bg: #0a0e17;
-        --card: #141b2d;
-        --border: #253347;
-        --text: #e2e8f0;
-        --text-sec: #94a3b8;
-        --primary: #3b82f6;
-        --primary-h: #2563eb;
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-        --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        --radius: 12px;
-      }
 
-      * {
-        box-sizing: border-box;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ambulance - MediSync</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <style>
+    /* Page Specific Overrides */
+    .container {
+      max-width: 800px;
+    }
 
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family:
-          system-ui,
-          -apple-system,
-          sans-serif;
-        line-height: 1.5;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
+    .animate-fade {
+      animation: fadeIn 0.4s ease-out;
+    }
+  </style>
+</head>
 
-      .container {
-        max-width: 800px;
-        padding: 24px 16px;
-        margin: 0 auto;
-        width: 100%;
-        flex: 1;
-      }
+<body>
+  <header class="navbar">
+    <h1><i class="fa-solid fa-truck-medical"></i> Emergency Response</h1>
+  </header>
 
-      /* Cards */
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 24px;
-        box-shadow: var(--shadow-sm);
-        transition: transform 0.2s;
-        margin-bottom: 20px;
-      }
-      .card:hover {
-        transform: translateY(-2px);
-      }
+  <div class="container animate-fade">
+    <div class="hero">
+      <p>Locate nearest facility & alert trauma teams instantly.</p>
+    </div>
 
-      /* Buttons */
-      button {
-        cursor: pointer;
-        font-family: inherit;
-        transition: all 0.2s;
-      }
-
-      .btn-panic {
-        padding: 16px;
-        background: var(--danger);
-        color: white;
-        border: none;
-        border-radius: var(--radius);
-        font-weight: 700;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-        font-size: 1.1rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
-      }
-      .btn-panic:hover {
-        filter: brightness(1.1);
-        transform: scale(1.02);
-      }
-      .btn-panic:active {
-        transform: scale(0.98);
-      }
-
-      /* --- NEW DISABLED STATE --- */
-      .btn-panic:disabled {
-        background: #334155; /* Dark Grey */
-        color: #94a3b8; /* Muted Text */
-        cursor: not-allowed;
-        transform: none;
-        filter: none;
-        box-shadow: none;
-        border: 1px solid var(--border);
-      }
-
-      /* Floating Labels & Forms */
-      .form-group {
-        position: relative;
-        margin-bottom: 0;
-      }
-
-      .form-group input {
-        width: 100%;
-        padding: 24px 16px 8px 16px;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        color: var(--text);
-        font-size: 1.1rem;
-        outline: none;
-        transition: border-color 0.2s;
-        appearance: none;
-      }
-
-      .form-group input:focus {
-        border-color: var(--primary);
-      }
-
-      .form-group label {
-        position: absolute;
-        top: 50%;
-        left: 16px;
-        transform: translateY(-50%);
-        color: var(--text-sec);
-        pointer-events: none;
-        transition: all 0.2s ease;
-        font-size: 1rem;
-      }
-
-      .form-group input:focus + label,
-      .form-group input:not(:placeholder-shown) + label {
-        top: 14px;
-        font-size: 0.75rem;
-        color: var(--primary);
-        transform: translateY(-50%);
-        font-weight: 600;
-      }
-
-      /* Navbar */
-      header.navbar {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 16px 24px;
-        background: var(--card);
-        border-bottom: 1px solid var(--border);
-        position: sticky;
-        top: 0;
-        z-index: 100;
-      }
-      header.navbar h1 {
-        margin: 0;
-        font-size: 1.25rem;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        color: var(--danger);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-      }
-
-      /* Hero */
-      .hero {
-        text-align: center;
-        padding: 32px 16px;
-        color: var(--text-sec);
-      }
-
-      /* Hospital List */
-      .hosp-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: start;
-        margin-bottom: 16px;
-      }
-      .hosp-name {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--text);
-        margin: 0;
-      }
-      .hosp-loc {
-        color: var(--text-sec);
-        font-size: 0.95rem;
-        margin-top: 4px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-
-      .badge-icu {
-        background: rgba(16, 185, 129, 0.1);
-        color: var(--success);
-        border: 1px solid rgba(16, 185, 129, 0.2);
-        padding: 4px 10px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .badge-icu.low {
-        background: rgba(245, 158, 11, 0.1);
-        color: var(--warning);
-        border-color: rgba(245, 158, 11, 0.2);
-      }
-      /* New Critical Badge for 0 Beds */
-      .badge-icu.critical {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
-        border-color: rgba(239, 68, 68, 0.2);
-      }
-
-      /* Animation */
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .animate-fade {
-        animation: fadeIn 0.4s ease-out;
-      }
-    </style>
-  </head>
-  <body>
-    <header class="navbar">
-      <h1><i class="fa-solid fa-truck-medical"></i> Emergency Response</h1>
-    </header>
-
-    <div class="container animate-fade">
-      <div class="hero">
-        <p>Locate nearest facility & alert trauma teams instantly.</p>
-      </div>
-
-      <div
-        class="card"
-        style="position: sticky; top: 80px; z-index: 90; margin-bottom: 32px"
-      >
-        <div class="form-group">
-          <input type="text" id="locationInput" placeholder=" " />
-          <label for="locationInput"
-            ><i class="fa-solid fa-magnifying-glass"></i> Enter Location (e.g.
-            Borivali)...</label
-          >
-        </div>
-      </div>
-
-      <div id="results">
-        <div style="text-align: center; padding: 40px; color: var(--text-sec)">
-          <i
-            class="fa-solid fa-map-location-dot"
-            style="font-size: 2rem; margin-bottom: 16px; opacity: 0.5"
-          ></i>
-          <p>Enter a location above to find hospitals.</p>
-        </div>
+    <div class="card" style="position: sticky; top: 80px; z-index: 90; margin-bottom: 32px">
+      <div class="form-group">
+        <input type="text" id="locationInput" placeholder=" " />
+        <label for="locationInput"><i class="fa-solid fa-magnifying-glass"></i> Enter Location (e.g.
+          Borivali)...</label>
       </div>
     </div>
 
-    <script>
-      const API_URL = window.location.origin;
-      let allHospitals = [];
+    <div id="results">
+      <div style="text-align: center; padding: 40px; color: var(--text-sec)">
+        <i class="fa-solid fa-map-location-dot" style="font-size: 2rem; margin-bottom: 16px; opacity: 0.5"></i>
+        <p>Enter a location above to find hospitals.</p>
+      </div>
+    </div>
+  </div>
 
-      // 1. Fetch All Hospitals on Load
-      async function loadData() {
-        try {
-          const res = await fetch(`${API_URL}/dashboard/city-stats`);
-          allHospitals = await res.json();
-          renderList(allHospitals);
-        } catch (e) {
-          console.error(e);
-        }
+  <script>
+    const API_URL = window.location.origin;
+    let allHospitals = [];
+
+    // 1. Fetch All Hospitals on Load
+    async function loadData() {
+      try {
+        const res = await fetch(`${API_URL}/dashboard/city-stats`);
+        allHospitals = await res.json();
+        renderList(allHospitals);
+      } catch (e) {
+        console.error(e);
       }
+    }
 
-      // 2. Filter Logic
-      document
-        .getElementById("locationInput")
-        .addEventListener("input", (e) => {
-          const query = e.target.value.toLowerCase();
-          const filtered = allHospitals.filter(
-            (h) =>
-              h.location.toLowerCase().includes(query) ||
-              h.hospital_name.toLowerCase().includes(query),
-          );
-          renderList(filtered);
-        });
+    // 2. Filter Logic
+    document
+      .getElementById("locationInput")
+      .addEventListener("input", (e) => {
+        const query = e.target.value.toLowerCase();
+        const filtered = allHospitals.filter(
+          (h) =>
+            h.location.toLowerCase().includes(query) ||
+            h.hospital_name.toLowerCase().includes(query),
+        );
+        renderList(filtered);
+      });
 
-      // 3. Render Cards (MODIFIED LOGIC)
-      function renderList(data) {
-        const container = document.getElementById("results");
-        if (data.length === 0) {
-          container.innerHTML = `
+    // 3. Render Cards (MODIFIED LOGIC)
+    function renderList(data) {
+      const container = document.getElementById("results");
+      if (data.length === 0) {
+        container.innerHTML = `
         <div style="text-align: center; padding: 40px; color: var(--text-sec);">
             <i class="fa-solid fa-circle-exclamation" style="font-size: 2rem; margin-bottom: 16px; opacity: 0.5;"></i>
             <p>No hospitals found in this area.</p>
         </div>`;
-          return;
-        }
+        return;
+      }
 
-        container.innerHTML = data
-          .map((h) => {
-            // LOGIC FOR FULL HOSPITAL
-            const isFull = h.available_icu <= 0;
-            const lowStock = h.available_icu < 2;
+      container.innerHTML = data
+        .map((h) => {
+          // LOGIC FOR FULL HOSPITAL
+          const isFull = h.available_icu <= 0;
+          const lowStock = h.available_icu < 2;
 
-            // Determine Badge Style
-            let badgeClass = "badge-icu";
-            if (isFull) badgeClass += " critical";
-            else if (lowStock) badgeClass += " low";
+          // Determine Badge Style
+          let badgeClass = "badge-icu";
+          if (isFull) badgeClass += " critical";
+          else if (lowStock) badgeClass += " low";
 
-            // Determine Button State
-            const btnState = isFull
-              ? "disabled"
-              : `onclick="sendAlert(${h.id}, '${h.hospital_name}')"`;
-            const btnText = isFull
-              ? "<i class='fa-solid fa-ban'></i> ICU FULL - REDIRECT"
-              : "<i class='fa-solid fa-bell'></i> Alert Trauma Team";
+          // Determine Button State
+          const btnState = isFull
+            ? "disabled"
+            : `onclick="sendAlert(${h.id}, '${h.hospital_name}')"`;
+          const btnText = isFull
+            ? "<i class='fa-solid fa-ban'></i> ICU FULL - REDIRECT"
+            : "<i class='fa-solid fa-bell'></i> Alert Trauma Team";
 
-            return `
+          return `
         <div class="card animate-fade" style="${isFull ? "opacity: 0.7;" : ""}">
             <div class="hosp-header">
                 <div>
@@ -353,48 +121,49 @@
             </button>
         </div>
       `;
-          })
-          .join("");
+        })
+        .join("");
+    }
+
+    // 4. Send Emergency Call
+    async function sendAlert(hospId, hospName) {
+      const eta = prompt(
+        `🚑 EMERGENCY ALERT\n\nEnter ETA to ${hospName} (e.g. 10 mins):`,
+        "10 mins",
+      );
+      if (!eta) return;
+
+      const condition = prompt(
+        `🚑 PATIENT STATUS\n\nEnter Condition (e.g. Cardiac Arrest):`,
+        "Critical Trauma",
+      );
+
+      try {
+        const payload = {
+          hospital_id: hospId,
+          driver_name: "Ambulance Unit #42",
+          eta: eta,
+          patient_condition: condition || "Unknown",
+        };
+
+        const res = await fetch(`${API_URL}/emergency/notify`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok)
+          alert(
+            `✅ ALERT SENT TO ${hospName}!\n\nTrauma team has been notified.\nETA: ${eta}`,
+          );
+        else alert("❌ Failed to send alert. Check connection.");
+      } catch (e) {
+        alert("❌ Network Error. Contact Dispatch via Radio.");
       }
+    }
 
-      // 4. Send Emergency Call
-      async function sendAlert(hospId, hospName) {
-        const eta = prompt(
-          `🚑 EMERGENCY ALERT\n\nEnter ETA to ${hospName} (e.g. 10 mins):`,
-          "10 mins",
-        );
-        if (!eta) return;
+    loadData();
+  </script>
+</body>
 
-        const condition = prompt(
-          `🚑 PATIENT STATUS\n\nEnter Condition (e.g. Cardiac Arrest):`,
-          "Critical Trauma",
-        );
-
-        try {
-          const payload = {
-            hospital_id: hospId,
-            driver_name: "Ambulance Unit #42",
-            eta: eta,
-            patient_condition: condition || "Unknown",
-          };
-
-          const res = await fetch(`${API_URL}/emergency/notify`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload),
-          });
-
-          if (res.ok)
-            alert(
-              `✅ ALERT SENT TO ${hospName}!\n\nTrauma team has been notified.\nETA: ${eta}`,
-            );
-          else alert("❌ Failed to send alert. Check connection.");
-        } catch (e) {
-          alert("❌ Network Error. Contact Dispatch via Radio.");
-        }
-      }
-
-      loadData();
-    </script>
-  </body>
 </html>

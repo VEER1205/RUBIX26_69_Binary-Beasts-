@@ -1,486 +1,215 @@
 <!doctype html>
 
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Super Admin Dashboard</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <style>
-      /* --- DESIGN SYSTEM --- */
-      :root {
-        --bg: #0a0e17;
-        --card: #141b2d;
-        --border: #253347;
-        --text: #e2e8f0;
-        --text-sec: #94a3b8;
-        --primary: #3b82f6;
-        --primary-h: #2563eb;
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-        --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        --radius: 12px;
-      }
 
-      * {
-        box-sizing: border-box;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Super Admin Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <style>
+    /* Page Specific Overrides */
+    .badge-admin {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--primary);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.85em;
+      font-family: monospace;
+    }
 
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family:
-          system-ui,
-          -apple-system,
-          sans-serif;
-        line-height: 1.5;
-        margin: 0;
-      }
-      option {
-        background-color: var(--card);
-        color: var(--text);
-      }
+    .table-btn {
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      border: 1px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
 
-      /* selected option (works in most browsers) */
-      option:checked {
-        background-color: var(--primary);
-        color: #ffffff;
-      }
+    .btn-select {
+      background: rgba(59, 130, 246, 0.1);
+      color: var(--primary);
+      border-color: rgba(59, 130, 246, 0.2);
+    }
 
-      .container {
-        max-width: 1400px;
-        padding: 24px 16px;
-        margin: 0 auto;
-      }
+    .btn-select:hover {
+      background: var(--primary);
+      color: white;
+    }
 
-      /* Cards */
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 24px;
-        box-shadow: var(--shadow-sm);
-        transition: transform 0.2s;
-        height: 100%;
-      }
-      .card:hover {
-        transform: translateY(-2px);
-      }
+    .btn-delete {
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.2);
+    }
 
-      h2 {
-        margin-top: 0;
-        color: var(--text);
-        font-size: 1.25rem;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 24px;
-      }
+    .btn-delete:hover {
+      background: var(--danger);
+      color: white;
+    }
 
-      /* Buttons */
-      button {
-        cursor: pointer;
-        font-family: inherit;
-        transition: all 0.2s;
-      }
+    .animate-fade {
+      animation: fadeIn 0.4s ease-out;
+    }
+  </style>
+</head>
 
-      button.action {
-        padding: 14px;
-        background: var(--success);
-        color: white;
-        border: none;
-        border-radius: var(--radius);
-        font-weight: 600;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        font-size: 1rem;
-      }
-      button.action:hover {
-        filter: brightness(1.1);
-      }
+<body>
+  <div class="container animate-fade">
+    <header>
+      <h1><i class="fa-solid fa-shield-halved"></i> Super Admin Dashboard</h1>
+      <button class="btn-logout" onclick="logout()">
+        <i class="fa-solid fa-right-from-bracket"></i> Logout
+      </button>
+    </header>
 
-      /* Tables */
-      table {
-        width: 100%;
-        border-collapse: separate;
-        border-spacing: 0;
-        margin-top: 10px;
-      }
-      thead th {
-        background: #1e293b;
-        position: sticky;
-        top: 0;
-        text-align: left;
-        padding: 16px;
-        color: var(--text-sec);
-        font-weight: 600;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        z-index: 10;
-        border-bottom: 1px solid var(--border);
-      }
-      thead th:first-child {
-        border-top-left-radius: 8px;
-      }
-      thead th:last-child {
-        border-top-right-radius: 8px;
-      }
+    <div class="grid-2">
+      <div class="card">
+        <h2><i class="fa-solid fa-hospital-user"></i> Add New Hospital</h2>
+        <form id="createHospForm">
+          <div class="form-group">
+            <input type="text" id="hospName" placeholder=" " required />
+            <label for="hospName">Hospital Name</label>
+          </div>
 
-      td {
-        padding: 16px;
-        border-bottom: 1px solid var(--border);
-        color: var(--text);
-      }
-      tr:hover {
-        background: rgba(59, 130, 246, 0.08);
-      }
+          <div class="form-group">
+            <input type="text" id="location" placeholder=" " required />
+            <label for="location">Location (City/Area)</label>
+          </div>
 
-      /* Action Buttons in Table */
-      .table-btn {
-        padding: 6px 12px;
-        border-radius: 6px;
-        font-size: 0.8rem;
-        font-weight: 600;
-        border: 1px solid transparent;
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-      }
-      .btn-select {
-        background: rgba(59, 130, 246, 0.1);
-        color: var(--primary);
-        border-color: rgba(59, 130, 246, 0.2);
-      }
-      .btn-select:hover {
-        background: var(--primary);
-        color: white;
-      }
+          <div class="form-group">
+            <input type="text" id="contact" placeholder=" " required />
+            <label for="contact">Contact Number</label>
+          </div>
 
-      .btn-delete {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
-        border-color: rgba(239, 68, 68, 0.2);
-      }
-      .btn-delete:hover {
-        background: var(--danger);
-        color: white;
-      }
-
-      /* Floating Labels & Forms */
-      .form-group {
-        position: relative;
-        margin-bottom: 20px;
-      }
-
-      .form-group input,
-      .form-group select {
-        width: 100%;
-        padding: 24px 16px 8px 16px;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        color: var(--text);
-        font-size: 1rem;
-        outline: none;
-        transition: border-color 0.2s;
-        appearance: none;
-      }
-
-      .form-group input:focus {
-        border-color: var(--primary);
-      }
-      .form-group input[readonly] {
-        cursor: not-allowed;
-        opacity: 0.6;
-        border-style: dashed;
-      }
-
-      .form-group label {
-        position: absolute;
-        top: 50%;
-        left: 16px;
-        transform: translateY(-50%);
-        color: var(--text-sec);
-        pointer-events: none;
-        transition: all 0.2s ease;
-        font-size: 1rem;
-      }
-
-      .form-group input:focus + label,
-      .form-group input:not(:placeholder-shown) + label {
-        top: 14px;
-        font-size: 0.75rem;
-        color: var(--primary);
-        transform: translateY(-50%);
-        font-weight: 600;
-      }
-
-      /* Navbar */
-      header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 32px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid var(--border);
-      }
-      header h1 {
-        margin: 0;
-        font-size: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .btn-logout {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
-        border: 1px solid var(--danger);
-        padding: 8px 16px;
-        border-radius: 8px;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-      .btn-logout:hover {
-        background: var(--danger);
-        color: white;
-      }
-
-      /* Grid System */
-      .grid-2 {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 24px;
-        margin-bottom: 24px;
-      }
-      @media (max-width: 768px) {
-        .grid-2 {
-          grid-template-columns: 1fr;
-        }
-      }
-
-      .row-inputs {
-        display: flex;
-        gap: 16px;
-      }
-      .row-inputs .form-group {
-        flex: 1;
-      }
-
-      /* Animation */
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .animate-fade {
-        animation: fadeIn 0.4s ease-out;
-      }
-
-      .badge-admin {
-        background: rgba(59, 130, 246, 0.1);
-        color: var(--primary);
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 0.85em;
-        font-family: monospace;
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container animate-fade">
-      <header>
-        <h1><i class="fa-solid fa-shield-halved"></i> Super Admin Dashboard</h1>
-        <button class="btn-logout" onclick="logout()">
-          <i class="fa-solid fa-right-from-bracket"></i> Logout
-        </button>
-      </header>
-
-      <div class="grid-2">
-        <div class="card">
-          <h2><i class="fa-solid fa-hospital-user"></i> Add New Hospital</h2>
-          <form id="createHospForm">
+          <div class="row-inputs">
             <div class="form-group">
-              <input type="text" id="hospName" placeholder=" " required />
-              <label for="hospName">Hospital Name</label>
+              <input type="number" id="icuCount" placeholder=" " value="10" required />
+              <label for="icuCount">ICU Beds</label>
             </div>
-
             <div class="form-group">
-              <input type="text" id="location" placeholder=" " required />
-              <label for="location">Location (City/Area)</label>
+              <input type="number" id="genCount" placeholder=" " value="30" required />
+              <label for="genCount">Gen Beds</label>
             </div>
+          </div>
 
-            <div class="form-group">
-              <input type="text" id="contact" placeholder=" " required />
-              <label for="contact">Contact Number</label>
-            </div>
+          <button type="submit" class="action">
+            <i class="fa-solid fa-plus-circle"></i> Create Hospital
+          </button>
+        </form>
+      </div>
 
-            <div class="row-inputs">
-              <div class="form-group">
-                <input
-                  type="number"
-                  id="icuCount"
-                  placeholder=" "
-                  value="10"
-                  required
-                />
-                <label for="icuCount">ICU Beds</label>
-              </div>
-              <div class="form-group">
-                <input
-                  type="number"
-                  id="genCount"
-                  placeholder=" "
-                  value="30"
-                  required
-                />
-                <label for="genCount">Gen Beds</label>
-              </div>
-            </div>
-
-            <button type="submit" class="action">
-              <i class="fa-solid fa-plus-circle"></i> Create Hospital
-            </button>
-          </form>
-        </div>
-
-        <div class="card">
-          <h2><i class="fa-solid fa-user-lock"></i> Assign Hospital Admin</h2>
-          <form id="createAdminForm">
-            <div class="form-group">
-              <input type="number" id="targetHospId" placeholder=" " readonly />
-              <label for="targetHospId"
-                >Target Hospital ID (Select from list)</label
-              >
-              <i
-                class="fa-solid fa-lock"
-                style="
+      <div class="card">
+        <h2><i class="fa-solid fa-user-lock"></i> Assign Hospital Admin</h2>
+        <form id="createAdminForm">
+          <div class="form-group">
+            <input type="number" id="targetHospId" placeholder=" " readonly />
+            <label for="targetHospId">Target Hospital ID (Select from list)</label>
+            <i class="fa-solid fa-lock" style="
                   position: absolute;
                   right: 16px;
                   top: 50%;
                   transform: translateY(-50%);
                   color: var(--text-sec);
-                "
-              ></i>
-            </div>
+                "></i>
+          </div>
 
-            <div class="form-group">
-              <input type="text" id="adminName" placeholder=" " required />
-              <label for="adminName">Admin Full Name</label>
-            </div>
+          <div class="form-group">
+            <input type="text" id="adminName" placeholder=" " required />
+            <label for="adminName">Admin Full Name</label>
+          </div>
 
-            <div class="form-group">
-              <input type="text" id="adminUser" placeholder=" " required />
-              <label for="adminUser">Username</label>
-            </div>
+          <div class="form-group">
+            <input type="text" id="adminUser" placeholder=" " required />
+            <label for="adminUser">Username</label>
+          </div>
 
-            <div class="form-group">
-              <input type="password" id="adminPass" placeholder=" " required />
-              <label for="adminPass">Password</label>
-            </div>
+          <div class="form-group">
+            <input type="password" id="adminPass" placeholder=" " required />
+            <label for="adminPass">Password</label>
+          </div>
 
-            <button
-              type="submit"
-              class="action"
-              style="background: var(--primary)"
-            >
-              <i class="fa-solid fa-user-plus"></i> Create Admin Account
-            </button>
-          </form>
-        </div>
-      </div>
-
-      <div class="card" style="margin-bottom: 24px">
-        <h2>
-          <i class="fa-regular fa-building"></i> Active Hospitals Registry
-        </h2>
-        <div style="overflow-x: auto">
-          <table id="hospTable">
-            <thead>
-              <tr>
-                <th width="80">ID</th>
-                <th>Name</th>
-                <th>Location</th>
-                <th width="200">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td
-                  colspan="4"
-                  style="text-align: center; color: var(--text-sec)"
-                >
-                  Loading records...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2><i class="fa-solid fa-users-gear"></i> Hospital Admins Registry</h2>
-        <div style="overflow-x: auto">
-          <table id="adminTable">
-            <thead>
-              <tr>
-                <th width="80">ID</th>
-                <th>Name</th>
-                <th>Username</th>
-                <th>Assigned Hospital</th>
-                <th width="180">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td
-                  colspan="5"
-                  style="text-align: center; color: var(--text-sec)"
-                >
-                  Loading records...
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
+          <button type="submit" class="action" style="background: var(--primary)">
+            <i class="fa-solid fa-user-plus"></i> Create Admin Account
+          </button>
+        </form>
       </div>
     </div>
 
-    <script>
-      const API_URL = window.location.origin;
-      const TOKEN = localStorage.getItem("token");
-      if (!TOKEN) window.location.href = "/";
+    <div class="card" style="margin-bottom: 24px">
+      <h2>
+        <i class="fa-regular fa-building"></i> Active Hospitals Registry
+      </h2>
+      <div style="overflow-x: auto">
+        <table id="hospTable">
+          <thead>
+            <tr>
+              <th width="80">ID</th>
+              <th>Name</th>
+              <th>Location</th>
+              <th width="200">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="4" style="text-align: center; color: var(--text-sec)">
+                Loading records...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-      // --- LOAD HOSPITALS ---
-      async function loadHospitals() {
-        try {
-          const res = await fetch(`${API_URL}/dashboard/city-stats`);
-          const data = await res.json();
-          const tbody = document.querySelector("#hospTable tbody");
-          tbody.innerHTML = "";
+    <div class="card">
+      <h2><i class="fa-solid fa-users-gear"></i> Hospital Admins Registry</h2>
+      <div style="overflow-x: auto">
+        <table id="adminTable">
+          <thead>
+            <tr>
+              <th width="80">ID</th>
+              <th>Name</th>
+              <th>Username</th>
+              <th>Assigned Hospital</th>
+              <th width="180">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td colspan="5" style="text-align: center; color: var(--text-sec)">
+                Loading records...
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
-          if (data.length === 0)
-            tbody.innerHTML =
-              "<tr><td colspan='4' style='text-align:center'>No data found</td></tr>";
+  <script>
+    const API_URL = window.location.origin;
+    const TOKEN = localStorage.getItem("token");
+    if (!TOKEN) window.location.href = "/";
 
-          data.forEach((h) => {
-            const hid = h.id || "?";
-            tbody.innerHTML += `
+    // --- LOAD HOSPITALS ---
+    async function loadHospitals() {
+      try {
+        const res = await fetch(`${API_URL}/dashboard/city-stats`);
+        const data = await res.json();
+        const tbody = document.querySelector("#hospTable tbody");
+        tbody.innerHTML = "";
+
+        if (data.length === 0)
+          tbody.innerHTML =
+            "<tr><td colspan='4' style='text-align:center'>No data found</td></tr>";
+
+        data.forEach((h) => {
+          const hid = h.id || "?";
+          tbody.innerHTML += `
             <tr>
                 <td><span style="color:var(--text-sec)">#${hid}</span></td>
                 <td style="font-weight:600">${h.hospital_name}</td>
@@ -494,28 +223,28 @@
                     </button>
                 </td>
             </tr>`;
-          });
-        } catch (e) {
-          console.error(e);
-        }
+        });
+      } catch (e) {
+        console.error(e);
       }
+    }
 
-      // --- LOAD ADMINS ---
-      async function loadAdmins() {
-        try {
-          const res = await fetch(`${API_URL}/super-admin/admins`, {
-            headers: { Authorization: `Bearer ${TOKEN}` },
-          });
-          const data = await res.json();
-          const tbody = document.querySelector("#adminTable tbody");
-          tbody.innerHTML = "";
+    // --- LOAD ADMINS ---
+    async function loadAdmins() {
+      try {
+        const res = await fetch(`${API_URL}/super-admin/admins`, {
+          headers: { Authorization: `Bearer ${TOKEN}` },
+        });
+        const data = await res.json();
+        const tbody = document.querySelector("#adminTable tbody");
+        tbody.innerHTML = "";
 
-          if (data.length === 0)
-            tbody.innerHTML =
-              "<tr><td colspan='5' style='text-align:center'>No admins found</td></tr>";
+        if (data.length === 0)
+          tbody.innerHTML =
+            "<tr><td colspan='5' style='text-align:center'>No admins found</td></tr>";
 
-          data.forEach((u) => {
-            tbody.innerHTML += `
+        data.forEach((u) => {
+          tbody.innerHTML += `
             <tr>
                 <td><span style="color:var(--text-sec)">#${u.id}</span></td>
                 <td style="font-weight:600">${u.full_name}</td>
@@ -527,110 +256,111 @@
                     </button>
                 </td>
             </tr>`;
-          });
-        } catch (e) {
-          console.error(e);
-        }
+        });
+      } catch (e) {
+        console.error(e);
       }
+    }
 
-      // --- ACTIONS ---
-      function selectHospital(id) {
-        const input = document.getElementById("targetHospId");
-        input.value = id;
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        // Trigger visual focus effect
-        input.parentElement.style.borderColor = "var(--primary)";
-        setTimeout(
-          () => (input.parentElement.style.borderColor = "var(--border)"),
-          1000,
-        );
-      }
+    // --- ACTIONS ---
+    function selectHospital(id) {
+      const input = document.getElementById("targetHospId");
+      input.value = id;
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      // Trigger visual focus effect
+      input.parentElement.style.borderColor = "var(--primary)";
+      setTimeout(
+        () => (input.parentElement.style.borderColor = "var(--border)"),
+        1000,
+      );
+    }
 
-      document
-        .getElementById("createHospForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const payload = {
-            name: document.getElementById("hospName").value,
-            location: document.getElementById("location").value,
-            contact_number: document.getElementById("contact").value,
-            icu_bed_count: +document.getElementById("icuCount").value,
-            general_bed_count: +document.getElementById("genCount").value,
-          };
-          await fetch(`${API_URL}/super-admin/hospital/add`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${TOKEN}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          });
-          alert("Hospital Created Successfully! 🎉");
-          document.getElementById("createHospForm").reset();
-          loadHospitals();
+    document
+      .getElementById("createHospForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const payload = {
+          name: document.getElementById("hospName").value,
+          location: document.getElementById("location").value,
+          contact_number: document.getElementById("contact").value,
+          icu_bed_count: +document.getElementById("icuCount").value,
+          general_bed_count: +document.getElementById("genCount").value,
+        };
+        await fetch(`${API_URL}/super-admin/hospital/add`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
         });
-
-      document
-        .getElementById("createAdminForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const payload = {
-            hospital_id: +document.getElementById("targetHospId").value,
-            full_name: document.getElementById("adminName").value,
-            username: document.getElementById("adminUser").value,
-            password: document.getElementById("adminPass").value,
-          };
-          const res = await fetch(`${API_URL}/super-admin/create-admin`, {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${TOKEN}`,
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(payload),
-          });
-          if (res.ok) {
-            alert("Admin Created Successfully! 🛡️");
-            document.getElementById("createAdminForm").reset();
-            loadAdmins();
-          } else {
-            const d = await res.json();
-            alert("Error: " + d.detail);
-          }
-        });
-
-      async function deleteHospital(id) {
-        if (
-          !confirm(
-            "Are you sure you want to delete this hospital? This cannot be undone.",
-          )
-        )
-          return;
-        await fetch(`${API_URL}/super-admin/hospital/${id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${TOKEN}` },
-        });
+        alert("Hospital Created Successfully! 🎉");
+        document.getElementById("createHospForm").reset();
         loadHospitals();
-      }
+      });
 
-      async function deleteAdmin(id) {
-        if (!confirm("Are you sure you want to revoke access for this admin?"))
-          return;
-        const res = await fetch(`${API_URL}/super-admin/admin/${id}`, {
-          method: "DELETE",
-          headers: { Authorization: `Bearer ${TOKEN}` },
+    document
+      .getElementById("createAdminForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const payload = {
+          hospital_id: +document.getElementById("targetHospId").value,
+          full_name: document.getElementById("adminName").value,
+          username: document.getElementById("adminUser").value,
+          password: document.getElementById("adminPass").value,
+        };
+        const res = await fetch(`${API_URL}/super-admin/create-admin`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${TOKEN}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload),
         });
-        if (res.ok) loadAdmins();
-        else alert("Error deleting admin");
-      }
+        if (res.ok) {
+          alert("Admin Created Successfully! 🛡️");
+          document.getElementById("createAdminForm").reset();
+          loadAdmins();
+        } else {
+          const d = await res.json();
+          alert("Error: " + d.detail);
+        }
+      });
 
-      function logout() {
-        localStorage.clear();
-        window.location.href = "/";
-      }
-
-      // Initial Load
+    async function deleteHospital(id) {
+      if (
+        !confirm(
+          "Are you sure you want to delete this hospital? This cannot be undone.",
+        )
+      )
+        return;
+      await fetch(`${API_URL}/super-admin/hospital/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${TOKEN}` },
+      });
       loadHospitals();
-      loadAdmins();
-    </script>
-  </body>
+    }
+
+    async function deleteAdmin(id) {
+      if (!confirm("Are you sure you want to revoke access for this admin?"))
+        return;
+      const res = await fetch(`${API_URL}/super-admin/admin/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${TOKEN}` },
+      });
+      if (res.ok) loadAdmins();
+      else alert("Error deleting admin");
+    }
+
+    function logout() {
+      localStorage.clear();
+      window.location.href = "/";
+    }
+
+    // Initial Load
+    loadHospitals();
+    loadAdmins();
+  </script>
+</body>
+
 </html>

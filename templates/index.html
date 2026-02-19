@@ -1,514 +1,282 @@
 <!doctype html>
-
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>MediSync - Hospital Command Center</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
 
-    <style>
-      /* --- DESIGN SYSTEM START --- */
-      :root {
-        --bg: #0a0e17;
-        --card: #141b2d;
-        --border: #253347;
-        --text: #e2e8f0;
-        --text-sec: #94a3b8;
-        --primary: #3b82f6;
-        --primary-h: #2563eb;
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-        --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        --radius: 12px;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MediSync - Hospital Command Center</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
 
-      * {
-        box-sizing: border-box;
-      }
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <style>
+    /* Page Specific Overrides */
+    .hero {
+      text-align: center;
+      padding: 80px 20px 60px;
+      margin-bottom: 40px;
+      /* Subtle grid pattern background */
+      background-color: #f8fafc;
+      background-image: linear-gradient(#e2e8f0 1px, transparent 1px), linear-gradient(to right, #e2e8f0 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
 
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family:
-          system-ui,
-          -apple-system,
-          sans-serif;
-        line-height: 1.5;
-        margin: 0;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-      }
+    .hero h1 {
+      font-size: 3rem;
+      color: #0f172a;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
 
-      .container {
-        max-width: 1400px;
-        padding: 24px 16px;
-        margin: 0 auto;
-        width: 100%;
-        flex: 1;
-      }
+    .hero p {
+      color: #64748b;
+      font-size: 1.25rem;
+      max-width: 600px;
+      margin: 0 auto;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(4px);
+      padding: 8px 16px;
+      border-radius: 20px;
+    }
 
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 24px;
-        box-shadow: var(--shadow-sm);
-        transition: transform 0.2s;
-        display: flex;
-        flex-direction: column;
-      }
-      .card:hover {
-        transform: translateY(-2px);
-      }
+    .hospital-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 24px;
+    }
 
-      /* Buttons */
-      button {
-        cursor: pointer;
-        font-family: inherit;
-      }
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      font-size: 0.9rem;
+      color: var(--text-sec);
+      font-weight: 500;
+      align-items: center;
+    }
 
-      button.action,
-      .login-btn {
-        padding: 14px;
-        background: var(--success);
-        color: white;
-        border: none;
-        border-radius: var(--radius);
-        font-weight: 600;
-        transition: filter 0.2s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        width: 100%;
-      }
-      .login-btn {
-        background: var(--primary);
-      }
-      button:hover {
-        filter: brightness(1.1);
-      }
+    .stat-val {
+      color: var(--text);
+      font-weight: 700;
+      font-size: 1rem;
+    }
 
-      /* Floating Labels & Forms */
-      .form-group {
-        position: relative;
-        margin-bottom: 20px;
-      }
+    .bar-container {
+      height: 8px;
+      background: #f1f5f9;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-bottom: 16px;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
 
-      .form-group input,
-      .form-group select {
-        width: 100%;
-        padding: 24px 16px 8px 16px;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        color: var(--text);
-        font-size: 1rem;
-        outline: none;
-        transition: border-color 0.2s;
-        appearance: none;
-      }
+    .bar-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 1s ease;
+    }
 
-      .form-group input:focus,
-      .form-group select:focus {
-        border-color: var(--primary);
-      }
+    .queue-tag {
+      margin-top: auto;
+      padding-top: 16px;
+      border-top: 1px solid var(--border);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.9rem;
+    }
 
-      .form-group label {
-        position: absolute;
-        top: 50%;
-        left: 16px;
-        transform: translateY(-50%);
-        color: var(--text-sec);
-        pointer-events: none;
-        transition: all 0.2s ease;
-        font-size: 1rem;
-      }
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 4px;
+    }
 
-      .form-group input:focus + label,
-      .form-group input:not(:placeholder-shown) + label,
-      .form-group select:focus + label,
-      .form-group select:valid + label {
-        top: 14px;
-        font-size: 0.75rem;
-        color: var(--primary);
-        transform: translateY(-50%);
-        font-weight: 600;
-      }
+    .card-header h3 {
+      font-size: 1.2rem;
+    }
 
-      /* Navbar */
-      .navbar {
-        background: var(--card);
-        border-bottom: 1px solid var(--border);
-        padding: 16px 0;
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-        backdrop-filter: blur(10px);
-        background: rgba(20, 27, 45, 0.9);
-      }
-      .nav-container {
-        max-width: 1400px;
-        margin: 0 auto;
-        padding: 0 16px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      select {
-        background: var(--card);
-        color: var(--text);
-        border: 1px solid var(--border);
-      }
+    .location {
+      color: var(--text-sec);
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+  </style>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+</head>
 
-      /* default option appearance */
-      option {
-        background-color: var(--card);
-        color: var(--text);
-      }
+<body>
+  <!-- Full Page Loader -->
+  <div id="app-loader">
+    <div class="loader-content">
+      <i class="fa-solid fa-heart-pulse loader-icon"></i>
+      <div class="loader-text">MEDISYNC</div>
+      <div style="margin-top:10px; color:var(--text-sec); font-size: 0.9rem;">Initializing Command Centers...</div>
+    </div>
+  </div>
 
-      /* selected option (works in most browsers) */
-      option:checked {
-        background-color: var(--primary);
-        color: #ffffff;
-      }
-      .logo {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text);
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .logo i {
-        color: var(--primary);
-      }
-
-      .login-nav-btn {
-        background: rgba(59, 130, 246, 0.1);
-        color: var(--primary);
-        padding: 8px 16px;
-        border-radius: 50px;
-        border: 1px solid rgba(59, 130, 246, 0.2);
-        text-decoration: none;
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: 0.2s;
-      }
-      .login-nav-btn:hover {
-        background: var(--primary);
-        color: white;
-      }
-
-      /* Hero */
-      .hero {
-        text-align: center;
-        padding: 60px 20px 40px;
-        border-bottom: 1px solid var(--border);
-        background: radial-gradient(circle at top, #1e293b 0%, #0a0e17 100%);
-      }
-      .hero h1 {
-        margin: 0 0 16px;
-        font-size: 2.5rem;
-        color: var(--text);
-      }
-      .hero p {
-        color: var(--text-sec);
-        max-width: 600px;
-        margin: 0 auto;
-        font-size: 1.1rem;
-      }
-
-      /* Controls */
-      .controls {
-        background: var(--card);
-        padding: 24px;
-        border-radius: var(--radius);
-        border: 1px solid var(--border);
-        margin-bottom: 30px;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 16px;
-        align-items: center;
-        box-shadow: var(--shadow-sm);
-      }
-      .search-wrapper {
-        flex: 1;
-        min-width: 250px;
-      }
-      .search-wrapper .form-group {
-        margin-bottom: 0;
-      }
-
-      .filter-btn {
-        padding: 12px 20px;
-        background: transparent;
-        border: 1px solid var(--border);
-        border-radius: 50px;
-        color: var(--text-sec);
-        cursor: pointer;
-        font-weight: 500;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        transition: all 0.2s;
-      }
-      .filter-btn:hover {
-        background: rgba(255, 255, 255, 0.05);
-        color: var(--text);
-      }
-      .filter-btn.active {
-        background: var(--primary);
-        color: white;
-        border-color: var(--primary);
-      }
-
-      /* Grid */
-      .hospital-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-        gap: 24px;
-      }
-
-      /* Card Content */
-      .card-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: start;
-        margin-bottom: 8px;
-      }
-      .card-header h3 {
-        margin: 0;
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--text);
-      }
-      .location {
-        color: var(--text-sec);
-        font-size: 0.9rem;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        margin-bottom: 20px;
-      }
-
-      .stat-row {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
-        font-size: 0.95rem;
-        color: var(--text-sec);
-      }
-      .stat-val {
-        font-weight: 700;
-        color: var(--text);
-      }
-
-      .bar-container {
-        height: 8px;
-        background: rgba(255, 255, 255, 0.05);
-        border-radius: 4px;
-        overflow: hidden;
-        margin-bottom: 16px;
-      }
-      .bar-fill {
-        height: 100%;
-        border-radius: 4px;
-        transition: width 0.5s ease;
-      }
-
-      .queue-tag {
-        margin-top: auto;
-        padding-top: 16px;
-        border-top: 1px solid var(--border);
-        font-weight: 600;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-      }
-
-      /* Helper Classes */
-      .bg-success {
-        background: var(--success);
-      }
-      .bg-danger {
-        background: var(--danger);
-      }
-      .bg-warning {
-        background: var(--warning);
-      }
-      .bg-primary {
-        background: var(--primary);
-      }
-      .text-success {
-        color: var(--success);
-      }
-      .text-danger {
-        color: var(--danger);
-      }
-      .text-warning {
-        color: var(--warning);
-      }
-
-      /* Modal */
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(10, 14, 23, 0.85);
-        backdrop-filter: blur(5px);
-        z-index: 2000;
-        align-items: center;
-        justify-content: center;
-        padding: 20px;
-      }
-      .modal.show {
-        display: flex;
-        animation: fadeIn 0.3s;
-      }
-      .modal-content {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        width: 100%;
-        max-width: 450px;
-        padding: 32px;
-        position: relative;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      }
-      .close-modal {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        background: none;
-        border: none;
-        color: var(--text-sec);
-        font-size: 1.25rem;
-      }
-      .close-modal:hover {
-        color: var(--text);
-      }
-
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <nav class="navbar">
-      <div class="nav-container">
-        <div class="logo">
-          <i class="fa-solid fa-heart-pulse"></i> <span>MediSync</span>
-        </div>
-        <div class="nav-links">
-          <a href="#" class="login-nav-btn" id="openLoginBtn">
-            <i class="fa-solid fa-user-shield"></i> Secure Login
-          </a>
-        </div>
+  <!-- Live Ticker -->
+  <div class="ticker-wrap">
+    <div class="ticker">
+      <div class="ticker-item"><i class="fa-solid fa-triangle-exclamation"></i> URGENT: Blood Bank Low on O- Negative
       </div>
-    </nav>
+      <div class="ticker-item"><i class="fa-solid fa-circle-info"></i> City General ICU at 90% Capacity</div>
+      <div class="ticker-item"><i class="fa-solid fa-cloud-bolt"></i> Heavy Rain Alert: Expect Delays</div>
+      <div class="ticker-item"><i class="fa-solid fa-check-circle"></i> New Vaccination Center Open at North Hills</div>
+    </div>
+  </div>
 
-    <section class="hero">
-      <h1>City-Wide Bed Availability</h1>
+  <nav class="navbar">
+    <div class="logo">
+      <i class="fa-solid fa-heart-pulse"></i> <span>MediSync</span>
+    </div>
+    <div class="nav-links">
+      <a href="#" class="btn btn-primary" id="openLoginBtn">
+        <i class="fa-solid fa-user-shield"></i> Secure Login
+      </a>
+    </div>
+  </nav>
+
+  <!-- Hero Section (Split Layout) -->
+  <header class="hero-section">
+    <div class="hero-content">
+      <h1>We are expert <span style="color:var(--accent)">Hospital Management</span></h1>
       <p>
         Real-time data synchronization across all major hospitals. Critical
         resource tracking for emergency response.
       </p>
-    </section>
-
-    <div class="container">
-      <div class="controls">
-        <div class="search-wrapper">
-          <div class="form-group">
-            <input type="text" id="searchInput" placeholder=" " />
-            <label for="searchInput">Search hospital name or area...</label>
-            <i
-              class="fa-solid fa-search"
-              style="
-                position: absolute;
-                right: 16px;
-                top: 50%;
-                transform: translateY(-50%);
-                color: var(--text-sec);
-                pointer-events: none;
-              "
-            ></i>
-          </div>
-        </div>
-        <button class="filter-btn active" onclick="filter('all')">
-          <i class="fa-solid fa-layer-group"></i> All Beds
-        </button>
-        <button class="filter-btn" onclick="filter('icu')">
-          <i class="fa-solid fa-bed-pulse"></i> ICU Only
-        </button>
-        <button class="filter-btn" onclick="filter('general')">
-          <i class="fa-solid fa-bed"></i> General Wards
-        </button>
+      <div class="hero-buttons">
+        <a href="#services" class="btn btn-primary">Get Services</a>
+        <a href="#about" class="btn btn-secondary">About Us</a>
       </div>
+    </div>
+    <div class="hero-visual">
+      <div class="blob-shape"></div>
+      <div class="hero-card-mockup">
+        <i class="fa-solid fa-heart-pulse" style="font-size: 4rem; color: var(--primary);"></i>
+      </div>
+    </div>
+  </header>
 
-      <div class="hospital-grid" id="hospitalGrid">
-        <div
-          style="
-            grid-column: 1/-1;
-            text-align: center;
-            padding: 40px;
-            color: var(--text-sec);
-          "
-        >
-          <i
-            class="fa-solid fa-circle-notch fa-spin"
-            style="font-size: 2rem; margin-bottom: 16px"
-          ></i>
-          <p>Connecting to hospital network...</p>
+  <div class="container" id="services">
+
+    <!-- System Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-truck-medical"></i></div>
+        <div class="stat-info">
+          <h3>24</h3>
+          <span>Active Ambulances</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-bed-pulse"></i></div>
+        <div class="stat-info">
+          <h3>142</h3>
+          <span>ICU Beds Available</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-user-doctor"></i></div>
+        <div class="stat-info">
+          <h3>85</h3>
+          <span>Doctors On-Call</span>
+        </div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon"><i class="fa-solid fa-hospital-user"></i></div>
+        <div class="stat-info">
+          <h3>1,204</h3>
+          <span>Patients Treated Today</span>
         </div>
       </div>
     </div>
 
-    <div class="modal" id="loginModal">
-      <div class="modal-content">
-        <button class="close-modal" id="closeLoginBtn">
-          <i class="fa-solid fa-times"></i>
-        </button>
-        <div style="text-align: center; margin-bottom: 24px">
-          <h2 style="margin: 0 0 8px; color: var(--text)">System Access</h2>
-          <p style="color: var(--text-sec); margin: 0">
-            Please verify your credentials.
-          </p>
-        </div>
+    <!-- Services Grid (Quick Access) -->
+    <div style="margin-bottom: 40px;">
+      <h2 style="margin-bottom: 20px; font-size: 1.5rem; text-transform: uppercase; letter-spacing: 1px;">Quick Services
+      </h2>
+      <div class="services-grid">
+        <a href="#" class="service-card red">
+          <i class="fa-solid fa-truck-medical"></i>
+          <h3>Emergency</h3>
+          <p>Call Ambulance</p>
+        </a>
+        <a href="#" class="service-card blue">
+          <i class="fa-solid fa-stethoscope"></i>
+          <h3>OPD</h3>
+          <p>Book Appointment</p>
+        </a>
+        <a href="#" class="service-card yellow">
+          <i class="fa-solid fa-video"></i>
+          <h3>Tele-Med</h3>
+          <p>Video Consult</p>
+        </a>
+        <a href="#" class="service-card green">
+          <i class="fa-solid fa-pills"></i>
+          <h3>Pharmacy</h3>
+          <p>Order Meds</p>
+        </a>
+      </div>
+    </div>
 
-        <form id="loginForm">
-          <div class="form-group">
-            <select id="role" required>
-              <option value="" disabled selected hidden></option>
-              <option value="ambulance">🚑 Ambulance Driver</option>
-              <option value="doctor">👨‍⚕️ Doctor</option>
-              <option value="receptionist">📝 Receptionist</option>
-              <option value="hospital_admin">🏥 Hospital Admin</option>
-              <option value="super_admin">🛡️ Super Admin</option>
-              <option value="patient">👤 Patient</option>
-            </select>
-            <label for="role">Role / Access Level</label>
-            <i
-              class="fa-solid fa-chevron-down"
-              style="
+    <!-- Map Container -->
+    <div id="map"></div>
+
+    <div class="controls">
+      <div class="search-wrapper">
+        <i class="fa-solid fa-search" style="position: absolute; left: 20px; color: var(--text-sec);"></i>
+        <input type="text" id="searchInput" placeholder="Search hospital name or area...">
+      </div>
+      <div class="filter-group">
+        <button class="filter-btn active" onclick="filter('all')">All Beds</button>
+        <button class="filter-btn" onclick="filter('icu')">ICU Only</button>
+        <button class="filter-btn" onclick="filter('general')">General</button>
+      </div>
+    </div>
+
+    <div class="hospital-grid" id="hospitalGrid">
+      <!-- Skeletons will be injected here by JS initially -->
+    </div>
+  </div>
+
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <button class="close-modal" id="closeLoginBtn">
+        <i class="fa-solid fa-times"></i>
+      </button>
+      <div style="text-align: center; margin-bottom: 24px">
+        <h2 style="margin: 0 0 8px; color: var(--text)">System Access</h2>
+        <p style="color: var(--text-sec); margin: 0">
+          Please verify your credentials.
+        </p>
+      </div>
+
+      <form id="loginForm">
+        <div class="form-group">
+          <select id="role" required>
+            <option value="" disabled selected hidden></option>
+            <option value="ambulance">🚑 Ambulance Driver</option>
+            <option value="doctor">👨‍⚕️ Doctor</option>
+            <option value="receptionist">📝 Receptionist</option>
+            <option value="hospital_admin">🏥 Hospital Admin</option>
+            <option value="super_admin">🛡️ Super Admin</option>
+            <option value="patient">👤 Patient</option>
+          </select>
+          <label for="role">Role / Access Level</label>
+          <i class="fa-solid fa-chevron-down" style="
                 position: absolute;
                 right: 16px;
                 top: 50%;
@@ -516,144 +284,234 @@
                 color: var(--text-sec);
                 pointer-events: none;
                 font-size: 0.8rem;
-              "
-            ></i>
-          </div>
+              "></i>
+        </div>
 
-          <div class="form-group">
-            <input type="text" id="username" placeholder=" " required />
-            <label for="username">Username</label>
-          </div>
+        <div class="form-group">
+          <input type="text" id="username" placeholder=" " required />
+          <label for="username">Username</label>
+        </div>
 
-          <div class="form-group">
-            <input type="password" id="password" placeholder=" " required />
-            <label for="password">Password</label>
-          </div>
+        <div class="form-group">
+          <input type="password" id="password" placeholder=" " required />
+          <label for="password">Password</label>
+        </div>
 
-          <button type="submit" class="login-btn">
-            Authenticate <i class="fa-solid fa-arrow-right"></i>
-          </button>
-        </form>
-      </div>
+        <button type="submit" class="login-btn btn btn-primary" style="width:100%">
+          Authenticate <i class="fa-solid fa-arrow-right"></i>
+        </button>
+      </form>
     </div>
+  </div>
 
-    <script>
-      const API_URL = window.location.origin;
-      let allData = [];
-      let currentFilter = "all";
+  <script>
+    const API_URL = window.location.origin;
+    let allData = [];
+    let currentFilter = "all";
+    let map;
+    let markers = [];
 
-      // --- INITIALIZE ---
-      window.onload = () => {
-        loadData();
-        setupWebSocket();
+    // Simulate Coordinates for specific locations (Mock Data)
+    const LOCATIONS = {
+      "Downtown": [40.7128, -74.0060],
+      "West District": [40.7300, -74.0500],
+      "North Hills": [40.7500, -73.9800],
+      "South Bay": [40.6800, -74.0200],
+      "East Side": [40.7400, -73.9500]
+    };
 
-        // Modal Logic
-        document.getElementById("openLoginBtn").onclick = (e) => {
-          e.preventDefault();
-          document.getElementById("loginModal").classList.add("show");
-        };
-        document.getElementById("closeLoginBtn").onclick = () =>
+    // --- INITIALIZE ---
+    window.onload = () => {
+      renderSkeletons(); // Show skeletons immediately
+
+      // Initialize Map
+      initMap();
+
+      // Simulate minimum loading time for better UX
+      const minLoad = new Promise(resolve => setTimeout(resolve, 1500));
+      const dataLoad = loadData();
+
+      Promise.all([minLoad, dataLoad]).then(() => {
+        const loader = document.getElementById("app-loader");
+        loader.classList.add("hidden");
+        setTimeout(() => loader.remove(), 600); // Cleanup
+      });
+
+      setupWebSocket();
+
+      // Modal Logic
+      document.getElementById("openLoginBtn").onclick = (e) => {
+        e.preventDefault();
+        document.getElementById("loginModal").classList.add("show");
+      };
+      document.getElementById("closeLoginBtn").onclick = () =>
+        document.getElementById("loginModal").classList.remove("show");
+
+      // Close modal on outside click
+      document.getElementById("loginModal").addEventListener("click", (e) => {
+        if (e.target.id === "loginModal")
           document.getElementById("loginModal").classList.remove("show");
+      });
 
-        // Close modal on outside click
-        document.getElementById("loginModal").addEventListener("click", (e) => {
-          if (e.target.id === "loginModal")
-            document.getElementById("loginModal").classList.remove("show");
+      // Search Logic
+      document
+        .getElementById("searchInput")
+        .addEventListener("input", renderGrid);
+    };
+
+    function initMap() {
+      // Default to New York coordinates
+      map = L.map('map').setView([40.7128, -74.0060], 12);
+
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+        subdomains: 'abcd',
+        maxZoom: 19
+      }).addTo(map);
+    }
+
+    function updateMapMarkers() {
+      // Clear existing markers
+      markers.forEach(m => map.removeLayer(m));
+      markers = [];
+
+      allData.forEach(h => {
+        // Get coords or add random jitter if not found/duplicate
+        let coords = LOCATIONS[h.location] || [40.7128 + (Math.random() * 0.05), -74.0060 + (Math.random() * 0.05)];
+
+        // Create custom icon based on ICU status
+        const hasICU = h.available_icu > 0;
+        const markerColor = hasICU ? '#10b981' : '#ef4444';
+
+        const iconHtml = `
+                <div style="
+                    background-color: ${markerColor};
+                    width: 24px;
+                    height: 24px;
+                    border-radius: 50%;
+                    border: 3px solid white;
+                    box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    color: white;
+                    font-size: 10px;
+                ">
+                    <i class="fa-solid fa-hospital"></i>
+                </div>
+             `;
+
+        const icon = L.divIcon({
+          className: 'custom-pin',
+          html: iconHtml,
+          iconSize: [24, 24],
+          iconAnchor: [12, 12]
         });
 
-        // Search Logic
-        document
-          .getElementById("searchInput")
-          .addEventListener("input", renderGrid);
-      };
+        const marker = L.marker(coords, { icon: icon })
+          .addTo(map)
+          .bindPopup(`
+                    <div style="text-align:center;">
+                        <strong>${h.hospital_name}</strong><br>
+                        <span style="color:var(--text-sec); font-size:0.85em;">${h.location}</span><br>
+                        <hr style="margin:4px 0; border:0; border-top:1px solid #eee;">
+                        <div style="font-weight:600; color:${hasICU ? 'var(--success)' : 'var(--danger)'}">
+                            ICU: ${h.available_icu}
+                        </div>
+                    </div>
+                `);
+        markers.push(marker);
+      });
+    }
 
-      // --- 1. LOAD DATA ---
-      async function loadData() {
-        try {
-          const res = await fetch(`${API_URL}/dashboard/city-stats`);
-          if (!res.ok) throw new Error("API Failed");
-          allData = await res.json();
-          renderGrid();
-        } catch (e) {
-          console.error("API Error", e);
-          // Fallback mockup for visualization if API fails in demo
-          allData = [
-            {
-              hospital_name: "City General",
-              location: "Downtown",
-              available_icu: 4,
-              available_general: 32,
-              active_queue: 8,
-            },
-            {
-              hospital_name: "Westside Trauma",
-              location: "West District",
-              available_icu: 0,
-              available_general: 12,
-              active_queue: 0,
-            },
-            {
-              hospital_name: "St. Mary's",
-              location: "North Hills",
-              available_icu: 15,
-              available_general: 45,
-              active_queue: 2,
-            },
-          ];
-          renderGrid();
-        }
+    // --- 1. LOAD DATA ---
+    async function loadData() {
+      try {
+        const res = await fetch(`${API_URL}/dashboard/city-stats`);
+        if (!res.ok) throw new Error("API Failed");
+        allData = await res.json();
+        renderGrid();
+        updateMapMarkers();
+      } catch (e) {
+        console.error("API Error", e);
+        // Fallback mockup
+        allData = [
+          {
+            hospital_name: "City General",
+            location: "Downtown",
+            available_icu: 4,
+            available_general: 32,
+            active_queue: 8,
+          },
+          {
+            hospital_name: "Westside Trauma",
+            location: "West District",
+            available_icu: 0,
+            available_general: 12,
+            active_queue: 0,
+          },
+          {
+            hospital_name: "St. Mary's",
+            location: "North Hills",
+            available_icu: 15,
+            available_general: 45,
+            active_queue: 2,
+          },
+        ];
+        renderGrid();
+        updateMapMarkers();
       }
+    }
 
-      // --- 2. WEBSOCKET ---
-      function setupWebSocket() {
-        try {
-          const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
-          const socket = new WebSocket(
-            `${proto}//${window.location.host}/dashboard/ws/city-beds`,
-          );
-          socket.onmessage = (e) => {
-            if (e.data === "UPDATE") loadData();
-          };
-        } catch (e) {}
-      }
-
-      // --- 3. RENDER GRID ---
-      function renderGrid() {
-        const query = document
-          .getElementById("searchInput")
-          .value.toLowerCase();
-        const grid = document.getElementById("hospitalGrid");
-        grid.innerHTML = "";
-
-        const filtered = allData.filter(
-          (h) =>
-            h.hospital_name.toLowerCase().includes(query) ||
-            h.location.toLowerCase().includes(query),
+    // --- 2. WEBSOCKET ---
+    function setupWebSocket() {
+      try {
+        const proto = window.location.protocol === "https:" ? "wss:" : "ws:";
+        const socket = new WebSocket(
+          `${proto}//${window.location.host}/dashboard/ws/city-beds`,
         );
+        socket.onmessage = (e) => {
+          if (e.data === "UPDATE") loadData(); // Map will update via loadData calling updateMapMarkers
+        };
+      } catch (e) { }
+    }
 
-        if (filtered.length === 0) {
-          grid.innerHTML =
-            "<div style='grid-column:1/-1; text-align:center; padding:40px; color:var(--text-sec);'><i class='fa-solid fa-file-circle-xmark' style='font-size:2rem; margin-bottom:10px;'></i><p>No hospitals found matching criteria.</p></div>";
-          return;
-        }
+    // --- 3. RENDER GRID ---
+    function renderGrid() {
+      const query = document
+        .getElementById("searchInput")
+        .value.toLowerCase();
+      const grid = document.getElementById("hospitalGrid");
+      grid.innerHTML = "";
 
-        filtered.forEach((h) => {
-          const totalICU = 20;
-          const icuPct = (h.available_icu / totalICU) * 100;
-          const icuColor = h.available_icu > 0 ? "bg-success" : "bg-danger";
-          const icuText = h.available_icu > 0 ? "text-success" : "text-danger";
+      const filtered = allData.filter(
+        (h) =>
+          h.hospital_name.toLowerCase().includes(query) ||
+          h.location.toLowerCase().includes(query),
+      );
 
-          const totalGen = 50;
-          const genPct = (h.available_general / totalGen) * 100;
-          const genColor =
-            h.available_general > 5 ? "bg-primary" : "bg-warning";
-          const genText =
-            h.available_general > 5 ? "text-primary" : "text-warning"; // var text-primary not defined, using inline or fallback
+      if (filtered.length === 0) {
+        grid.innerHTML =
+          "<div style='grid-column:1/-1; text-align:center; padding:40px; color:var(--text-sec);'><i class='fa-solid fa-file-circle-xmark' style='font-size:2rem; margin-bottom:10px;'></i><p>No hospitals found matching criteria.</p></div>";
+        return;
+      }
 
-          let content = "";
+      filtered.forEach((h, index) => {
+        const totalICU = 20;
+        const icuPct = (h.available_icu / totalICU) * 100;
+        const icuColor = h.available_icu > 0 ? "bg-success" : "bg-danger";
+        const icuText = h.available_icu > 0 ? "text-success" : "text-danger";
 
-          if (currentFilter === "all" || currentFilter === "icu") {
-            content += `
+        const totalGen = 50;
+        const genPct = (h.available_general / totalGen) * 100;
+        const genColor =
+          h.available_general > 5 ? "bg-primary" : "bg-warning";
+        // const genText = h.available_general > 5 ? "text-primary" : "text-warning"; 
+
+        let content = "";
+
+        if (currentFilter === "all" || currentFilter === "icu") {
+          content += `
             <div class="stat-row">
                 <span>ICU Beds</span>
                 <span class="stat-val ${icuText}">${h.available_icu} <span style="font-weight:400; color:var(--text-sec); font-size:0.8em;">/ ${totalICU}</span></span>
@@ -661,10 +519,10 @@
             <div class="bar-container">
                 <div class="bar-fill ${icuColor}" style="width:${icuPct}%"></div>
             </div>`;
-          }
+        }
 
-          if (currentFilter === "all" || currentFilter === "general") {
-            content += `
+        if (currentFilter === "all" || currentFilter === "general") {
+          content += `
             <div class="stat-row">
                 <span>General Wards</span>
                 <span class="stat-val" style="color:var(--text);">${h.available_general} <span style="font-weight:400; color:var(--text-sec); font-size:0.8em;">/ ${totalGen}</span></span>
@@ -672,16 +530,19 @@
             <div class="bar-container">
                 <div class="bar-fill ${genColor}" style="width:${genPct}%"></div>
             </div>`;
-          }
+        }
 
-          const queueHtml =
-            h.active_queue > 0
-              ? `<div class="queue-tag text-warning"><i class="fa-solid fa-stopwatch"></i> Queue: ${h.active_queue} Patients</div>`
-              : `<div class="queue-tag text-success"><i class="fa-solid fa-check-circle"></i> Immediate Intake</div>`;
+        const queueHtml =
+          h.active_queue > 0
+            ? `<div class="queue-tag text-warning"><i class="fa-solid fa-stopwatch"></i> Queue: ${h.active_queue} Patients</div>`
+            : `<div class="queue-tag text-success"><i class="fa-solid fa-check-circle"></i> Immediate Intake</div>`;
 
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
+        const card = document.createElement("div");
+        card.className = "card";
+        // Staggered Animation
+        card.style.animation = `fadeInUp 0.6s ease backwards ${index * 0.1}s`;
+
+        card.innerHTML = `
             <div class="card-header">
                 <h3>${h.hospital_name}</h3>
                 <i class="fa-solid fa-hospital" style="color:var(--primary); font-size:1.2rem;"></i>
@@ -690,72 +551,97 @@
             ${content}
             ${queueHtml}
       `;
-          grid.appendChild(card);
-        });
-      }
+        grid.appendChild(card);
+      });
+    }
 
-      function filter(type) {
-        currentFilter = type;
-        document
-          .querySelectorAll(".filter-btn")
-          .forEach((b) => b.classList.remove("active"));
-        event.currentTarget.classList.add("active");
-        renderGrid();
+    function renderSkeletons() {
+      const grid = document.getElementById("hospitalGrid");
+      grid.innerHTML = "";
+      for (let i = 0; i < 6; i++) {
+        grid.innerHTML += `
+                <div class="skeleton-card">
+                    <div style="display:flex; justify-content:space-between;">
+                        <div class="skeleton" style="width:60%; height:24px; border-radius:4px;"></div>
+                        <div class="skeleton" style="width:32px; height:32px; border-radius:50%;"></div>
+                    </div>
+                    <div class="skeleton" style="width:40%; height:16px; margin-top:8px; border-radius:4px;"></div>
+                    <div style="margin-top:20px;">
+                        <div class="skeleton" style="width:30%; height:16px; margin-bottom:8px; border-radius:4px;"></div>
+                        <div class="skeleton" style="width:100%; height:8px; border-radius:4px;"></div>
+                    </div>
+                    <div style="margin-top:10px;">
+                         <div class="skeleton" style="width:30%; height:16px; margin-bottom:8px; border-radius:4px;"></div>
+                        <div class="skeleton" style="width:100%; height:8px; border-radius:4px;"></div>
+                    </div>
+                </div>
+              `;
       }
+    }
 
-      // --- 4. LOGIN LOGIC ---
+    function filter(type) {
+      currentFilter = type;
       document
-        .getElementById("loginForm")
-        .addEventListener("submit", async (e) => {
-          e.preventDefault();
-          const role = document.getElementById("role").value;
-          const user = document.getElementById("username").value;
-          const pass = document.getElementById("password").value;
-          const btn = e.target.querySelector("button");
+        .querySelectorAll(".filter-btn")
+        .forEach((b) => b.classList.remove("active"));
+      event.currentTarget.classList.add("active");
+      renderGrid();
+    }
 
-          const originalText = btn.innerHTML;
-          btn.innerHTML =
-            '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
-          btn.disabled = true;
+    // --- 4. LOGIN LOGIC ---
+    document
+      .getElementById("loginForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const role = document.getElementById("role").value;
+        const user = document.getElementById("username").value;
+        const pass = document.getElementById("password").value;
+        const btn = e.target.querySelector("button");
 
-          try {
-            const formData = new URLSearchParams();
-            formData.append("username", user);
-            formData.append("password", pass);
+        const originalText = btn.innerHTML;
+        btn.innerHTML =
+          '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
+        btn.disabled = true;
 
-            const res = await fetch(`${API_URL}/token`, {
-              method: "POST",
-              headers: { "Content-Type": "application/x-www-form-urlencoded" },
-              body: formData,
-            });
+        try {
+          const formData = new URLSearchParams();
+          formData.append("username", user);
+          formData.append("password", pass);
 
-            if (!res.ok) throw new Error("Invalid Login");
-            const data = await res.json();
+          const res = await fetch(`${API_URL}/token`, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: formData,
+          });
 
-            localStorage.setItem("token", data.access_token);
-            localStorage.setItem("role", data.role);
-            localStorage.setItem("user_id", data.user_id);
-            if (data.hospital_id)
-              localStorage.setItem("hospital_id", data.hospital_id);
+          if (!res.ok) throw new Error("Invalid Login");
+          const data = await res.json();
 
-            const redirectMap = {
-              super_admin: "/super-admin",
-              hospital_admin: "/hospital-admin",
-              doctor: "/doctor",
-              receptionist: "/receptionist",
-              ambulance: "/ambulance",
-              patient: "/patient",
-            };
+          localStorage.setItem("token", data.access_token);
+          localStorage.setItem("role", data.role);
+          localStorage.setItem("user_id", data.user_id);
+          if (data.hospital_id)
+            localStorage.setItem("hospital_id", data.hospital_id);
 
-            const target = redirectMap[data.role] || redirectMap[role];
-            if (target) window.location.href = target;
-            else alert("Unknown Role Detected");
-          } catch (err) {
-            alert("Login Failed. Please check credentials.");
-            btn.innerHTML = originalText;
-            btn.disabled = false;
-          }
-        });
-    </script>
-  </body>
+          const redirectMap = {
+            super_admin: "/super-admin",
+            hospital_admin: "/hospital-admin",
+            doctor: "/doctor",
+            receptionist: "/receptionist",
+            ambulance: "/ambulance",
+            patient: "/patient",
+          };
+
+          const target = redirectMap[data.role] || redirectMap[role];
+          if (target) window.location.href = target;
+          else alert("Unknown Role Detected");
+        } catch (err) {
+          alert("Login Failed. Please check credentials.");
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      });
+  </script>
+</body>
+
 </html>

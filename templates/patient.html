@@ -1,110 +1,50 @@
 <!doctype html>
 
-<html lang="en"> <head> <meta charset="UTF-8" /> <meta name="viewport" content="width=device-width, initial-scale=1.0" /> <title>My Health Portal</title> <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" /> <style> /* --- DESIGN SYSTEM --- */ :root { --bg: #0a0e17; --card: #141b2d; --border: #253347; --text: #e2e8f0; --text-sec: #94a3b8; --primary: #3b82f6; --primary-h: #2563eb; --success: #10b981; --warning: #f59e0b; --danger: #ef4444; --shadow-sm: 0 4px 6px -1px rgba(0,0,0,0.3); --radius: 12px; }
-
-  * { box-sizing: border-box; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: system-ui, -apple-system, sans-serif;
-    line-height: 1.5;
-    margin: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-  }
-
+<link rel="stylesheet" href="/static/css/style.css" />
+<style>
+  /* Page Specific */
   .container {
-    max-width: 1400px;
-    padding: 24px 16px;
-    margin: 0 auto;
-    width: 100%;
-    display: flex;
-    flex-direction: column;
     align-items: center;
-    flex: 1;
   }
 
-  /* Cards */
   .card {
-    background: var(--card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 40px;
-    box-shadow: var(--shadow-sm);
-    transition: transform 0.2s;
-    width: 100%;
     max-width: 600px;
     text-align: center;
   }
-  .card:hover { transform: translateY(-2px); }
 
-  /* Navbar */
-  header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 24px;
-    background: var(--card);
-    border-bottom: 1px solid var(--border);
-    width: 100%;
-  }
-  header h1 { margin: 0; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: var(--text); }
-  header h1 i { color: var(--primary); }
-
-  /* Buttons */
-  button { cursor: pointer; font-family: inherit; transition: all 0.2s; }
-  
-  .btn-logout {
-    background: rgba(239, 68, 68, 0.1);
-    color: var(--danger);
-    border: 1px solid var(--danger);
-    padding: 8px 16px;
-    border-radius: 8px;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .btn-logout:hover { background: var(--danger); color: white; }
-
-  /* Status Styles */
-  .status-icon {
-    font-size: 5rem;
-    margin-bottom: 24px;
-    display: inline-block;
-    transition: color 0.3s;
-  }
-  
   .status-title {
     font-size: 2rem;
     font-weight: 700;
     margin: 0 0 8px 0;
-    color: var(--text);
   }
-  
+
   .status-desc {
     color: var(--text-sec);
     font-size: 1.1rem;
     margin: 0 0 32px 0;
   }
 
-  /* Info Grid */
+  .status-icon {
+    font-size: 5rem;
+    margin-bottom: 24px;
+    display: inline-block;
+    transition: color 0.3s;
+  }
+
   .info-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 16px;
     text-align: left;
   }
-  
+
   .info-box {
-    background: rgba(0,0,0,0.2);
+    background: rgba(0, 0, 0, 0.2);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 16px;
   }
-  
+
   .info-label {
     display: block;
     color: var(--text-sec);
@@ -113,107 +53,109 @@
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
-  
+
   .info-val {
     font-size: 1.1rem;
     font-weight: 600;
     color: var(--text);
   }
 
-  /* Loading */
-  #loading {
-    font-size: 1.2rem;
-    color: var(--text-sec);
-    padding: 40px;
+  .animate-fade {
+    animation: fadeIn 0.4s ease-out;
   }
-
-  /* Animation */
-  @keyframes fadeIn { from { opacity:0; transform:translateY(8px)} to { opacity:1; transform:translateY(0)} }
-  .animate-fade { animation: fadeIn 0.4s ease-out; }
 </style>
-</head> <body> <header> <h1><i class="fa-solid fa-heart-pulse"></i> My Health Portal</h1> <button class="btn-logout" onclick="logout()"> <i class="fa-solid fa-right-from-bracket"></i> Logout </button> </header>
+</head>
 
-<div class="container">
-  <div class="card animate-fade">
-    <div id="loading">
-      <i class="fa-solid fa-circle-notch fa-spin" style="margin-bottom: 16px; font-size: 2rem; color: var(--primary);"></i>
-      <p>Retrieving your health records...</p>
-    </div>
-    
-    <div id="content" style="display: none;">
-      <i id="mainIcon" class="status-icon fa-solid fa-circle-question"></i>
-      <div id="statusTitle" class="status-title">Unknown Status</div>
-      <p id="statusDesc" class="status-desc">Fetching details...</p>
+<body>
+  <header>
+    <h1><i class="fa-solid fa-heart-pulse"></i> My Health Portal</h1> <button class="btn-logout" onclick="logout()"> <i
+        class="fa-solid fa-right-from-bracket"></i> Logout </button>
+  </header>
 
-      <div class="info-grid">
-        <div class="info-box">
-          <span class="info-label"><i class="fa-solid fa-user"></i> Patient Name</span>
-          <span id="pName" class="info-val">-</span>
-        </div>
-        <div class="info-box">
-          <span class="info-label"><i class="fa-solid fa-calendar-check"></i> Next Follow-up</span>
-          <span id="pNext" class="info-val">-</span>
+  <div class="container">
+    <div class="card animate-fade">
+      <div id="loading">
+        <i class="fa-solid fa-circle-notch fa-spin"
+          style="margin-bottom: 16px; font-size: 2rem; color: var(--primary);"></i>
+        <p>Retrieving your health records...</p>
+      </div>
+
+      <div id="content" style="display: none;">
+        <i id="mainIcon" class="status-icon fa-solid fa-circle-question"></i>
+        <div id="statusTitle" class="status-title">Unknown Status</div>
+        <p id="statusDesc" class="status-desc">Fetching details...</p>
+
+        <div class="info-grid">
+          <div class="info-box">
+            <span class="info-label"><i class="fa-solid fa-user"></i> Patient Name</span>
+            <span id="pName" class="info-val">-</span>
+          </div>
+          <div class="info-box">
+            <span class="info-label"><i class="fa-solid fa-calendar-check"></i> Next Follow-up</span>
+            <span id="pNext" class="info-val">-</span>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<script>
-  const API = window.location.origin;
-  const TOKEN = localStorage.getItem('token');
-  if(!TOKEN) window.location.href="/";
+  <script>
+    const API = window.location.origin;
+    const TOKEN = localStorage.getItem('token');
+    if (!TOKEN) window.location.href = "/";
 
-  async function loadData() {
-    try {
-      const res = await fetch(`${API}/patient/me`, { 
-        headers: { 'Authorization': `Bearer ${TOKEN}` } 
-      });
-      if(!res.ok) throw new Error("Failed to load");
-      
-      const data = await res.json();
-      
-      // Update UI Text
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('content').style.display = 'block';
-      
-      document.getElementById('pName').innerText = data.full_name;
-      document.getElementById('pNext').innerText = data.next_visit || "Not Scheduled";
-      document.getElementById('statusTitle').innerText = data.status;
-      document.getElementById('statusDesc').innerText = data.details;
+    async function loadData() {
+      try {
+        const res = await fetch(`${API}/patient/me`, {
+          headers: { 'Authorization': `Bearer ${TOKEN}` }
+        });
+        if (!res.ok) throw new Error("Failed to load");
 
-      // Dynamic Icon & Styling
-      const icon = document.getElementById('mainIcon');
-      const title = document.getElementById('statusTitle');
+        const data = await res.json();
 
-      if (data.status === 'Admitted') {
-        icon.className = 'status-icon fa-solid fa-bed-pulse';
-        icon.style.color = 'var(--danger)';
-        title.style.color = 'var(--danger)';
-      } else if (data.status === 'In Queue') {
-        icon.className = 'status-icon fa-solid fa-user-clock';
-        icon.style.color = 'var(--warning)';
-        title.style.color = 'var(--warning)';
-      } else {
-        icon.className = 'status-icon fa-solid fa-house-circle-check';
-        icon.style.color = 'var(--success)';
-        title.style.color = 'var(--success)';
-      }
+        // Update UI Text
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
 
-    } catch(e) {
-      const loader = document.getElementById('loading');
-      loader.innerHTML = `
+        document.getElementById('pName').innerText = data.full_name;
+        document.getElementById('pNext').innerText = data.next_visit || "Not Scheduled";
+        document.getElementById('statusTitle').innerText = data.status;
+        document.getElementById('statusDesc').innerText = data.details;
+
+        // Dynamic Icon & Styling
+        const icon = document.getElementById('mainIcon');
+        const title = document.getElementById('statusTitle');
+
+        if (data.status === 'Admitted') {
+          icon.className = 'status-icon fa-solid fa-bed-pulse';
+          icon.style.color = 'var(--danger)';
+          title.style.color = 'var(--danger)';
+        } else if (data.status === 'In Queue') {
+          icon.className = 'status-icon fa-solid fa-user-clock';
+          icon.style.color = 'var(--warning)';
+          title.style.color = 'var(--warning)';
+        } else {
+          icon.className = 'status-icon fa-solid fa-house-circle-check';
+          icon.style.color = 'var(--success)';
+          title.style.color = 'var(--success)';
+        }
+
+      } catch (e) {
+        const loader = document.getElementById('loading');
+        loader.innerHTML = `
         <i class="fa-solid fa-triangle-exclamation" style="font-size: 3rem; color: var(--danger); margin-bottom: 16px;"></i>
         <p>Connection Error. Please try logging in again.</p>
       `;
+      }
     }
-  }
 
-  function logout() { 
-    localStorage.clear(); 
-    window.location.href="/"; 
-  }
-  
-  loadData();
-</script>
-</body> </html>
+    function logout() {
+      localStorage.clear();
+      window.location.href = "/";
+    }
+
+    loadData();
+  </script>
+</body>
+
+</html>

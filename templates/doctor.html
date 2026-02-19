@@ -1,556 +1,158 @@
 <!doctype html>
 
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Doctor Dashboard - MediSync</title>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
-    />
-    <style>
-      /* --- DESIGN SYSTEM START --- */
-      :root {
-        --bg: #0a0e17;
-        --card: #141b2d;
-        --border: #253347;
-        --text: #e2e8f0;
-        --text-sec: #94a3b8;
-        --primary: #3b82f6;
-        --primary-h: #2563eb;
-        --success: #10b981;
-        --warning: #f59e0b;
-        --danger: #ef4444;
-        --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
-        --radius: 12px;
-      }
 
-      * {
-        box-sizing: border-box;
-      }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Doctor Dashboard - MediSync</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <style>
+    /* Page Specific overrides */
+    body {
+      height: 100vh;
+      overflow: hidden;
+    }
 
-      body {
-        background: var(--bg);
-        color: var(--text);
-        font-family:
-          system-ui,
-          -apple-system,
-          sans-serif;
-        line-height: 1.5;
-        margin: 0;
-        height: 100vh;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden; /* App-like feel */
-      }
+    .container {
+      max-width: 100%;
+      padding: 16px 24px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+  </style>
+</head>
 
-      .container {
-        max-width: 100%;
-        padding: 16px 24px;
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        overflow: hidden;
-      }
+<body>
+  <header class="top-nav">
+    <h1><i class="fa-solid fa-user-doctor"></i> Doctor Console</h1>
+    <button onclick="logout()" class="action btn-danger" style="width: auto">
+      <i class="fa-solid fa-right-from-bracket"></i> Logout
+    </button>
+  </header>
 
-      /* Cards */
-      .card {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 24px;
-        box-shadow: var(--shadow-sm);
-        transition: transform 0.2s;
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-        min-height: 0;   
-        overflow: hidden;
-      }
-      /* .card:hover { transform: translateY(-2px); } Removed hover for main layout panels */
+  <div class="container">
+    <div class="dashboard-grid">
+      <aside class="card">
+        <div class="panel-header">
+          <h2>
+            <i class="fa-solid fa-clipboard-list"></i> Waiting List
+            <span id="q-count" style="color: var(--primary)">(0)</span>
+          </h2>
+        </div>
+        <div id="queue-list" class="scroll-area"></div>
+      </aside>
 
-      /* Buttons */
-      button {
-        cursor: pointer;
-        font-family: inherit;
-        transition: all 0.2s;
-      }
-
-      button.action {
-        padding: 10px 16px;
-        background: var(--success);
-        color: white;
-        border: none;
-        border-radius: var(--radius);
-        font-weight: 600;
-        width: 100%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 8px;
-        font-size: 0.9rem;
-      }
-      button.action:hover {
-        filter: brightness(1.1);
-      }
-
-      .btn-danger {
-        background: rgba(239, 68, 68, 0.1);
-        color: var(--danger);
-        border: 1px solid rgba(239, 68, 68, 0.2);
-      }
-      .btn-danger:hover {
-        background: var(--danger);
-        color: white;
-      }
-
-      .btn-warning {
-        background: rgba(245, 158, 11, 0.1);
-        color: var(--warning);
-        border: 1px solid rgba(245, 158, 11, 0.2);
-      }
-      .btn-warning:hover {
-        background: var(--warning);
-        color: #000;
-      }
-
-      .btn-primary {
-        background: var(--primary);
-        color: white;
-        border: none;
-      }
-      .btn-primary:hover {
-        background: var(--primary-h);
-      }
-
-      /* Floating Labels & Forms */
-      .form-group {
-        position: relative;
-        margin-bottom: 20px;
-      }
-
-      .form-group input,
-      .form-group select {
-        width: 100%;
-        padding: 24px 16px 8px 16px;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        color: var(--text);
-        font-size: 1rem;
-        outline: none;
-        transition: border-color 0.2s;
-        appearance: none;
-      }
-
-      .form-group input:focus,
-      .form-group select:focus {
-        border-color: var(--primary);
-      }
-
-      .form-group label {
-        position: absolute;
-        top: 50%;
-        left: 16px;
-        transform: translateY(-50%);
-        color: var(--text-sec);
-        pointer-events: none;
-        transition: all 0.2s ease;
-        font-size: 1rem;
-      }
-
-      .form-group input:focus + label,
-      .form-group input:not(:placeholder-shown) + label,
-      .form-group select:focus + label,
-      .form-group select:valid + label {
-        top: 14px;
-        font-size: 0.75rem;
-        color: var(--primary);
-        transform: translateY(-50%);
-        font-weight: 600;
-      }
-      option {
-        background-color: var(--card);
-        color: var(--text);
-      }
-
-      /* selected option (works in most browsers) */
-      option:checked {
-        background-color: var(--primary);
-        color: #ffffff;
-      }
-
-      /* Navbar */
-      header.top-nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 24px;
-        background: var(--bg);
-        border-bottom: 1px solid var(--border);
-        z-index: 10;
-      }
-      header.top-nav h1 {
-        margin: 0;
-        font-size: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      /* Layout Grid */
-      .dashboard-grid {
-        display: grid;
-        grid-template-columns: 350px 1fr 320px;
-        gap: 20px;
-        height: 100%;
-        overflow: hidden;
-        margin-top: 16px;
-      }
-
-      @media (max-width: 1200px) {
-        .dashboard-grid {
-          grid-template-columns: 300px 1fr;
-        }
-        .pharmacy-panel {
-          display: none;
-        }
-      }
-
-      /* Panel Specifics */
-      .panel-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 16px;
-        padding-bottom: 12px;
-        border-bottom: 1px solid var(--border);
-      }
-      .panel-header h2 {
-        margin: 0;
-        font-size: 1.1rem;
-        color: var(--text-sec);
-        font-weight: 600;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-      }
-
-      .scroll-area {
-        overflow-y: auto;
-        flex: 1;
-        padding-right: 8px;
-      }
-
-      /* Scrollbar Styling */
-      .scroll-area::-webkit-scrollbar {
-        width: 6px;
-      }
-      .scroll-area::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .scroll-area::-webkit-scrollbar-thumb {
-        background: var(--border);
-        border-radius: 3px;
-      }
-      .scroll-area::-webkit-scrollbar-thumb:hover {
-        background: var(--text-sec);
-      }
-
-      /* Queue Items */
-      .queue-item {
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 16px;
-        margin-bottom: 12px;
-        display: flex;
-        flex-direction: column;
-        gap: 10px;
-        transition: border-color 0.2s;
-      }
-      .queue-item:hover {
-        border-color: var(--primary);
-      }
-      .queue-item.critical {
-        border-left: 3px solid var(--danger);
-      }
-      .queue-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-      .severity-badge {
-        font-size: 0.75rem;
-        padding: 2px 8px;
-        border-radius: 4px;
-        background: rgba(255, 255, 255, 0.05);
-      }
-
-      /* Bed Grid */
-      .bed-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 16px;
-        margin-bottom: 32px;
-      }
-
-      .bed-card {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        padding: 16px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        position: relative;
-      }
-      .bed-card.occupied {
-        border-top: 3px solid var(--danger);
-      }
-      .bed-card.available {
-        border-top: 3px solid var(--success);
-      }
-
-      .bed-icon {
-        font-size: 1.5rem;
-        margin-bottom: 8px;
-        color: var(--text-sec);
-      }
-      .occupied .bed-icon {
-        color: var(--danger);
-      }
-      .available .bed-icon {
-        color: var(--success);
-      }
-
-      .bed-actions {
-        display: flex;
-        gap: 8px;
-        width: 100%;
-        margin-top: 12px;
-      }
-      .bed-actions button {
-        flex: 1;
-        font-size: 0.8rem;
-        padding: 6px;
-      }
-
-      /* Inventory Items */
-      .inv-item {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 12px;
-        border-bottom: 1px solid var(--border);
-        transition: background 0.2s;
-      }
-      .inv-item:hover {
-        background: rgba(255, 255, 255, 0.02);
-      }
-      .inv-meta {
-        display: flex;
-        flex-direction: column;
-      }
-      .inv-name {
-        font-weight: 500;
-      }
-      .inv-qty {
-        font-size: 0.8rem;
-        color: var(--text-sec);
-      }
-
-      /* Modal */
-      .modal {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(10, 14, 23, 0.85);
-        backdrop-filter: blur(4px);
-        z-index: 2000;
-        align-items: center;
-        justify-content: center;
-      }
-      .modal.active {
-        display: flex;
-        animation: fadeIn 0.3s;
-      }
-      .modal-content {
-        background: var(--card);
-        border: 1px solid var(--border);
-        border-radius: var(--radius);
-        width: 100%;
-        max-width: 400px;
-        padding: 32px;
-        position: relative;
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <header class="top-nav">
-      <h1><i class="fa-solid fa-user-doctor"></i> Doctor Console</h1>
-      <button onclick="logout()" class="action btn-danger" style="width: auto">
-        <i class="fa-solid fa-right-from-bracket"></i> Logout
-      </button>
-    </header>
-
-    <div class="container">
-      <div class="dashboard-grid">
-        <aside class="card">
-          <div class="panel-header">
-            <h2>
-              <i class="fa-solid fa-clipboard-list"></i> Waiting List
-              <span id="q-count" style="color: var(--primary)">(0)</span>
-            </h2>
-          </div>
-          <div id="queue-list" class="scroll-area"></div>
-        </aside>
-
-        <main
-          class="card"
-          style="
-            background: var(--bg);
-            border: none;
-            box-shadow: none;
-            padding: 0;
-          "
-        >
-          <div class="scroll-area" style="padding-right: 12px">
-            <div
-              class="panel-header"
-              style="
+      <main class="card"
+        style="height: calc(100vh - 140px); overflow: hidden; display: flex; flex-direction: column; box-shadow: none; padding: 0;">
+        <div class="scroll-area" style="padding-right: 12px">
+          <div class="panel-header" style="
                 background: var(--card);
                 padding: 16px;
                 border-radius: var(--radius);
                 border: 1px solid var(--border);
                 margin-bottom: 24px;
-              "
-            >
-              <h2 style="margin: 0">
-                <i
-                  class="fa-solid fa-procedures"
-                  style="color: var(--danger)"
-                ></i>
-                ICU Ward
-              </h2>
-            </div>
-            <div id="icu-grid" class="bed-grid"></div>
+              ">
+            <h2 style="margin: 0">
+              <i class="fa-solid fa-procedures" style="color: var(--danger)"></i>
+              ICU Ward
+            </h2>
+          </div>
+          <div id="icu-grid" class="bed-grid"></div>
 
-            <div
-              class="panel-header"
-              style="
+          <div class="panel-header" style="
                 background: var(--card);
                 padding: 16px;
                 border-radius: var(--radius);
                 border: 1px solid var(--border);
                 margin-bottom: 24px;
                 margin-top: 40px;
-              "
-            >
-              <h2 style="margin: 0">
-                <i class="fa-solid fa-bed" style="color: var(--primary)"></i>
-                General Ward
-              </h2>
-            </div>
-            <div id="gen-grid" class="bed-grid"></div>
-          </div>
-        </main>
-
-        <aside class="card pharmacy-panel">
-          <div class="panel-header">
-            <h2>
-              <i class="fa-solid fa-prescription-bottle-medical"></i> Pharmacy
+              ">
+            <h2 style="margin: 0">
+              <i class="fa-solid fa-bed" style="color: var(--primary)"></i>
+              General Ward
             </h2>
           </div>
-          <p
-            style="
+          <div id="gen-grid" class="bed-grid"></div>
+        </div>
+      </main>
+
+      <aside class="card pharmacy-panel">
+        <div class="panel-header">
+          <h2>
+            <i class="fa-solid fa-prescription-bottle-medical"></i> Pharmacy
+          </h2>
+        </div>
+        <p style="
               color: var(--text-sec);
               font-size: 0.85rem;
               margin-bottom: 16px;
-            "
-          >
-            <i class="fa-solid fa-circle-info"></i> Select item to dispense
-          </p>
-          <div id="inventory-list" class="scroll-area"></div>
-        </aside>
-      </div>
+            ">
+          <i class="fa-solid fa-circle-info"></i> Select item to dispense
+        </p>
+        <div id="inventory-list" class="scroll-area"></div>
+      </aside>
     </div>
+  </div>
 
-    <div id="actionModal" class="modal">
-      <div class="modal-content">
-        <h3 id="modalTitle" style="margin-top: 0; margin-bottom: 20px">
-          Action
-        </h3>
-        <form id="modalForm">
-          <input type="hidden" id="modalActionType" />
-          <input type="hidden" id="modalTargetId" />
-          <input type="hidden" id="modalExtra" />
+  <div id="actionModal" class="modal">
+    <div class="modal-content">
+      <h3 id="modalTitle" style="margin-top: 0; margin-bottom: 20px">
+        Action
+      </h3>
+      <form id="modalForm">
+        <input type="hidden" id="modalActionType" />
+        <input type="hidden" id="modalTargetId" />
+        <input type="hidden" id="modalExtra" />
 
-          <div id="modalInputs"></div>
+        <div id="modalInputs"></div>
 
-          <div style="display: flex; gap: 12px; margin-top: 24px">
-            <button
-              type="button"
-              class="action btn-danger"
-              onclick="closeModal()"
-            >
-              Cancel
-            </button>
-            <button type="submit" class="action btn-primary">Confirm</button>
-          </div>
-        </form>
-      </div>
+        <div style="display: flex; gap: 12px; margin-top: 24px">
+          <button type="button" class="action btn-danger" onclick="closeModal()">
+            Cancel
+          </button>
+          <button type="submit" class="action btn-primary">Confirm</button>
+        </div>
+      </form>
     </div>
+  </div>
 
-    <script>
-      const API_URL = window.location.origin;
-      const TOKEN = localStorage.getItem("token");
-      const HOSP_ID = localStorage.getItem("hospital_id");
+  <script>
+    const API_URL = window.location.origin;
+    const TOKEN = localStorage.getItem("token");
+    const HOSP_ID = localStorage.getItem("hospital_id");
 
-      if (!TOKEN) window.location.href = "/";
+    if (!TOKEN) window.location.href = "/";
 
-      // --- 1. INITIAL LOAD ---
-      async function refreshAll() {
-        await Promise.all([loadQueue(), loadBeds(), loadInventory()]);
-      }
+    // --- 1. INITIAL LOAD ---
+    async function refreshAll() {
+      await Promise.all([loadQueue(), loadBeds(), loadInventory()]);
+    }
 
-      // --- 2. BEDS LOGIC ---
-      async function loadBeds() {
-        try {
-          const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/beds`, {
-            headers: { Authorization: `Bearer ${TOKEN}` },
-          });
-          const beds = await res.json();
+    // --- 2. BEDS LOGIC ---
+    async function loadBeds() {
+      try {
+        const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/beds`, {
+          headers: { Authorization: `Bearer ${TOKEN}` },
+        });
+        const beds = await res.json();
 
-          const icu = document.getElementById("icu-grid");
-          const gen = document.getElementById("gen-grid");
-          icu.innerHTML = "";
-          gen.innerHTML = "";
+        const icu = document.getElementById("icu-grid");
+        const gen = document.getElementById("gen-grid");
+        icu.innerHTML = "";
+        gen.innerHTML = "";
 
-          beds.forEach((b) => {
-            const isOccupied = b.status === "OCCUPIED";
-            const targetType = b.bed_type === "ICU" ? "GENERAL" : "ICU";
-            const targetLabel = b.bed_type === "ICU" ? "Gen Ward" : "ICU";
+        beds.forEach((b) => {
+          const isOccupied = b.status === "OCCUPIED";
+          const targetType = b.bed_type === "ICU" ? "GENERAL" : "ICU";
+          const targetLabel = b.bed_type === "ICU" ? "Gen Ward" : "ICU";
 
-            let content = "";
+          let content = "";
 
-            if (isOccupied) {
-              content = `
+          if (isOccupied) {
+            content = `
                 <i class="fa-solid fa-bed-pulse bed-icon"></i>
                 <div style="font-weight:700; font-size:1.1rem; margin-bottom:4px;">Bed ${b.bed_number}</div>
                 <div style="background:rgba(59,130,246,0.1); color:var(--primary); padding:2px 8px; border-radius:4px; font-size:0.8rem; margin-bottom:8px;">
@@ -565,44 +167,44 @@
                     </button>
                 </div>
             `;
-            } else {
-              content = `
+          } else {
+            content = `
                 <i class="fa-solid fa-check-circle bed-icon"></i>
                 <div style="font-weight:700; font-size:1.1rem;">Bed ${b.bed_number}</div>
                 <div style="color:var(--success); font-size:0.85rem; margin-top:4px;">Available</div>
             `;
-            }
-
-            const html = `<div class="bed-card ${isOccupied ? "occupied" : "available"}">${content}</div>`;
-
-            if (b.bed_type === "ICU") icu.innerHTML += html;
-            else gen.innerHTML += html;
-          });
-        } catch (e) {
-          console.error(e);
-        }
-      }
-
-      // --- 3. QUEUE LOGIC ---
-      async function loadQueue() {
-        try {
-          const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/queue`, {
-            headers: { Authorization: `Bearer ${TOKEN}` },
-          });
-          const queue = await res.json();
-          document.getElementById("q-count").innerText = `(${queue.length})`;
-
-          const list = document.getElementById("queue-list");
-          list.innerHTML = "";
-
-          if (queue.length === 0) {
-            list.innerHTML = `<div style="text-align:center; color:var(--text-sec); padding:20px;">No patients waiting</div>`;
-            return;
           }
 
-          queue.forEach((p) => {
-            const isCritical = p.severity >= 7;
-            list.innerHTML += `
+          const html = `<div class="bed-card ${isOccupied ? "occupied" : "available"}">${content}</div>`;
+
+          if (b.bed_type === "ICU") icu.innerHTML += html;
+          else gen.innerHTML += html;
+        });
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // --- 3. QUEUE LOGIC ---
+    async function loadQueue() {
+      try {
+        const res = await fetch(`${API_URL}/hospital/${HOSP_ID}/queue`, {
+          headers: { Authorization: `Bearer ${TOKEN}` },
+        });
+        const queue = await res.json();
+        document.getElementById("q-count").innerText = `(${queue.length})`;
+
+        const list = document.getElementById("queue-list");
+        list.innerHTML = "";
+
+        if (queue.length === 0) {
+          list.innerHTML = `<div style="text-align:center; color:var(--text-sec); padding:20px;">No patients waiting</div>`;
+          return;
+        }
+
+        queue.forEach((p) => {
+          const isCritical = p.severity >= 7;
+          list.innerHTML += `
                 <div class="queue-item ${isCritical ? "critical" : ""}">
                     <div class="queue-header">
                         <span style="font-weight:700"><i class="fa-solid fa-user-injured"></i> #${p.patient_id}</span>
@@ -615,30 +217,30 @@
                     </button>
                 </div>
             `;
-          });
-        } catch (e) {
-          console.error(e);
-        }
+        });
+      } catch (e) {
+        console.error(e);
       }
+    }
 
-      // --- 4. INVENTORY LOGIC ---
-      async function loadInventory() {
-        try {
-          const res = await fetch(`${API_URL}/analytics/inventory`, {
-            headers: { Authorization: `Bearer ${TOKEN}` },
-          });
-          const data = await res.json();
-          const list = document.getElementById("inventory-list");
-          list.innerHTML = "";
+    // --- 4. INVENTORY LOGIC ---
+    async function loadInventory() {
+      try {
+        const res = await fetch(`${API_URL}/analytics/inventory`, {
+          headers: { Authorization: `Bearer ${TOKEN}` },
+        });
+        const data = await res.json();
+        const list = document.getElementById("inventory-list");
+        list.innerHTML = "";
 
-          if (data.length === 0) {
-            list.innerHTML = `<div style="text-align:center; color:var(--text-sec); padding:20px;">Stock Empty</div>`;
-            return;
-          }
+        if (data.length === 0) {
+          list.innerHTML = `<div style="text-align:center; color:var(--text-sec); padding:20px;">Stock Empty</div>`;
+          return;
+        }
 
-          data.forEach((item) => {
-            const disabled = item.qty <= 0;
-            list.innerHTML += `
+        data.forEach((item) => {
+          const disabled = item.qty <= 0;
+          list.innerHTML += `
                 <div class="inv-item" style="${disabled ? "opacity:0.5" : ""}">
                     <div class="inv-meta">
                         <span class="inv-name">${item.name}</span>
@@ -650,29 +252,29 @@
                         Use
                     </button>
                 </div>`;
-          });
-        } catch (e) {
-          console.error(e);
-        }
+        });
+      } catch (e) {
+        console.error(e);
       }
+    }
 
-      // --- 5. MODAL SYSTEM (Replaces prompts/confirms) ---
-      const modal = document.getElementById("actionModal");
-      const modalForm = document.getElementById("modalForm");
-      const modalTitle = document.getElementById("modalTitle");
-      const modalInputs = document.getElementById("modalInputs");
+    // --- 5. MODAL SYSTEM (Replaces prompts/confirms) ---
+    const modal = document.getElementById("actionModal");
+    const modalForm = document.getElementById("modalForm");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalInputs = document.getElementById("modalInputs");
 
-      function closeModal() {
-        modal.classList.remove("active");
-        modalInputs.innerHTML = "";
-      }
+    function closeModal() {
+      modal.classList.remove("active");
+      modalInputs.innerHTML = "";
+    }
 
-      // Admit Modal
-      window.openAdmitModal = (queueId) => {
-        document.getElementById("modalActionType").value = "ADMIT";
-        document.getElementById("modalTargetId").value = queueId;
-        modalTitle.innerText = "Admit Patient";
-        modalInputs.innerHTML = `
+    // Admit Modal
+    window.openAdmitModal = (queueId) => {
+      document.getElementById("modalActionType").value = "ADMIT";
+      document.getElementById("modalTargetId").value = queueId;
+      modalTitle.innerText = "Admit Patient";
+      modalInputs.innerHTML = `
         <div class="form-group">
             <select id="admitType" required>
                 <option value="" disabled selected hidden></option>
@@ -683,120 +285,121 @@
             <i class="fa-solid fa-chevron-down" style="position: absolute; right: 16px; top: 50%; transform: translateY(-50%); color: var(--text-sec); pointer-events: none; font-size: 0.8rem;"></i>
         </div>
     `;
-        modal.classList.add("active");
-      };
+      modal.classList.add("active");
+    };
 
-      // Dispense Modal
-      window.openDispenseModal = (itemId, itemName) => {
-        document.getElementById("modalActionType").value = "DISPENSE";
-        document.getElementById("modalTargetId").value = itemId;
-        modalTitle.innerText = `Dispense: ${itemName}`;
-        modalInputs.innerHTML = `
+    // Dispense Modal
+    window.openDispenseModal = (itemId, itemName) => {
+      document.getElementById("modalActionType").value = "DISPENSE";
+      document.getElementById("modalTargetId").value = itemId;
+      modalTitle.innerText = `Dispense: ${itemName}`;
+      modalInputs.innerHTML = `
         <div class="form-group">
             <input type="number" id="dispenseQty" placeholder=" " min="1" required>
             <label for="dispenseQty">Quantity to Dispense</label>
         </div>
     `;
-        modal.classList.add("active");
-      };
+      modal.classList.add("active");
+    };
 
-      // Transfer Modal
-      window.openTransferModal = (bedId, targetType, targetLabel) => {
-        document.getElementById("modalActionType").value = "TRANSFER";
-        document.getElementById("modalTargetId").value = bedId;
-        document.getElementById("modalExtra").value = targetType;
-        modalTitle.innerText = "Transfer Patient";
-        modalInputs.innerHTML = `
+    // Transfer Modal
+    window.openTransferModal = (bedId, targetType, targetLabel) => {
+      document.getElementById("modalActionType").value = "TRANSFER";
+      document.getElementById("modalTargetId").value = bedId;
+      document.getElementById("modalExtra").value = targetType;
+      modalTitle.innerText = "Transfer Patient";
+      modalInputs.innerHTML = `
         <p style="color:var(--text); margin-bottom:20px;">
             Are you sure you want to transfer this patient to <strong>${targetLabel}</strong>?
         </p>
     `;
-        modal.classList.add("active");
-      };
+      modal.classList.add("active");
+    };
 
-      // Discharge Modal
-      window.openDischargeModal = (bedId) => {
-        document.getElementById("modalActionType").value = "DISCHARGE";
-        document.getElementById("modalTargetId").value = bedId;
-        modalTitle.innerText = "Discharge Patient";
-        modalInputs.innerHTML = `
+    // Discharge Modal
+    window.openDischargeModal = (bedId) => {
+      document.getElementById("modalActionType").value = "DISCHARGE";
+      document.getElementById("modalTargetId").value = bedId;
+      modalTitle.innerText = "Discharge Patient";
+      modalInputs.innerHTML = `
         <p style="color:var(--text); margin-bottom:20px;">
             Confirm discharge for this patient? This action will free up the bed.
         </p>
     `;
-        modal.classList.add("active");
-      };
+      modal.classList.add("active");
+    };
 
-      // Handle Form Submit
-      modalForm.addEventListener("submit", async (e) => {
-        e.preventDefault();
-        const type = document.getElementById("modalActionType").value;
-        const targetId = document.getElementById("modalTargetId").value;
-        const extra = document.getElementById("modalExtra").value;
+    // Handle Form Submit
+    modalForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const type = document.getElementById("modalActionType").value;
+      const targetId = document.getElementById("modalTargetId").value;
+      const extra = document.getElementById("modalExtra").value;
 
-        try {
-          if (type === "ADMIT") {
-            const bedType = document.getElementById("admitType").value;
-            await fetch(`${API_URL}/hospital/admit-patient`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${TOKEN}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ queue_id: targetId, bed_type: bedType }),
-            });
-          } else if (type === "DISPENSE") {
-            const qty = document.getElementById("dispenseQty").value;
-            await fetch(`${API_URL}/analytics/inventory/use`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${TOKEN}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                item_id: targetId,
-                quantity: parseInt(qty),
-              }),
-            });
-          } else if (type === "TRANSFER") {
-            const res = await fetch(`${API_URL}/hospital/transfer-patient`, {
-              method: "POST",
-              headers: {
-                Authorization: `Bearer ${TOKEN}`,
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({
-                current_bed_id: targetId,
-                target_bed_type: extra,
-              }),
-            });
-            if (!res.ok) {
-              const err = await res.json();
-              alert("Transfer Failed: " + err.detail);
-            }
-          } else if (type === "DISCHARGE") {
-            await fetch(`${API_URL}/hospital/discharge-patient/${targetId}`, {
-              method: "POST",
-              headers: { Authorization: `Bearer ${TOKEN}` },
-            });
+      try {
+        if (type === "ADMIT") {
+          const bedType = document.getElementById("admitType").value;
+          await fetch(`${API_URL}/hospital/admit-patient`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ queue_id: targetId, bed_type: bedType }),
+          });
+        } else if (type === "DISPENSE") {
+          const qty = document.getElementById("dispenseQty").value;
+          await fetch(`${API_URL}/analytics/inventory/use`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              item_id: targetId,
+              quantity: parseInt(qty),
+            }),
+          });
+        } else if (type === "TRANSFER") {
+          const res = await fetch(`${API_URL}/hospital/transfer-patient`, {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${TOKEN}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              current_bed_id: targetId,
+              target_bed_type: extra,
+            }),
+          });
+          if (!res.ok) {
+            const err = await res.json();
+            alert("Transfer Failed: " + err.detail);
           }
-
-          closeModal();
-          refreshAll();
-        } catch (err) {
-          console.error(err);
-          alert("Action failed. Check console.");
+        } else if (type === "DISCHARGE") {
+          await fetch(`${API_URL}/hospital/discharge-patient/${targetId}`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${TOKEN}` },
+          });
         }
-      });
 
-      function logout() {
-        localStorage.clear();
-        window.location.href = "/";
+        closeModal();
+        refreshAll();
+      } catch (err) {
+        console.error(err);
+        alert("Action failed. Check console.");
       }
+    });
 
-      // Start
-      refreshAll();
-      setInterval(refreshAll, 5000);
-    </script>
-  </body>
+    function logout() {
+      localStorage.clear();
+      window.location.href = "/";
+    }
+
+    // Start
+    refreshAll();
+    setInterval(refreshAll, 5000);
+  </script>
+</body>
+
 </html>
